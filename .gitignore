@@ -1,0 +1,35 @@
+# Ignore data files
+data/logs/*
+data/cache/*
+data/published/*
+
+# Keep directory structure
+!data/logs/.gitkeep
+!data/cache/.gitkeep
+!data/published/.gitkeep
+
+# Ignore config with sensitive data
+config/settings.local.json
+config/api-keys.json
+
+# PowerShell artifacts
+*.ps1~
+*.psm1~
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dependencies
+node_modules/
+vendor/
+
+# Test artifacts
+TestResults/
+coverage/
