@@ -1,24 +1,18 @@
 // projects.js - Projects CRUD + rendering
-import { updateState, generateId } from './state.js';
+import { getState, updateState, generateId } from './state.js';
 import { escapeHtml } from './ui.js';
 
-let appState = null;
-
-export function setAppState(state) {
-  appState = state;
-}
-
-export function initProjects(state) {
-  appState = state;
+export function initProjects() {
   renderProjects();
 }
 
 export function renderProjects() {
   const container = document.getElementById('projectsList');
-  if (!container || !appState) return;
+  const state = getState();
+  if (!container || !state) return;
 
-  const workspaceProjects = appState.projects.filter(p =>
-    p.workspace === appState.currentWorkspace || !p.workspace
+  const workspaceProjects = state.projects.filter(p =>
+    p.workspace === state.currentWorkspace || !p.workspace
   );
 
   if (workspaceProjects.length === 0) {
@@ -37,7 +31,7 @@ export function renderProjects() {
     const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
     return `
-      <div class="project-card" data-id="${project.id}" 
+      <div class="project-card" data-id="${project.id}"
            style="border-left: 4px solid ${project.color || '#4285f4'}"
            oncontextmenu="window.showProjectAIMenu(event, '${project.id}'); return false;">
         <div class="project-header">
@@ -64,42 +58,36 @@ export function renderProjects() {
       </div>
     `;
   }).join('');
-
-  // Enable AI context menu if available
-  if (window.initProjectAIMenu) {
-    window.initProjectAIMenu();
-  }
 }
 
 export function addProject(project) {
-  if (!appState) return;
+  const state = getState();
+  if (!state) return;
   const newProject = {
     id: generateId(),
     name: project.name,
     description: project.description || '',
     color: project.color || '#4285f4',
     tasks: [],
-    workspace: appState.currentWorkspace,
+    workspace: state.currentWorkspace,
     createdAt: new Date().toISOString()
   };
-  updateState(appState, s => s.projects.push(newProject));
+  updateState(s => s.projects.push(newProject));
   renderProjects();
 }
 
 export function deleteProject(id) {
-  if (!appState) return;
-  updateState(appState, s => {
+  updateState(s => {
     s.projects = s.projects.filter(p => p.id !== id);
   });
   renderProjects();
 }
 
 export function editProject(id) {
-  if (!appState) return;
   window.openModal?.('projectModal');
 }
 
 window.deleteProject = deleteProject;
 window.editProject = editProject;
 
-export default { initProjects, renderProjects, addProject, deleteProject, editProject, setAppState };
+export default { initProjects, renderProjects, addProject, deleteProject, editProject };

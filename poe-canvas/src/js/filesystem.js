@@ -1,24 +1,21 @@
 // filesystem.js - Real filesystem access via Node bridge
+import { getState } from './state.js';
+import { escapeHtml } from './ui.js';
 
 const BRIDGE_URL = 'http://localhost:3456';
-
-let appState = null;
-
-export function setAppState(state) {
-  appState = state;
-}
 
 export async function checkFilesystemBridge() {
   const statusEl = document.getElementById('bridgeStatus');
   const statusText = document.getElementById('bridgeStatusText');
-  
+  const state = getState();
+
   try {
     const res = await fetch(`${BRIDGE_URL}/status`, { signal: AbortSignal.timeout(2000) });
     if (res.ok) {
       const data = await res.json();
-      if (appState) {
-        appState.fs.bridgeConnected = true;
-        appState.fs.paths = data.paths;
+      if (state) {
+        state.fs.bridgeConnected = true;
+        state.fs.paths = data.paths;
       }
       if (statusEl) statusEl.style.display = 'none';
       return true;
@@ -26,8 +23,8 @@ export async function checkFilesystemBridge() {
   } catch (e) {
     console.log('Bridge not available');
   }
-  
-  if (appState) appState.fs.bridgeConnected = false;
+
+  if (state) state.fs.bridgeConnected = false;
   if (statusEl) {
     statusEl.style.display = 'block';
     statusEl.style.background = 'rgba(234,67,53,0.1)';
@@ -39,18 +36,19 @@ export async function checkFilesystemBridge() {
 }
 
 export async function loadDirectory(dirPath) {
-  if (!appState?.fs.bridgeConnected) {
+  const state = getState();
+  if (!state?.fs.bridgeConnected) {
     const connected = await checkFilesystemBridge();
     if (!connected) return;
   }
-  
+
   try {
     const res = await fetch(`${BRIDGE_URL}/list?path=${encodeURIComponent(dirPath)}`);
     if (res.ok) {
       const data = await res.json();
-      if (appState) {
-        appState.fs.currentPath = data.path;
-        appState.fs.realFiles = data.files;
+      if (state) {
+        state.fs.currentPath = data.path;
+        state.fs.realFiles = data.files;
       }
       renderRealFiles(data.files);
       
@@ -88,12 +86,6 @@ export function renderRealFiles(files) {
   `).join('');
 }
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
 function getFileIcon(type) {
   const icons = {
     folder: 'folder',
@@ -126,9 +118,10 @@ export async function openFile(filePath) {
 }
 
 export function goUpDirectory() {
-  if (!appState?.fs.currentPath) return;
-  const parentPath = appState.fs.currentPath.split(/[\/\\]/).slice(0, -1).join('\\');
+  const state = getState();
+  if (!state?.fs.currentPath) return;
+  const parentPath = state.fs.currentPath.split(/[\/\\]/).slice(0, -1).join('\\');
   if (parentPath) loadDirectory(parentPath);
 }
 
-export default { checkFilesystemBridge, loadDirectory, openFile, goUpDirectory, setAppState };
+export default { checkFilesystemBridge, loadDirectory, openFile, goUpDirectory };

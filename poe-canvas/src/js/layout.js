@@ -1,26 +1,21 @@
 // layout.js - Layout planner (drag/drop zones)
-import { updateState, generateId } from './state.js';
+import { getState, updateState, generateId } from './state.js';
 
-let appState = null;
-
-export function setAppState(state) {
-  appState = state;
-}
-
-export function initLayout(state) {
-  appState = state;
+export function initLayout() {
+  // Layout initialization
 }
 
 export function renderLayout() {
-  if (!appState) return;
-  
+  const state = getState();
+  if (!state) return;
+
   const canvas = document.getElementById('layoutCanvas');
   if (!canvas) return;
-  
+
   // Clear existing items (keep grid)
   canvas.querySelectorAll('.layout-item').forEach(el => el.remove());
-  
-  appState.layoutItems.forEach(item => {
+
+  state.layoutItems.forEach(item => {
     const el = document.createElement('div');
     el.className = 'layout-item';
     el.dataset.id = item.id;
@@ -35,7 +30,7 @@ export function renderLayout() {
         <i class="fas fa-times"></i>
       </button>
     `;
-    
+
     makeDraggable(el);
     makeResizable(el);
     canvas.appendChild(el);
@@ -43,8 +38,6 @@ export function renderLayout() {
 }
 
 export function addLayoutItem(item) {
-  if (!appState) return;
-  
   const newItem = {
     id: generateId(),
     label: item.label || 'New Zone',
@@ -54,57 +47,69 @@ export function addLayoutItem(item) {
     width: item.width || 150,
     height: item.height || 100
   };
-  
-  updateState(appState, s => s.layoutItems.push(newItem));
+
+  updateState(s => s.layoutItems.push(newItem));
   renderLayout();
 }
 
 export function deleteLayoutItem(id) {
-  if (!appState) return;
-  
-  updateState(appState, s => {
+  updateState(s => {
     s.layoutItems = s.layoutItems.filter(i => i.id !== id);
   });
   renderLayout();
 }
 
 export function clearLayout() {
-  if (!appState) return;
-  
-  updateState(appState, s => {
+  updateState(s => {
     s.layoutItems = [];
   });
   renderLayout();
 }
 
+// Drag state - single instance to avoid listener leaks
+let dragState = {
+  el: null,
+  startX: 0,
+  startY: 0,
+  origX: 0,
+  origY: 0
+};
+
+// Single document listeners (initialized once)
+let dragListenersInitialized = false;
+
+function initDragListeners() {
+  if (dragListenersInitialized) return;
+  dragListenersInitialized = true;
+
+  document.addEventListener('mousemove', (e) => {
+    if (!dragState.el) return;
+    const dx = e.clientX - dragState.startX;
+    const dy = e.clientY - dragState.startY;
+    dragState.el.style.left = (dragState.origX + dx) + 'px';
+    dragState.el.style.top = (dragState.origY + dy) + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (dragState.el) {
+      dragState.el.style.zIndex = '';
+      saveLayoutItemPosition(dragState.el);
+      dragState.el = null;
+    }
+  });
+}
+
 function makeDraggable(el) {
-  let isDragging = false;
-  let startX, startY, origX, origY;
-  
+  initDragListeners();
+
   el.addEventListener('mousedown', (e) => {
     if (e.target.closest('.layout-item-delete')) return;
-    isDragging = true;
-    startX = e.clientX;
-    startY = e.clientY;
-    origX = el.offsetLeft;
-    origY = el.offsetTop;
+    dragState.el = el;
+    dragState.startX = e.clientX;
+    dragState.startY = e.clientY;
+    dragState.origX = el.offsetLeft;
+    dragState.origY = el.offsetTop;
     el.style.zIndex = 1000;
-  });
-  
-  document.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    const dx = e.clientX - startX;
-    const dy = e.clientY - startY;
-    el.style.left = (origX + dx) + 'px';
-    el.style.top = (origY + dy) + 'px';
-  });
-  
-  document.addEventListener('mouseup', () => {
-    if (isDragging) {
-      isDragging = false;
-      el.style.zIndex = '';
-      saveLayoutItemPosition(el);
-    }
   });
 }
 
@@ -113,10 +118,9 @@ function makeResizable(el) {
 }
 
 function saveLayoutItemPosition(el) {
-  if (!appState) return;
   const id = el.dataset.id;
-  
-  updateState(appState, s => {
+
+  updateState(s => {
     const item = s.layoutItems.find(i => i.id === id);
     if (item) {
       item.x = el.offsetLeft;
@@ -129,4 +133,4 @@ function saveLayoutItemPosition(el) {
 
 window.deleteLayoutItem = deleteLayoutItem;
 
-export default { initLayout, renderLayout, addLayoutItem, deleteLayoutItem, clearLayout, setAppState };
+export default { initLayout, renderLayout, addLayoutItem, deleteLayoutItem, clearLayout };

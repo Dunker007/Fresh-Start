@@ -1,45 +1,33 @@
 // main.js - App initialization and event binding
-import { loadState, saveState } from './state.js';
-import { detectLocalLLM, sendToLocalLLM, setAppState as setLLMState } from './llm.js';
-import { checkFilesystemBridge, loadDirectory, goUpDirectory, setAppState as setFSState } from './filesystem.js';
+import { initAppState, getState } from './state.js';
+import { detectLocalLLM, sendToLocalLLM } from './llm.js';
+import { checkFilesystemBridge, loadDirectory, goUpDirectory } from './filesystem.js';
 import { initUI, showToast, openModal, closeModal } from './ui.js';
-import { initTasks, renderTasks, addTask, setAppState as setTasksState } from './tasks.js';
-import { initNotes, renderNotes, addNote, setAppState as setNotesState } from './notes.js';
-import { initProjects, renderProjects, addProject, setAppState as setProjectsState } from './projects.js';
-import { initTimer, renderTimer, setAppState as setTimerState } from './timer.js';
-import { initCalendar, renderCalendar, setAppState as setCalendarState } from './calendar.js';
-import { initLayout, renderLayout, addLayoutItem, clearLayout, setAppState as setLayoutState } from './layout.js';
-import { setAppState as setAIState, showAIContextMenu } from './ai-assistant.js';
-
-let appState = null;
+import { initTasks, renderTasks, addTask } from './tasks.js';
+import { initNotes, renderNotes, addNote } from './notes.js';
+import { initProjects, renderProjects, addProject } from './projects.js';
+import { initTimer, renderTimer } from './timer.js';
+import { initCalendar, renderCalendar } from './calendar.js';
+import { initLayout, renderLayout, addLayoutItem, clearLayout } from './layout.js';
+import { showAIContextMenu } from './ai-assistant.js';
 
 // Initialize app
 window.addEventListener('DOMContentLoaded', async () => {
-  appState = loadState();
-  window.appState = appState;
-
-  // Pass state to all modules
-  setLLMState(appState);
-  setFSState(appState);
-  setTasksState(appState);
-  setNotesState(appState);
-  setProjectsState(appState);
-  setTimerState(appState);
-  setCalendarState(appState);
-  setLayoutState(appState);
-  setAIState(appState);
+  // Initialize state once - all modules use getState()
+  const appState = initAppState();
+  window.appState = appState; // Keep for debugging
 
   // Setup theme
   setupTheme();
 
   // Initialize UI components
-  initUI(appState);
-  initTasks(appState);
-  initNotes(appState);
-  initProjects(appState);
-  initTimer(appState);
-  initCalendar(appState);
-  initLayout(appState);
+  initUI();
+  initTasks();
+  initNotes();
+  initProjects();
+  initTimer();
+  initCalendar();
+  initLayout();
 
   // Setup event listeners
   setupEventListeners();
@@ -80,12 +68,13 @@ function setupEventListeners() {
   document.getElementById('refreshModelsBtn')?.addEventListener('click', detectLocalLLM);
 
   // Filesystem handlers
-  document.getElementById('goDesktop')?.addEventListener('click', () => loadDirectory(appState.fs.paths.desktop || ''));
-  document.getElementById('goDocuments')?.addEventListener('click', () => loadDirectory(appState.fs.paths.documents || ''));
-  document.getElementById('goDownloads')?.addEventListener('click', () => loadDirectory(appState.fs.paths.downloads || ''));
+  document.getElementById('goDesktop')?.addEventListener('click', () => loadDirectory(getState().fs.paths.desktop || ''));
+  document.getElementById('goDocuments')?.addEventListener('click', () => loadDirectory(getState().fs.paths.documents || ''));
+  document.getElementById('goDownloads')?.addEventListener('click', () => loadDirectory(getState().fs.paths.downloads || ''));
   document.getElementById('goUp')?.addEventListener('click', goUpDirectory);
   document.getElementById('refreshFiles')?.addEventListener('click', () => {
-    if (appState.fs.currentPath) loadDirectory(appState.fs.currentPath);
+    const state = getState();
+    if (state.fs.currentPath) loadDirectory(state.fs.currentPath);
     else checkFilesystemBridge();
   });
 
@@ -99,7 +88,8 @@ function setupEventListeners() {
 }
 
 function switchView(view) {
-  appState.currentView = view;
+  const state = getState();
+  state.currentView = view;
 
   document.querySelectorAll('.nav-item[data-view]').forEach(item => {
     item.classList.toggle('active', item.dataset.view === view);
@@ -113,8 +103,8 @@ function switchView(view) {
   if (view === 'canvas') renderLayout();
   if (view === 'files') {
     checkFilesystemBridge().then(connected => {
-      if (connected && !appState.fs.currentPath) {
-        loadDirectory(appState.fs.paths.desktop);
+      if (connected && !state.fs.currentPath) {
+        loadDirectory(state.fs.paths.desktop);
       }
     });
   }
@@ -143,7 +133,7 @@ async function sendAIMessage() {
   messagesContainer.appendChild(loadingEl);
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-  if (appState.llm.connected) {
+  if (getState().llm.connected) {
     try {
       const response = await sendToLocalLLM(message);
       const loadingElement = document.getElementById(loadingId);

@@ -1,24 +1,18 @@
 // notes.js - Notes CRUD + rendering
-import { updateState, generateId } from './state.js';
+import { getState, updateState, generateId } from './state.js';
 import { escapeHtml } from './ui.js';
 
-let appState = null;
-
-export function setAppState(state) {
-  appState = state;
-}
-
-export function initNotes(state) {
-  appState = state;
+export function initNotes() {
   renderNotes();
 }
 
 export function renderNotes() {
   const container = document.getElementById('notesList');
-  if (!container || !appState) return;
+  const state = getState();
+  if (!container || !state) return;
 
-  const workspaceNotes = appState.notes.filter(n =>
-    n.workspace === appState.currentWorkspace || !n.workspace
+  const workspaceNotes = state.notes.filter(n =>
+    n.workspace === state.currentWorkspace || !n.workspace
   );
 
   if (workspaceNotes.length === 0) {
@@ -32,7 +26,7 @@ export function renderNotes() {
   }
 
   container.innerHTML = workspaceNotes.map(note => `
-    <div class="note-card" data-id="${note.id}" 
+    <div class="note-card" data-id="${note.id}"
          style="background: ${note.color || 'var(--bg-tertiary)'}"
          oncontextmenu="window.showNoteAIMenu(event, '${note.id}'); return false;">
       <div class="note-title">${escapeHtml(note.title)}</div>
@@ -50,40 +44,36 @@ export function renderNotes() {
       </div>
     </div>
   `).join('');
-
-  // Enable AI context menu if available
-  if (window.initNoteAIMenu) {
-    window.initNoteAIMenu();
-  }
 }
 
 export function addNote(note) {
-  if (!appState) return;
+  const state = getState();
+  if (!state) return;
   const newNote = {
     id: generateId(),
     title: note.title,
     content: note.content || '',
     color: note.color || '#4285f4',
-    workspace: appState.currentWorkspace,
+    workspace: state.currentWorkspace,
     createdAt: new Date().toISOString()
   };
-  updateState(appState, s => s.notes.push(newNote));
+  updateState(s => s.notes.push(newNote));
   renderNotes();
 }
 
 export function deleteNote(id) {
-  if (!appState) return;
-  updateState(appState, s => {
+  updateState(s => {
     s.notes = s.notes.filter(n => n.id !== id);
   });
   renderNotes();
 }
 
 export function editNote(id) {
-  if (!appState) return;
-  const note = appState.notes.find(n => n.id === id);
+  const state = getState();
+  if (!state) return;
+  const note = state.notes.find(n => n.id === id);
   if (note) {
-    appState.editingNote = id;
+    state.editingNote = id;
     window.openModal?.('noteModal');
   }
 }
@@ -91,4 +81,4 @@ export function editNote(id) {
 window.deleteNote = deleteNote;
 window.editNote = editNote;
 
-export default { initNotes, renderNotes, addNote, deleteNote, editNote, setAppState };
+export default { initNotes, renderNotes, addNote, deleteNote, editNote };

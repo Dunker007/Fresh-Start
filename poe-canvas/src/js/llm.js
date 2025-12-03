@@ -1,10 +1,5 @@
 // llm.js - Local LLM integration (LM Studio / Ollama)
-
-let appState = null;
-
-export function setAppState(state) {
-  appState = state;
-}
+import { getState } from './state.js';
 
 export async function detectLocalLLM() {
   const statusDot = document.getElementById('llmStatusDot');
@@ -23,11 +18,12 @@ export async function detectLocalLLM() {
       const data = await lmRes.json();
       const models = data.data?.map(m => m.id) || [];
       if (models.length > 0) {
-        if (appState) {
-          appState.llm.provider = 'lmstudio';
-          appState.llm.models = models;
-          appState.llm.model = models[0];
-          appState.llm.connected = true;
+        const state = getState();
+        if (state) {
+          state.llm.provider = 'lmstudio';
+          state.llm.models = models;
+          state.llm.model = models[0];
+          state.llm.connected = true;
         }
         
         if (statusDot) statusDot.style.background = 'var(--accent-secondary)';
@@ -56,11 +52,12 @@ export async function detectLocalLLM() {
       const data = await ollamaRes.json();
       const models = data.models?.map(m => m.name) || [];
       if (models.length > 0) {
-        if (appState) {
-          appState.llm.provider = 'ollama';
-          appState.llm.models = models;
-          appState.llm.model = models[0];
-          appState.llm.connected = true;
+        const state = getState();
+        if (state) {
+          state.llm.provider = 'ollama';
+          state.llm.models = models;
+          state.llm.model = models[0];
+          state.llm.connected = true;
         }
         
         if (statusDot) statusDot.style.background = 'var(--accent-secondary)';
@@ -81,9 +78,10 @@ export async function detectLocalLLM() {
   }
   
   // No local LLM found
-  if (appState) {
-    appState.llm.provider = null;
-    appState.llm.connected = false;
+  const state = getState();
+  if (state) {
+    state.llm.provider = null;
+    state.llm.connected = false;
   }
   if (statusDot) statusDot.style.background = 'var(--text-muted)';
   if (statusText) statusText.textContent = 'No local LLM';
@@ -93,13 +91,14 @@ export async function detectLocalLLM() {
 }
 
 export async function sendToLocalLLM(message) {
-  if (!appState?.llm.connected) {
+  const state = getState();
+  if (!state?.llm.connected) {
     throw new Error('No local LLM connected');
   }
-  
-  const model = document.getElementById('aiModelSelect')?.value || appState.llm.model;
-  
-  if (appState.llm.provider === 'lmstudio') {
+
+  const model = document.getElementById('aiModelSelect')?.value || state.llm.model;
+
+  if (state.llm.provider === 'lmstudio') {
     const response = await fetch('http://localhost:1234/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -119,7 +118,7 @@ export async function sendToLocalLLM(message) {
     return data.choices?.[0]?.message?.content || 'No response';
   }
   
-  if (appState.llm.provider === 'ollama') {
+  if (state.llm.provider === 'ollama') {
     const response = await fetch('http://localhost:11434/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -141,4 +140,4 @@ export async function sendToLocalLLM(message) {
   throw new Error('Unknown LLM provider');
 }
 
-export default { detectLocalLLM, sendToLocalLLM, setAppState };
+export default { detectLocalLLM, sendToLocalLLM };
