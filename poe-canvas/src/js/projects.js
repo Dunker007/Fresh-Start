@@ -16,11 +16,11 @@ export function initProjects(state) {
 export function renderProjects() {
   const container = document.getElementById('projectsList');
   if (!container || !appState) return;
-  
-  const workspaceProjects = appState.projects.filter(p => 
+
+  const workspaceProjects = appState.projects.filter(p =>
     p.workspace === appState.currentWorkspace || !p.workspace
   );
-  
+
   if (workspaceProjects.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
@@ -30,17 +30,22 @@ export function renderProjects() {
     `;
     return;
   }
-  
+
   container.innerHTML = workspaceProjects.map(project => {
     const completedTasks = project.tasks?.filter(t => t.completed).length || 0;
     const totalTasks = project.tasks?.length || 0;
     const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-    
+
     return `
-      <div class="project-card" data-id="${project.id}" style="border-left: 4px solid ${project.color || '#4285f4'}">
+      <div class="project-card" data-id="${project.id}" 
+           style="border-left: 4px solid ${project.color || '#4285f4'}"
+           oncontextmenu="window.showProjectAIMenu(event, '${project.id}'); return false;">
         <div class="project-header">
           <div class="project-name">${escapeHtml(project.name)}</div>
           <div class="project-actions">
+            <button class="ai-action-btn" onclick="window.showProjectAIMenu(event, '${project.id}')" title="AI Actions">
+              <i class="fas fa-magic"></i>
+            </button>
             <button class="btn-icon" onclick="window.editProject('${project.id}')">
               <i class="fas fa-edit"></i>
             </button>
@@ -59,6 +64,11 @@ export function renderProjects() {
       </div>
     `;
   }).join('');
+
+  // Enable AI context menu if available
+  if (window.initProjectAIMenu) {
+    window.initProjectAIMenu();
+  }
 }
 
 export function addProject(project) {

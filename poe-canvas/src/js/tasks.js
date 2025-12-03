@@ -16,11 +16,11 @@ export function initTasks(state) {
 export function renderTasks() {
   const container = document.getElementById('tasksList');
   if (!container || !appState) return;
-  
-  const workspaceTasks = appState.tasks.filter(t => 
+
+  const workspaceTasks = appState.tasks.filter(t =>
     t.workspace === appState.currentWorkspace || !t.workspace
   );
-  
+
   if (workspaceTasks.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
@@ -30,15 +30,17 @@ export function renderTasks() {
     `;
     return;
   }
-  
+
   const sorted = [...workspaceTasks].sort((a, b) => {
     if (a.completed !== b.completed) return a.completed ? 1 : -1;
     const priorityOrder = { high: 0, medium: 1, low: 2 };
     return (priorityOrder[a.priority] || 1) - (priorityOrder[b.priority] || 1);
   });
-  
+
   container.innerHTML = sorted.map(task => `
-    <div class="task-item ${task.completed ? 'completed' : ''}" data-id="${task.id}">
+    <div class="task-item ${task.completed ? 'completed' : ''}" 
+         data-id="${task.id}"
+         oncontextmenu="window.showTaskAIMenu(event, '${task.id}'); return false;">
       <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} 
         onchange="window.toggleTask('${task.id}')">
       <div class="task-content">
@@ -46,6 +48,9 @@ export function renderTasks() {
         ${task.due ? `<div class="task-due ${isOverdue(task.due) ? 'overdue' : ''}">${task.due}</div>` : ''}
       </div>
       <div class="task-priority priority-${task.priority || 'medium'}"></div>
+      <button class="ai-action-btn" onclick="window.showTaskAIMenu(event, '${task.id}')" title="AI Actions">
+        <i class="fas fa-magic"></i>
+      </button>
       <button class="btn-icon" onclick="window.editTask('${task.id}')">
         <i class="fas fa-edit"></i>
       </button>
@@ -54,6 +59,11 @@ export function renderTasks() {
       </button>
     </div>
   `).join('');
+
+  // Enable AI context menu if available
+  if (window.initTaskAIMenu) {
+    window.initTaskAIMenu();
+  }
 }
 
 function isOverdue(dateStr) {

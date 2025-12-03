@@ -16,11 +16,11 @@ export function initNotes(state) {
 export function renderNotes() {
   const container = document.getElementById('notesList');
   if (!container || !appState) return;
-  
-  const workspaceNotes = appState.notes.filter(n => 
+
+  const workspaceNotes = appState.notes.filter(n =>
     n.workspace === appState.currentWorkspace || !n.workspace
   );
-  
+
   if (workspaceNotes.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
@@ -30,12 +30,17 @@ export function renderNotes() {
     `;
     return;
   }
-  
+
   container.innerHTML = workspaceNotes.map(note => `
-    <div class="note-card" data-id="${note.id}" style="background: ${note.color || 'var(--bg-tertiary)'}">
+    <div class="note-card" data-id="${note.id}" 
+         style="background: ${note.color || 'var(--bg-tertiary)'}"
+         oncontextmenu="window.showNoteAIMenu(event, '${note.id}'); return false;">
       <div class="note-title">${escapeHtml(note.title)}</div>
       <div class="note-content">${escapeHtml(note.content || '').substring(0, 100)}${(note.content?.length > 100) ? '...' : ''}</div>
       <div class="note-actions">
+        <button class="ai-action-btn" onclick="window.showNoteAIMenu(event, '${note.id}')" title="AI Actions">
+          <i class="fas fa-magic"></i>
+        </button>
         <button class="btn-icon" onclick="window.editNote('${note.id}')">
           <i class="fas fa-edit"></i>
         </button>
@@ -45,6 +50,11 @@ export function renderNotes() {
       </div>
     </div>
   `).join('');
+
+  // Enable AI context menu if available
+  if (window.initNoteAIMenu) {
+    window.initNoteAIMenu();
+  }
 }
 
 export function addNote(note) {

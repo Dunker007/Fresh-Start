@@ -35,7 +35,7 @@ Return ONLY a JSON array of subtask titles (strings), no explanation:
 ["First subtask", "Second subtask", "Third subtask"]`;
 
     const response = await callLLM(prompt, appState);
-    
+
     // Parse AI response
     let subtasks;
     try {
@@ -73,7 +73,7 @@ Return ONLY a JSON array of subtask titles (strings), no explanation:
 
     renderTasks(appState);
     showToast(`✨ Created ${subtasks.length} subtasks!`, 'success');
-    
+
   } catch (error) {
     console.error('AI task breakdown failed:', error);
     showToast('❌ AI breakdown failed. Is your LLM running?', 'error');
@@ -107,7 +107,7 @@ Return a JSON object with:
 }`;
 
     const response = await callLLM(prompt, appState);
-    
+
     // Parse AI response
     let enhancements;
     try {
@@ -119,7 +119,7 @@ Return a JSON object with:
 
     // Show enhancement modal
     showEnhancementModal(note, enhancements);
-    
+
   } catch (error) {
     console.error('AI note enhancement failed:', error);
     showToast('❌ AI enhancement failed. Is your LLM running?', 'error');
@@ -195,7 +195,7 @@ function showEnhancementModal(note, enhancements) {
       </div>
     </div>
   `;
-  
+
   document.body.appendChild(modal);
 }
 
@@ -204,11 +204,11 @@ function showEnhancementModal(note, enhancements) {
  */
 export function applyEnhancements(noteId, enhancements) {
   const modal = document.querySelector('.modal-overlay');
-  
+
   // Get selected action items
   const selectedActions = Array.from(modal.querySelectorAll('#aiActionItems input:checked'))
     .map(input => enhancements.actionItems[input.dataset.action]);
-  
+
   // Get selected tags
   const selectedTags = Array.from(modal.querySelectorAll('.tag.tag-green'))
     .map(tag => tag.textContent.trim());
@@ -221,7 +221,7 @@ export function applyEnhancements(noteId, enhancements) {
       if (enhancements.summary && !note.content.includes(enhancements.summary)) {
         note.content = `**AI Summary:** ${enhancements.summary}\n\n${note.content}`;
       }
-      
+
       // Add tags (if we add tag support to notes later)
       note.aiTags = selectedTags;
       note.aiRelated = enhancements.relatedTopics;
@@ -265,7 +265,7 @@ export async function aiProjectInsights(projectId) {
   if (!project) return;
 
   const projectTasks = appState.tasks.filter(t => t.projectId === projectId);
-  
+
   showToast('🤖 AI is analyzing your project...', 'info');
 
   try {
@@ -290,7 +290,7 @@ Provide a JSON object with:
 }`;
 
     const response = await callLLM(prompt, appState);
-    
+
     // Parse AI response
     let insights;
     try {
@@ -301,7 +301,7 @@ Provide a JSON object with:
     }
 
     showProjectInsightsModal(project, insights);
-    
+
   } catch (error) {
     console.error('AI project insights failed:', error);
     showToast('❌ AI analysis failed. Is your LLM running?', 'error');
@@ -373,7 +373,7 @@ function showProjectInsightsModal(project, insights) {
       </div>
     </div>
   `;
-  
+
   document.body.appendChild(modal);
 }
 
@@ -415,7 +415,7 @@ window.createTasksFromInsights = createTasksFromInsights;
  */
 export function showAIContextMenu(e, itemType, itemId) {
   e.preventDefault();
-  
+
   // Remove existing context menu
   const existing = document.querySelector('.ai-context-menu');
   if (existing) existing.remove();
@@ -426,7 +426,7 @@ export function showAIContextMenu(e, itemType, itemId) {
   menu.style.top = `${e.pageY}px`;
 
   const menuItems = getContextMenuItems(itemType, itemId);
-  
+
   menu.innerHTML = menuItems.map(item => `
     <div class="dropdown-item" onclick="window.aiContextAction('${item.action}', '${itemType}', '${itemId}')">
       <i class="${item.icon}"></i>
@@ -480,14 +480,14 @@ export async function aiContextAction(action, itemType, itemId) {
     'estimate': () => aiEstimateTime(itemId),
     'related': () => aiFindRelated(itemId),
     'checklist': () => aiGenerateChecklist(itemId),
-    
+
     // Note actions
     'enhance': () => aiEnhanceNote(itemId),
     'summarize': () => aiSummarizeNote(itemId),
     'extract-actions': () => aiExtractActions(itemId),
     'suggest-tags': () => aiSuggestTags(itemId),
     'expand': () => aiExpandOutline(itemId),
-    
+
     // Project actions
     'insights': () => aiProjectInsights(itemId),
     'next-steps': () => aiSuggestNextSteps(itemId),
@@ -510,12 +510,12 @@ window.aiContextAction = aiContextAction;
 async function aiEstimateTime(taskId) {
   const task = appState.tasks.find(t => t.id === taskId);
   showToast('🤖 AI is estimating time...', 'info');
-  
+
   try {
     const prompt = `Estimate how long this task will take. Return ONLY a simple time estimate like "30 minutes", "2 hours", "1 day", etc.
 
 Task: "${task.title}"`;
-    
+
     const estimate = await callLLM(prompt, appState);
     showToast(`⏱️ AI estimates: ${estimate.trim()}`, 'success');
   } catch (error) {
@@ -532,14 +532,14 @@ async function aiFindRelated(taskId) {
 async function aiGenerateChecklist(taskId) {
   const task = appState.tasks.find(t => t.id === taskId);
   showToast('🤖 AI is generating checklist...', 'info');
-  
+
   try {
     const prompt = `Create a checklist for this task. Return ONLY a JSON array of checkbox items.
 
 Task: "${task.title}"
 
 Return format: ["Step 1", "Step 2", "Step 3"]`;
-    
+
     const response = await callLLM(prompt, appState);
     // TODO: Add checklist support to tasks
     showToast('✅ Checklist generated! (Feature coming soon)', 'info');
@@ -551,13 +551,13 @@ Return format: ["Step 1", "Step 2", "Step 3"]`;
 async function aiSummarizeNote(noteId) {
   const note = appState.notes.find(n => n.id === noteId);
   showToast('🤖 AI is summarizing...', 'info');
-  
+
   try {
     const prompt = `Summarize this note in one concise sentence:
 
 Title: "${note.title}"
 Content: "${note.content}"`;
-    
+
     const summary = await callLLM(prompt, appState);
     showToast(`📝 Summary: ${summary.trim()}`, 'success');
   } catch (error) {
@@ -580,7 +580,7 @@ async function aiSuggestTags(noteId) {
 async function aiExpandOutline(noteId) {
   const note = appState.notes.find(n => n.id === noteId);
   showToast('🤖 AI is expanding outline...', 'info');
-  
+
   try {
     const prompt = `Expand this note into a detailed outline with subpoints:
 
@@ -588,7 +588,7 @@ Title: "${note.title}"
 Content: "${note.content}"
 
 Return a markdown outline with headers and bullet points.`;
-    
+
     const expanded = await callLLM(prompt, appState);
     // Show in modal or update note
     showToast('📋 Outline expanded! (Preview coming soon)', 'info');
@@ -617,4 +617,55 @@ export default {
   aiContextAction,
   applyEnhancements,
   createTasksFromInsights
+};
+
+// ==================== Global Wrapper Functions ====================
+
+/**
+ * Show AI menu for tasks (called from task items)
+ */
+window.showTaskAIMenu = function (event, taskId) {
+  event.preventDefault();
+  event.stopPropagation();
+  showAIContextMenu(event, 'task', taskId);
+};
+
+/**
+ * Show AI menu for notes (called from note cards)
+ */
+window.showNoteAIMenu = function (event, noteId) {
+  event.preventDefault();
+  event.stopPropagation();
+  showAIContextMenu(event, 'note', noteId);
+};
+
+/**
+ * Show AI menu for projects (called from project cards)
+ */
+window.showProjectAIMenu = function (event, projectId) {
+  event.preventDefault();
+  event.stopPropagation();
+  showAIContextMenu(event, 'project', projectId);
+};
+
+/**
+ * Initialize task AI menu (called after rendering)
+ */
+window.initTaskAIMenu = function () {
+  // Could add additional initialization here if needed
+  console.log('Task AI menu initialized');
+};
+
+/**
+ * Initialize note AI menu (called after rendering)
+ */
+window.initNoteAIMenu = function () {
+  console.log('Note AI menu initialized');
+};
+
+/**
+ * Initialize project AI menu (called after rendering)
+ */
+window.initProjectAIMenu = function () {
+  console.log('Project AI menu initialized');
 };
