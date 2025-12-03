@@ -9,6 +9,7 @@ import { initProjects, renderProjects, addProject, setAppState as setProjectsSta
 import { initTimer, renderTimer, setAppState as setTimerState } from './timer.js';
 import { initCalendar, renderCalendar, setAppState as setCalendarState } from './calendar.js';
 import { initLayout, renderLayout, addLayoutItem, clearLayout, setAppState as setLayoutState } from './layout.js';
+import { setAppState as setAIState, showAIContextMenu } from './ai-assistant.js';
 
 let appState = null;
 
@@ -16,7 +17,7 @@ let appState = null;
 window.addEventListener('DOMContentLoaded', async () => {
   appState = loadState();
   window.appState = appState;
-  
+
   // Pass state to all modules
   setLLMState(appState);
   setFSState(appState);
@@ -26,10 +27,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   setTimerState(appState);
   setCalendarState(appState);
   setLayoutState(appState);
-  
+  setAIState(appState);
+
   // Setup theme
   setupTheme();
-  
+
   // Initialize UI components
   initUI(appState);
   initTasks(appState);
@@ -38,13 +40,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   initTimer(appState);
   initCalendar(appState);
   initLayout(appState);
-  
+
   // Setup event listeners
   setupEventListeners();
-  
+
   // Detect external services
   try { await detectLocalLLM(); } catch (e) { console.log('LLM detection failed:', e); }
-  
+
   console.log('Nexus Workspace initialized');
 });
 
@@ -52,7 +54,7 @@ function setupTheme() {
   if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
     document.documentElement.classList.add('dark');
   }
-  
+
   window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
     document.documentElement.classList.toggle('dark', e.matches);
   });
@@ -63,12 +65,12 @@ function setupEventListeners() {
   document.querySelectorAll('.nav-item[data-view]').forEach(item => {
     item.addEventListener('click', () => switchView(item.dataset.view));
   });
-  
+
   // Add buttons
   document.getElementById('addTaskBtn')?.addEventListener('click', () => openModal('taskModal'));
   document.getElementById('addNoteBtn')?.addEventListener('click', () => openModal('noteModal'));
   document.getElementById('addProjectBtn')?.addEventListener('click', () => openModal('projectModal'));
-  
+
   // AI handlers
   document.getElementById('aiSendBtn')?.addEventListener('click', sendAIMessage);
   document.getElementById('aiInput')?.addEventListener('keypress', (e) => {
@@ -76,7 +78,7 @@ function setupEventListeners() {
   });
   document.getElementById('clearChatBtn')?.addEventListener('click', clearAIChat);
   document.getElementById('refreshModelsBtn')?.addEventListener('click', detectLocalLLM);
-  
+
   // Filesystem handlers
   document.getElementById('goDesktop')?.addEventListener('click', () => loadDirectory(appState.fs.paths.desktop || ''));
   document.getElementById('goDocuments')?.addEventListener('click', () => loadDirectory(appState.fs.paths.documents || ''));
@@ -86,28 +88,28 @@ function setupEventListeners() {
     if (appState.fs.currentPath) loadDirectory(appState.fs.currentPath);
     else checkFilesystemBridge();
   });
-  
+
   // Layout handlers
   document.getElementById('addLayoutItem')?.addEventListener('click', () => openModal('layoutItemModal'));
   document.getElementById('clearCanvas')?.addEventListener('click', clearLayout);
   document.getElementById('saveLayout')?.addEventListener('click', () => showToast('Layout saved!', 'success'));
-  
+
   // Theme toggle
   document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
 }
 
 function switchView(view) {
   appState.currentView = view;
-  
+
   document.querySelectorAll('.nav-item[data-view]').forEach(item => {
     item.classList.toggle('active', item.dataset.view === view);
   });
-  
+
   document.getElementById('dashboardView').style.display = view === 'dashboard' ? '' : 'none';
   document.getElementById('filesView').style.display = view === 'files' ? '' : 'none';
   document.getElementById('canvasView').style.display = view === 'canvas' ? '' : 'none';
   document.getElementById('aiView').style.display = view === 'ai' ? '' : 'none';
-  
+
   if (view === 'canvas') renderLayout();
   if (view === 'files') {
     checkFilesystemBridge().then(connected => {
