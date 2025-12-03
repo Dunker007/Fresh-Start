@@ -1,5 +1,44 @@
 // ui.js - Modal handling, toasts, dropdowns, common UI
 
+// ============================================
+// Utility Functions: Debounce & Throttle
+// ============================================
+
+/**
+ * Debounce a function - only executes after delay since last call
+ * @param {Function} fn - Function to debounce
+ * @param {number} delay - Delay in milliseconds (default 300)
+ * @returns {Function} Debounced function
+ */
+export function debounce(fn, delay = 300) {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), delay);
+  };
+}
+
+/**
+ * Throttle a function - executes at most once per limit period
+ * @param {Function} fn - Function to throttle
+ * @param {number} limit - Minimum time between executions in ms (default 100)
+ * @returns {Function} Throttled function
+ */
+export function throttle(fn, limit = 100) {
+  let inThrottle;
+  return (...args) => {
+    if (!inThrottle) {
+      fn(...args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+// ============================================
+// UI Initialization
+// ============================================
+
 export function initUI(state) {
   // Close modals on overlay click
   document.querySelectorAll('.modal-overlay').forEach(overlay => {
@@ -73,9 +112,11 @@ export function escapeHtml(str) {
   return div.innerHTML;
 }
 
-// Make showToast globally available
+// Make utilities globally available
 window.showToast = showToast;
 window.openModal = openModal;
 window.closeModal = closeModal;
+window.debounce = debounce;
+window.throttle = throttle;
 
-export default { initUI, openModal, closeModal, toggleDropdown, closeDropdown, showToast, escapeHtml };
+export default { initUI, openModal, closeModal, toggleDropdown, closeDropdown, showToast, escapeHtml, debounce, throttle };

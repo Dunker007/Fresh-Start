@@ -2,7 +2,7 @@
 import { initAppState, getState } from './state.js';
 import { detectLocalLLM, sendToLocalLLM } from './llm.js';
 import { checkFilesystemBridge, loadDirectory, goUpDirectory } from './filesystem.js';
-import { initUI, showToast, openModal, closeModal } from './ui.js';
+import { initUI, showToast, openModal, closeModal, debounce } from './ui.js';
 import { initTasks, renderTasks, addTask } from './tasks.js';
 import { initNotes, renderNotes, addNote } from './notes.js';
 import { initProjects, renderProjects, addProject } from './projects.js';
@@ -10,6 +10,8 @@ import { initTimer, renderTimer } from './timer.js';
 import { initCalendar, renderCalendar } from './calendar.js';
 import { initLayout, renderLayout, addLayoutItem, clearLayout } from './layout.js';
 import { showAIContextMenu } from './ai-assistant.js';
+import { initShortcuts } from './shortcuts.js';
+import { initCommands } from './commands.js';
 
 // Initialize app
 window.addEventListener('DOMContentLoaded', async () => {
@@ -28,9 +30,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   initTimer();
   initCalendar();
   initLayout();
+  initShortcuts();
+  initCommands();
 
   // Setup event listeners
   setupEventListeners();
+  setupGlobalSearch();
 
   // Detect external services
   try { await detectLocalLLM(); } catch (e) { console.log('LLM detection failed:', e); }
@@ -186,6 +191,206 @@ function clearAIChat() {
       </div>
     </div>
   `;
+}
+
+// ============================================
+// Global Search
+// ============================================
+
+function setupGlobalSearch() {
+  const searchInput = document.getElementById('globalSearch');
+  if (!searchInput) return;
+
+  // Create search results dropdown
+  const resultsDropdown = document.createElement('div');
+  resultsDropdown.id = 'searchResults';
+  resultsDropdown.className = 'search-results-dropdown';
+  searchInput.parentElement.appendChild(resultsDropdown);
+
+  // Debounced search handler
+  const handleSearch = debounce((query) => {
+    if (!query.trim()) {
+      resultsDropdown.classList.remove('active');
+      return;
+    }
+
+    const results = performSearch(query.toLowerCase());
+    renderSearchResults(results, resultsDropdown, query);
+  }, 250);
+
+  searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
+
+  // Close on blur (with delay to allow clicking results)
+  searchInput.addEventListener('blur', () => {
+    setTimeout(() => resultsDropdown.classList.remove('active'), 200);
+  });
+
+  // Handle keyboard navigation
+  searchInput.addEventListener('keydown', (e) => {
+    const items = resultsDropdown.querySelectorAll('.search-result-item');
+    const activeItem = resultsDropdown.querySelector('.search-result-item.active');
+    let activeIndex = Array.from(items).indexOf(activeItem);
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (activeIndex < items.length - 1) {
+        items[activeIndex]?.classList.remove('active');
+        items[activeIndex + 1]?.classList.add('active');
+      } else if (activeIndex === -1 && items.length > 0) {
+        items[0].classList.add('active');
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (activeIndex > 0) {
+        items[activeIndex]?.classList.remove('active');
+        items[activeIndex - 1]?.classList.add('active');
+      }
+    } else if (e.key === 'Enter') {
+      if (activeItem) {
+        e.preventDefault();
+        activeItem.click();
+      }
+    }
+  });
+}
+
+function performSearch(query) {
+  const state = getState();
+  const results = [];
+
+  // Search tasks
+  state.tasks.forEach(task => {
+    if (task.title.toLowerCase().includes(query) ||
+        (task.tags && task.tags.some(t => t.toLowerCase().includes(query)))) {
+      results.push({
+        type: 'task',
+        icon: 'fa-check-circle',
+        title: task.title,
+        subtitle: task.completed ? 'Completed' : (task.dueDate || 'No due date'),
+        data: task
+      });
+    }
+  });
+
+  // Search notes
+  state.notes.forEach(note => {
+    if (note.title.toLowerCase().includes(query) ||
+        (note.content && note.content.toLowerCase().includes(query))) {
+      results.push({
+        type: 'note',
+        icon: 'fa-sticky-note',
+        title: note.title,
+        subtitle: note.content ? note.content.substring(0, 50) + '...' : 'Empty note',
+        data: note
+      });
+    }
+  });
+
+  // Search projects
+  state.projects.forEach(project => {
+    if (project.name.toLowerCase().includes(query) ||
+        (project.description && project.description.toLowerCase().includes(query))) {
+      results.push({
+        type: 'project',
+        icon: 'fa-project-diagram',
+        title: project.name,
+        subtitle: project.description || 'No description',
+        data: project
+      });
+    }
+  });
+
+  // Search bookmarks
+  if (state.bookmarks) {
+    state.bookmarks.forEach(bookmark => {
+      if (bookmark.title.toLowerCase().includes(query) ||
+          bookmark.url.toLowerCase().includes(query)) {
+        results.push({
+          type: 'bookmark',
+          icon: 'fa-bookmark',
+          title: bookmark.title,
+          subtitle: bookmark.url,
+          data: bookmark
+        });
+      }
+    });
+  }
+
+  return results.slice(0, 10); // Limit to 10 results
+}
+
+function renderSearchResults(results, container, query) {
+  if (results.length === 0) {
+    container.innerHTML = `
+      <div class="search-no-results">
+        <i class="fas fa-search"></i>
+        <span>No results for "${query}"</span>
+      </div>
+    `;
+    container.classList.add('active');
+    return;
+  }
+
+  container.innerHTML = results.map((result, index) => `
+    <div class="search-result-item${index === 0 ? ' active' : ''}" data-type="${result.type}" data-id="${result.data.id}">
+      <i class="fas ${result.icon}"></i>
+      <div class="search-result-content">
+        <div class="search-result-title">${highlightMatch(result.title, query)}</div>
+        <div class="search-result-subtitle">${result.subtitle}</div>
+      </div>
+      <span class="search-result-type">${result.type}</span>
+    </div>
+  `).join('');
+
+  // Add click handlers
+  container.querySelectorAll('.search-result-item').forEach(item => {
+    item.addEventListener('click', () => {
+      handleSearchResultClick(item.dataset.type, item.dataset.id);
+      container.classList.remove('active');
+      document.getElementById('globalSearch').value = '';
+    });
+  });
+
+  container.classList.add('active');
+}
+
+function highlightMatch(text, query) {
+  const regex = new RegExp(`(${query})`, 'gi');
+  return text.replace(regex, '<mark>$1</mark>');
+}
+
+function handleSearchResultClick(type, id) {
+  // Switch to dashboard view for most items
+  if (type !== 'bookmark') {
+    switchView('dashboard');
+  }
+
+  // Scroll to or highlight the item
+  setTimeout(() => {
+    let element;
+    switch (type) {
+      case 'task':
+        element = document.querySelector(`[data-task-id="${id}"]`);
+        break;
+      case 'note':
+        element = document.querySelector(`[data-note-id="${id}"]`);
+        break;
+      case 'project':
+        element = document.querySelector(`[data-project-id="${id}"]`);
+        break;
+      case 'bookmark':
+        const state = getState();
+        const bookmark = state.bookmarks?.find(b => b.id === id);
+        if (bookmark) window.open(bookmark.url, '_blank');
+        return;
+    }
+
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element.classList.add('highlight-flash');
+      setTimeout(() => element.classList.remove('highlight-flash'), 1500);
+    }
+  }, 100);
 }
 
 // Export for potential external use
