@@ -1,14 +1,36 @@
-// filesystem.js - Real filesystem access via Node bridge
+// filesystem.js - Real filesystem access via Electron IPC or Node bridge
 import { getState } from './state.js';
 import { escapeHtml } from './ui.js';
 
 const BRIDGE_URL = 'http://localhost:3456';
+
+// Check if running in Electron
+function isElectron() {
+  return window.electronAPI?.isElectron === true;
+}
 
 export async function checkFilesystemBridge() {
   const statusEl = document.getElementById('bridgeStatus');
   const statusText = document.getElementById('bridgeStatusText');
   const state = getState();
 
+  // If running in Electron, use IPC
+  if (isElectron()) {
+    try {
+      const data = await window.electronAPI.getStatus();
+      if (state) {
+        state.fs.bridgeConnected = true;
+        state.fs.paths = data.paths;
+        state.fs.isElectron = true;
+      }
+      if (statusEl) statusEl.style.display = 'none';
+      return true;
+    } catch (e) {
+      console.error('Electron IPC error:', e);
+    }
+  }
+
+  // Fallback to HTTP bridge for browser development
   try {
     const res = await fetch(`${BRIDGE_URL}/status`, { signal: AbortSignal.timeout(2000) });
     if (res.ok) {
@@ -16,6 +38,7 @@ export async function checkFilesystemBridge() {
       if (state) {
         state.fs.bridgeConnected = true;
         state.fs.paths = data.paths;
+        state.fs.isElectron = false;
       }
       if (statusEl) statusEl.style.display = 'none';
       return true;
@@ -43,20 +66,28 @@ export async function loadDirectory(dirPath) {
   }
 
   try {
-    const res = await fetch(`${BRIDGE_URL}/list?path=${encodeURIComponent(dirPath)}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (state) {
-        state.fs.currentPath = data.path;
-        state.fs.realFiles = data.files;
-      }
-      renderRealFiles(data.files);
-      
-      // Update path display
-      const pathParts = data.path.split(/[\/\\]/);
-      const pathEl = document.getElementById('currentPath');
-      if (pathEl) pathEl.textContent = pathParts.slice(-2).join('/');
+    let data;
+
+    // Use Electron IPC if available
+    if (isElectron()) {
+      data = await window.electronAPI.listDirectory(dirPath);
+    } else {
+      // Fallback to HTTP bridge
+      const res = await fetch(`${BRIDGE_URL}/list?path=${encodeURIComponent(dirPath)}`);
+      if (!res.ok) throw new Error('Failed to load directory');
+      data = await res.json();
     }
+
+    if (state) {
+      state.fs.currentPath = data.path;
+      state.fs.realFiles = data.files;
+    }
+    renderRealFiles(data.files);
+
+    // Update path display
+    const pathParts = data.path.split(/[\/\\]/);
+    const pathEl = document.getElementById('currentPath');
+    if (pathEl) pathEl.textContent = pathParts.slice(-2).join('/');
   } catch (e) {
     if (window.showToast) window.showToast('Failed to load directory', 'error');
   }
@@ -111,7 +142,13 @@ window.handleFileClick = function(el) {
 
 export async function openFile(filePath) {
   try {
-    await fetch(`${BRIDGE_URL}/open?path=${encodeURIComponent(filePath)}`);
+    // Use Electron IPC if available
+    if (isElectron()) {
+      await window.electronAPI.openFile(filePath);
+    } else {
+      // Fallback to HTTP bridge
+      await fetch(`${BRIDGE_URL}/open?path=${encodeURIComponent(filePath)}`);
+    }
   } catch (e) {
     if (window.showToast) window.showToast('Failed to open file', 'error');
   }
