@@ -19,6 +19,11 @@
   - Added a new "Search Google" quick link.
   - Improved security with `rel="noopener noreferrer"`.
 
+### 3. Advanced Features (New)
+- **Default Model:** Switched to `gemini-1.5-flash` for optimal free-tier performance.
+- **Prompt Templates:** Added `src/js/prompts.js` with templates for SEO, Reviews, and Refactoring. UI dropdown added.
+- **Verifiable Artifacts:** Added "Generate Artifact" button to create and download structured Markdown reports.
+
 ## How to Test
 
 1.  **Enter API Key:**
@@ -27,6 +32,15 @@
     - Enter a valid Gemini API Key (get one from Google AI Studio).
     - Click "Save & Connect".
     - Verify the status indicator turns green and shows "Gemini API".
+
+2.  **Test Templates:**
+    - Select "SEO Blog Post" from the dropdown.
+    - Verify input is populated.
+
+3.  **Test Artifacts:**
+    - Enter a prompt like "Project Plan".
+    - Click the <i class="fas fa-file-code"></i> button.
+    - Verify a `.md` file is downloaded.
 
 2.  **Test AI Features:**
     - Create a task "Plan a trip to Tokyo".
