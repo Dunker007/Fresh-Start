@@ -1,0 +1,2885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexus Workspace</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto+Mono:wght@400;500&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.0/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap');
+
+    :root {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #f1f5f9;
+      --bg-elevated: #ffffff;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border-color: #e2e8f0;
+      --accent-primary: #4285f4;
+      --accent-secondary: #34a853;
+      --accent-warning: #fbbc04;
+      --accent-danger: #ea4335;
+      --accent-purple: #a855f7;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1);
+      --shadow-glow: 0 0 20px rgba(66,133,244,0.15);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+    }
+
+    .dark {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --bg-elevated: #1e293b;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border-color: #334155;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4);
+      --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.5);
+      --shadow-glow: 0 0 30px rgba(66,133,244,0.25);
+    }
+
+    * {
+      font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .font-mono { font-family: 'Roboto Mono', monospace; }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: var(--text-muted);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+    /* Custom Components */
+    .glass-panel {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+    }
+
+    .glass-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    .glass-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: var(--accent-primary);
+      color: white;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary:hover {
+      background: #3b78e7;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-secondary:hover {
+      background: var(--border-color);
+    }
+
+    .btn-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .btn-icon:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .input-field {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      color: var(--text-primary);
+      font-size: 16px;
+      width: 100%;
+      transition: all 0.2s;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(66,133,244,0.15);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .tag-blue { background: rgba(66,133,244,0.15); color: #4285f4; }
+    .tag-green { background: rgba(52,168,83,0.15); color: #34a853; }
+    .tag-yellow { background: rgba(251,188,4,0.15); color: #f59e0b; }
+    .tag-red { background: rgba(234,67,53,0.15); color: #ea4335; }
+    .tag-purple { background: rgba(168,85,247,0.15); color: #a855f7; }
+
+    /* Layout */
+    .app-container {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 280px;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar.collapsed {
+      transform: translateX(-280px);
+      margin-left: -280px;
+    }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header {
+      height: 64px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .search-bar {
+      flex: 1;
+      max-width: 600px;
+      position: relative;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 12px 16px 12px 44px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      color: var(--text-primary);
+      font-size: 15px;
+    }
+
+    .search-bar input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(66,133,244,0.15);
+    }
+
+    .search-bar i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .workspace-area {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      overflow-y: auto;
+      align-content: start;
+    }
+
+    /* Widget Cards */
+    .widget {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      max-height: 500px;
+    }
+
+    .widget-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-tertiary);
+    }
+
+    .widget-title {
+      font-weight: 600;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .widget-title i {
+      color: var(--accent-primary);
+    }
+
+    .widget-content {
+      padding: 16px 20px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* Task List Styles */
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .task-item:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--border-color);
+    }
+
+    .task-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border-color);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+      transition: all 0.2s;
+    }
+
+    .task-checkbox:hover {
+      border-color: var(--accent-primary);
+    }
+
+    .task-checkbox.checked {
+      background: var(--accent-secondary);
+      border-color: var(--accent-secondary);
+    }
+
+    .task-checkbox.checked i {
+      color: white;
+      font-size: 10px;
+    }
+
+    .task-content {
+      flex: 1;
+    }
+
+    .task-text {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .task-text.completed {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .task-meta {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    /* File Grid */
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 16px;
+    }
+
+    .file-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 8px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .file-item:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .file-item.selected {
+      background: rgba(66,133,244,0.1);
+      border: 1px solid var(--accent-primary);
+    }
+
+    .file-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .file-icon.folder { background: rgba(251,188,4,0.15); color: #fbbc04; }
+    .file-icon.image { background: rgba(234,67,53,0.15); color: #ea4335; }
+    .file-icon.document { background: rgba(66,133,244,0.15); color: #4285f4; }
+    .file-icon.code { background: rgba(168,85,247,0.15); color: #a855f7; }
+    .file-icon.other { background: var(--bg-tertiary); color: var(--text-secondary); }
+
+    .file-name {
+      font-size: 12px;
+      word-break: break-word;
+      line-height: 1.3;
+    }
+
+    /* Notes */
+    .note-card {
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid var(--accent-primary);
+    }
+
+    .note-card:hover {
+      transform: translateX(4px);
+    }
+
+    .note-card.yellow { border-left-color: #fbbc04; }
+    .note-card.green { border-left-color: #34a853; }
+    .note-card.red { border-left-color: #ea4335; }
+    .note-card.purple { border-left-color: #a855f7; }
+
+    .note-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .note-preview {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    /* Timer Widget */
+    .timer-display {
+      font-size: 64px;
+      font-weight: 700;
+      text-align: center;
+      font-family: 'Roboto Mono', monospace;
+      letter-spacing: -2px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .timer-controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .timer-type-btns {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .timer-type-btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .timer-type-btn.active {
+      background: var(--accent-primary);
+      color: white;
+      border-color: var(--accent-primary);
+    }
+
+    /* Calendar Mini */
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      text-align: center;
+    }
+
+    .calendar-header {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 8px 0;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .calendar-day:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .calendar-day.today {
+      background: var(--accent-primary);
+      color: white;
+      font-weight: 600;
+    }
+
+    .calendar-day.has-event::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      width: 4px;
+      height: 4px;
+      background: var(--accent-secondary);
+      border-radius: 50%;
+    }
+
+    .calendar-day {
+      position: relative;
+    }
+
+    /* Quick Links */
+    .quick-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .quick-link:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .quick-link-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    /* Project Cards */
+    .project-card {
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .project-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .project-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .project-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .project-name {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .project-stats {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* AI Chat */
+    .ai-chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ai-message {
+      max-width: 85%;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .ai-message.user {
+      background: var(--accent-primary);
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    .ai-message.assistant {
+      background: var(--bg-tertiary);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+
+    .ai-message.assistant .markdown-content h1,
+    .ai-message.assistant .markdown-content h2,
+    .ai-message.assistant .markdown-content h3 {
+      margin-top: 12px;
+      margin-bottom: 8px;
+    }
+
+    .ai-message.assistant .markdown-content p {
+      margin-bottom: 8px;
+    }
+
+    .ai-message.assistant .markdown-content code {
+      background: var(--bg-primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 13px;
+    }
+
+    .ai-message.assistant .markdown-content pre {
+      background: var(--bg-primary);
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      overflow-x: auto;
+    }
+
+    .ai-message.assistant .markdown-content pre code {
+      background: transparent;
+      padding: 0;
+    }
+
+    .ai-input-area {
+      padding: 16px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 12px;
+    }
+
+    .ai-input-area input {
+      flex: 1;
+    }
+
+    /* Sidebar Styles */
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 20px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .nav-section {
+      margin-bottom: 24px;
+    }
+
+    .nav-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      padding: 0 12px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .nav-item:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background: rgba(66,133,244,0.1);
+      color: var(--accent-primary);
+    }
+
+    .nav-item i {
+      width: 20px;
+      text-align: center;
+    }
+
+    .nav-item .badge {
+      margin-left: auto;
+      background: var(--accent-primary);
+      color: white;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .workspace-list {
+      margin-top: 8px;
+    }
+
+    .workspace-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+    }
+
+    .workspace-item:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .workspace-item.active {
+      background: rgba(66,133,244,0.1);
+    }
+
+    .workspace-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      transform: scale(0.9);
+      transition: transform 0.2s;
+    }
+
+    .modal-overlay.active .modal {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .modal-body {
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .form-row > * {
+      flex: 1;
+    }
+
+    /* Color Picker */
+    .color-options {
+      display: flex;
+      gap: 8px;
+    }
+
+    .color-option {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .color-option:hover {
+      transform: scale(1.1);
+    }
+
+    .color-option.selected {
+      border-color: var(--text-primary);
+    }
+
+    /* Priority Selector */
+    .priority-options {
+      display: flex;
+      gap: 8px;
+    }
+
+    .priority-option {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .priority-option:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .priority-option.selected {
+      border-color: var(--accent-primary);
+      background: rgba(66,133,244,0.1);
+    }
+
+    /* Layout Canvas */
+    .layout-canvas {
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+      min-height: 400px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .layout-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
+      background-size: 20px 20px;
+      opacity: 0.5;
+    }
+
+    .layout-item {
+      position: absolute;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      cursor: move;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--text-secondary);
+      transition: border-color 0.2s;
+    }
+
+    .layout-item:hover {
+      border-color: var(--accent-primary);
+    }
+
+    .layout-item.selected {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 2px rgba(66,133,244,0.3);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 100;
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar.collapsed {
+        margin-left: 0;
+      }
+
+      .workspace-area {
+        grid-template-columns: 1fr;
+      }
+
+      .timer-display {
+        font-size: 48px;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .animate-fade-in {
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .animate-pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* Toast Notifications */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1100;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .toast {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: fadeIn 0.3s ease;
+      min-width: 300px;
+    }
+
+    .toast.success { border-left: 4px solid var(--accent-secondary); }
+    .toast.error { border-left: 4px solid var(--accent-danger); }
+    .toast.info { border-left: 4px solid var(--accent-primary); }
+
+    /* Drag and Drop */
+    .sortable-ghost {
+      opacity: 0.4;
+    }
+
+    .sortable-chosen {
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Loading States */
+    .loading-spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--accent-primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--border-color) 50%, var(--bg-tertiary) 75%);
+      background-size: 200% 100%;
+      animation: skeleton 1.5s ease-in-out infinite;
+    }
+
+    @keyframes skeleton {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Dropdown */
+    .dropdown {
+      position: relative;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      min-width: 180px;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-10px);
+      transition: all 0.2s;
+    }
+
+    .dropdown.active .dropdown-menu {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(8px);
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 14px;
+    }
+
+    .dropdown-item:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: var(--border-color);
+      margin: 4px 0;
+    }
+
+    /* Context Menu */
+    .context-menu {
+      position: fixed;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      min-width: 180px;
+      z-index: 1000;
+      padding: 4px 0;
+    }
+
+    /* Tab view */
+    .tab-container {
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-sm);
+      margin-bottom: 16px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon"><i class="fas fa-cube"></i></div>
+          <span>Nexus</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Main</div>
+          <div class="nav-item active" data-view="dashboard">
+            <i class="fas fa-th-large"></i>
+            <span>Dashboard</span>
+          </div>
+          <div class="nav-item" data-view="files">
+            <i class="fas fa-folder"></i>
+            <span>File Manager</span>
+          </div>
+          <div class="nav-item" data-view="canvas">
+            <i class="fas fa-object-group"></i>
+            <span>Layout Planner</span>
+          </div>
+          <div class="nav-item" data-view="ai">
+            <i class="fas fa-robot"></i>
+            <span>AI Assistant</span>
+            <span class="badge">New</span>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Workspaces</div>
+          <div class="workspace-list" id="workspaceList">
+            <!-- Workspaces populated by JS -->
+          </div>
+          <div class="nav-item" id="addWorkspaceBtn" style="color: var(--accent-primary);">
+            <i class="fas fa-plus"></i>
+            <span>New Workspace</span>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Quick Access</div>
+          <a class="quick-link" href="https://drive.google.com" target="_blank" rel="noopener">
+            <div class="quick-link-icon" style="background: rgba(251,188,4,0.15); color: #fbbc04;">
+              <i class="fab fa-google-drive"></i>
+            </div>
+            <span style="font-size: 14px;">Google Drive</span>
+          </a>
+          <a class="quick-link" href="https://calendar.google.com" target="_blank" rel="noopener">
+            <div class="quick-link-icon" style="background: rgba(66,133,244,0.15); color: #4285f4;">
+              <i class="fas fa-calendar"></i>
+            </div>
+            <span style="font-size: 14px;">Calendar</span>
+          </a>
+          <a class="quick-link" href="https://docs.google.com" target="_blank" rel="noopener">
+            <div class="quick-link-icon" style="background: rgba(66,133,244,0.15); color: #4285f4;">
+              <i class="fas fa-file-alt"></i>
+            </div>
+            <span style="font-size: 14px;">Docs</span>
+          </a>
+          <a class="quick-link" href="https://mail.google.com" target="_blank" rel="noopener">
+            <div class="quick-link-icon" style="background: rgba(234,67,53,0.15); color: #ea4335;">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <span style="font-size: 14px;">Gmail</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="btn-secondary" style="width: 100%;" id="exportBtn">
+          <i class="fas fa-download"></i> Export Data
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="header">
+        <button class="btn-icon" id="toggleSidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search everything..." id="globalSearch">
+        </div>
+
+        <div class="dropdown" id="settingsDropdown">
+          <button class="btn-icon">
+            <i class="fas fa-cog"></i>
+          </button>
+          <div class="dropdown-menu">
+            <div class="dropdown-item" id="toggleTheme">
+              <i class="fas fa-moon"></i>
+              <span>Toggle Theme</span>
+            </div>
+            <div class="dropdown-item" id="importBtn">
+              <i class="fas fa-upload"></i>
+              <span>Import Data</span>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" id="resetBtn">
+              <i class="fas fa-trash"></i>
+              <span>Reset All Data</span>
+            </div>
+          </div>
+        </div>
+
+        <input type="file" id="importInput" accept=".json" style="display: none;">
+      </header>
+
+      <!-- Dashboard View -->
+      <div class="workspace-area" id="dashboardView">
+        <!-- Tasks Widget -->
+        <div class="widget" id="tasksWidget">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-check-circle"></i>
+              Tasks
+            </div>
+            <button class="btn-icon" id="addTaskBtn">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="widget-content" id="taskList">
+            <!-- Tasks populated by JS -->
+          </div>
+        </div>
+
+        <!-- Timer Widget -->
+        <div class="widget">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-clock"></i>
+              Focus Timer
+            </div>
+          </div>
+          <div class="widget-content" style="text-align: center; padding: 24px;">
+            <div class="timer-type-btns">
+              <button class="timer-type-btn active" data-time="1500">Focus</button>
+              <button class="timer-type-btn" data-time="300">Short Break</button>
+              <button class="timer-type-btn" data-time="900">Long Break</button>
+            </div>
+            <div class="timer-display" id="timerDisplay">25:00</div>
+            <div class="timer-controls">
+              <button class="btn-primary" id="timerStartBtn">
+                <i class="fas fa-play"></i> Start
+              </button>
+              <button class="btn-secondary" id="timerResetBtn">
+                <i class="fas fa-undo"></i> Reset
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes Widget -->
+        <div class="widget" id="notesWidget">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-sticky-note"></i>
+              Quick Notes
+            </div>
+            <button class="btn-icon" id="addNoteBtn">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="widget-content" id="notesList">
+            <!-- Notes populated by JS -->
+          </div>
+        </div>
+
+        <!-- Calendar Widget -->
+        <div class="widget">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-calendar-alt"></i>
+              <span id="calendarMonthYear"></span>
+            </div>
+            <div style="display: flex; gap: 4px;">
+              <button class="btn-icon" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+              <button class="btn-icon" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
+          <div class="widget-content">
+            <div class="calendar-grid" id="calendarGrid">
+              <!-- Calendar populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Projects Widget -->
+        <div class="widget" id="projectsWidget">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-project-diagram"></i>
+              Projects
+            </div>
+            <button class="btn-icon" id="addProjectBtn">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="widget-content" id="projectsList">
+            <!-- Projects populated by JS -->
+          </div>
+        </div>
+
+        <!-- Bookmarks Widget -->
+        <div class="widget">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-bookmark"></i>
+              Bookmarks
+            </div>
+            <button class="btn-icon" id="addBookmarkBtn">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="widget-content" id="bookmarksList">
+            <!-- Bookmarks populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- File Manager View -->
+      <div class="workspace-area" id="filesView" style="display: none;">
+        <div class="widget" style="grid-column: 1 / -1; max-height: none;">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-folder-open"></i>
+              <span id="currentPath">Files</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-icon" id="createFolderBtn">
+                <i class="fas fa-folder-plus"></i>
+              </button>
+              <button class="btn-icon" id="uploadFileBtn">
+                <i class="fas fa-upload"></i>
+              </button>
+            </div>
+          </div>
+          <div class="widget-content">
+            <div class="file-grid" id="fileGrid">
+              <!-- Files populated by JS -->
+            </div>
+          </div>
+        </div>
+        <input type="file" id="fileUploadInput" multiple style="display: none;">
+      </div>
+
+      <!-- Layout Planner View -->
+      <div class="workspace-area" id="canvasView" style="display: none;">
+        <div class="widget" style="grid-column: 1 / -1; max-height: none;">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-object-group"></i>
+              Layout Planner
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-secondary" id="addLayoutItem">
+                <i class="fas fa-plus"></i> Add Zone
+              </button>
+              <button class="btn-secondary" id="clearCanvas">
+                <i class="fas fa-trash"></i> Clear
+              </button>
+              <button class="btn-primary" id="saveLayout">
+                <i class="fas fa-save"></i> Save Layout
+              </button>
+            </div>
+          </div>
+          <div class="widget-content" style="padding: 0;">
+            <div class="layout-canvas" id="layoutCanvas">
+              <div class="layout-grid"></div>
+              <!-- Layout items populated by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Assistant View -->
+      <div class="workspace-area" id="aiView" style="display: none;">
+        <div class="widget" style="grid-column: 1 / -1; max-height: none; height: calc(100vh - 124px); display: flex; flex-direction: column;">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-robot"></i>
+              AI Assistant
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <select class="input-field" id="aiModelSelect" style="width: auto; padding: 8px 12px; font-size: 13px;">
+                <option value="Claude-Sonnet-4.5">Claude Sonnet 4.5</option>
+                <option value="GPT-5.1">GPT-5.1</option>
+                <option value="Gemini-2.5-Flash">Gemini 2.5 Flash</option>
+                <option value="Grok-4-Fast-Non-Reasoning">Grok 4 Fast</option>
+              </select>
+              <button class="btn-icon" id="clearChatBtn">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+          <div class="ai-chat-messages" id="aiChatMessages">
+            <div class="ai-message assistant">
+              <div class="markdown-content">
+                <p>👋 Hello! I'm your AI workspace assistant. I can help you with:</p>
+                <ul>
+                  <li>Organizing tasks and priorities</li>
+                  <li>Brainstorming project ideas</li>
+                  <li>Writing and editing content</li>
+                  <li>Answering questions</li>
+                </ul>
+                <p>How can I help you today?</p>
+              </div>
+            </div>
+          </div>
+          <div class="ai-input-area">
+            <input type="text" class="input-field" id="aiInput" placeholder="Ask me anything...">
+            <button class="btn-primary" id="aiSendBtn">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Task Modal -->
+  <div class="modal-overlay" id="taskModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="taskModalTitle">Add Task</h3>
+        <button class="btn-icon" onclick="closeModal('taskModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Task Title</label>
+          <input type="text" class="input-field" id="taskTitleInput" placeholder="What needs to be done?">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Due Date</label>
+          <input type="date" class="input-field" id="taskDueInput">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <div class="priority-options">
+            <div class="priority-option selected" data-priority="low">Low</div>
+            <div class="priority-option" data-priority="medium">Medium</div>
+            <div class="priority-option" data-priority="high">High</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tags (comma-separated)</label>
+          <input type="text" class="input-field" id="taskTagsInput" placeholder="work, urgent, project">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('taskModal')">Cancel</button>
+        <button class="btn-primary" id="saveTaskBtn">Save Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Note Modal -->
+  <div class="modal-overlay" id="noteModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="noteModalTitle">Add Note</h3>
+        <button class="btn-icon" onclick="closeModal('noteModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input type="text" class="input-field" id="noteTitleInput" placeholder="Note title...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Content</label>
+          <textarea class="input-field" id="noteContentInput" placeholder="Write your note..." rows="6" style="resize: vertical;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color</label>
+          <div class="color-options">
+            <div class="color-option selected" data-color="blue" style="background: #4285f4;"></div>
+            <div class="color-option" data-color="yellow" style="background: #fbbc04;"></div>
+            <div class="color-option" data-color="green" style="background: #34a853;"></div>
+            <div class="color-option" data-color="red" style="background: #ea4335;"></div>
+            <div class="color-option" data-color="purple" style="background: #a855f7;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('noteModal')">Cancel</button>
+        <button class="btn-primary" id="saveNoteBtn">Save Note</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project Modal -->
+  <div class="modal-overlay" id="projectModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">New Project</h3>
+        <button class="btn-icon" onclick="closeModal('projectModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Project Name</label>
+          <input type="text" class="input-field" id="projectNameInput" placeholder="My Awesome Project">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="input-field" id="projectDescInput" placeholder="What's this project about?" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color</label>
+          <div class="color-options">
+            <div class="color-option selected" data-color="#4285f4" style="background: #4285f4;"></div>
+            <div class="color-option" data-color="#34a853" style="background: #34a853;"></div>
+            <div class="color-option" data-color="#fbbc04" style="background: #fbbc04;"></div>
+            <div class="color-option" data-color="#ea4335" style="background: #ea4335;"></div>
+            <div class="color-option" data-color="#a855f7" style="background: #a855f7;"></div>
+            <div class="color-option" data-color="#0ea5e9" style="background: #0ea5e9;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('projectModal')">Cancel</button>
+        <button class="btn-primary" id="saveProjectBtn">Create Project</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Workspace Modal -->
+  <div class="modal-overlay" id="workspaceModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">New Workspace</h3>
+        <button class="btn-icon" onclick="closeModal('workspaceModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Workspace Name</label>
+          <input type="text" class="input-field" id="workspaceNameInput" placeholder="My Workspace">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color</label>
+          <div class="color-options">
+            <div class="color-option selected" data-color="#4285f4" style="background: #4285f4;"></div>
+            <div class="color-option" data-color="#34a853" style="background: #34a853;"></div>
+            <div class="color-option" data-color="#fbbc04" style="background: #fbbc04;"></div>
+            <div class="color-option" data-color="#ea4335" style="background: #ea4335;"></div>
+            <div class="color-option" data-color="#a855f7" style="background: #a855f7;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('workspaceModal')">Cancel</button>
+        <button class="btn-primary" id="saveWorkspaceBtn">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bookmark Modal -->
+  <div class="modal-overlay" id="bookmarkModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Bookmark</h3>
+        <button class="btn-icon" onclick="closeModal('bookmarkModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input type="text" class="input-field" id="bookmarkTitleInput" placeholder="Bookmark name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL</label>
+          <input type="url" class="input-field" id="bookmarkUrlInput" placeholder="https://...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('bookmarkModal')">Cancel</button>
+        <button class="btn-primary" id="saveBookmarkBtn">Add Bookmark</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Folder Modal -->
+  <div class="modal-overlay" id="folderModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Create Folder</h3>
+        <button class="btn-icon" onclick="closeModal('folderModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Folder Name</label>
+          <input type="text" class="input-field" id="folderNameInput" placeholder="New Folder">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('folderModal')">Cancel</button>
+        <button class="btn-primary" id="createFolderConfirmBtn">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layout Item Modal -->
+  <div class="modal-overlay" id="layoutItemModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Zone</h3>
+        <button class="btn-icon" onclick="closeModal('layoutItemModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Zone Label</label>
+          <input type="text" class="input-field" id="layoutItemLabel" placeholder="e.g., Work Area, Notes, Browser">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color</label>
+          <div class="color-options">
+            <div class="color-option selected" data-color="#4285f4" style="background: #4285f4;"></div>
+            <div class="color-option" data-color="#34a853" style="background: #34a853;"></div>
+            <div class="color-option" data-color="#fbbc04" style="background: #fbbc04;"></div>
+            <div class="color-option" data-color="#ea4335" style="background: #ea4335;"></div>
+            <div class="color-option" data-color="#a855f7" style="background: #a855f7;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('layoutItemModal')">Cancel</button>
+        <button class="btn-primary" id="addLayoutItemConfirm">Add Zone</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="confirmTitle">Confirm</h3>
+        <button class="btn-icon" onclick="closeModal('confirmModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmMessage">Are you sure?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('confirmModal')">Cancel</button>
+        <button class="btn-primary" id="confirmActionBtn" style="background: var(--accent-danger);">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    // ==================== State Management ====================
+    const AppState = {
+      currentView: 'dashboard',
+      currentWorkspace: 'default',
+      tasks: [],
+      notes: [],
+      projects: [],
+      workspaces: [{ id: 'default', name: 'Personal', color: '#4285f4' }],
+      files: [],
+      bookmarks: [],
+      layoutItems: [],
+      timerState: {
+        time: 1500,
+        running: false,
+        interval: null
+      },
+      calendar: {
+        month: new Date().getMonth(),
+        year: new Date().getFullYear()
+      },
+      editingTask: null,
+      editingNote: null,
+      aiMessages: []
+    };
+
+    // ==================== Initialization ====================
+    function init() {
+      setupTheme();
+      loadDemoData();
+      setupEventListeners();
+      renderAll();
+    }
+
+    function setupTheme() {
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        if (event.matches) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      });
+    }
+
+    function loadDemoData() {
+      // Demo tasks
+      AppState.tasks = [
+        { id: '1', title: 'Review project proposal', completed: false, due: getTodayStr(), priority: 'high', tags: ['work', 'urgent'], workspace: 'default' },
+        { id: '2', title: 'Update documentation', completed: false, due: getTomorrowStr(), priority: 'medium', tags: ['docs'], workspace: 'default' },
+        { id: '3', title: 'Team standup meeting', completed: true, due: getTodayStr(), priority: 'low', tags: ['meeting'], workspace: 'default' }
+      ];
+
+      // Demo notes
+      AppState.notes = [
+        { id: '1', title: 'Meeting Notes', content: 'Discussed Q4 roadmap priorities and resource allocation for the new project.', color: 'blue', workspace: 'default' },
+        { id: '2', title: 'Ideas', content: 'Implement dark mode toggle\nAdd keyboard shortcuts\nIntegrate with calendar API', color: 'yellow', workspace: 'default' }
+      ];
+
+      // Demo projects
+      AppState.projects = [
+        { id: '1', name: 'Website Redesign', description: 'Complete overhaul of company website', color: '#4285f4', tasks: 12, completed: 5, workspace: 'default' },
+        { id: '2', name: 'Mobile App', description: 'iOS and Android app development', color: '#34a853', tasks: 8, completed: 3, workspace: 'default' }
+      ];
+
+      // Demo files
+      AppState.files = [
+        { id: '1', name: 'Documents', type: 'folder', parent: null },
+        { id: '2', name: 'Images', type: 'folder', parent: null },
+        { id: '3', name: 'Project Brief.pdf', type: 'document', parent: null },
+        { id: '4', name: 'Notes.txt', type: 'document', parent: null }
+      ];
+
+      // Demo bookmarks
+      AppState.bookmarks = [
+        { id: '1', title: 'Google Search', url: 'https://google.com' },
+        { id: '2', title: 'GitHub', url: 'https://github.com' }
+      ];
+
+      // Demo layout items
+      AppState.layoutItems = [
+        { id: '1', label: 'Code Editor', color: '#4285f4', x: 20, y: 20, width: 200, height: 150 },
+        { id: '2', label: 'Terminal', color: '#34a853', x: 240, y: 20, width: 150, height: 100 }
+      ];
+    }
+
+    function getTodayStr() {
+      return new Date().toISOString().split('T')[0];
+    }
+
+    function getTomorrowStr() {
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      return d.toISOString().split('T')[0];
+    }
+
+    // ==================== Event Listeners ====================
+    function setupEventListeners() {
+      // Navigation
+      document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+        item.addEventListener('click', () => switchView(item.dataset.view));
+      });
+
+      // Sidebar toggle
+      document.getElementById('toggleSidebar').addEventListener('click', toggleSidebar);
+
+      // Theme toggle
+      document.getElementById('toggleTheme').addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        closeDropdown('settingsDropdown');
+      });
+
+      // Settings dropdown
+      document.getElementById('settingsDropdown').addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('settingsDropdown').classList.toggle('active');
+      });
+
+      document.addEventListener('click', () => {
+        closeDropdown('settingsDropdown');
+      });
+
+      // Task handlers
+      document.getElementById('addTaskBtn').addEventListener('click', () => openTaskModal());
+      document.getElementById('saveTaskBtn').addEventListener('click', saveTask);
+
+      // Note handlers
+      document.getElementById('addNoteBtn').addEventListener('click', () => openNoteModal());
+      document.getElementById('saveNoteBtn').addEventListener('click', saveNote);
+
+      // Project handlers
+      document.getElementById('addProjectBtn').addEventListener('click', () => openModal('projectModal'));
+      document.getElementById('saveProjectBtn').addEventListener('click', saveProject);
+
+      // Workspace handlers
+      document.getElementById('addWorkspaceBtn').addEventListener('click', () => openModal('workspaceModal'));
+      document.getElementById('saveWorkspaceBtn').addEventListener('click', saveWorkspace);
+
+      // Bookmark handlers
+      document.getElementById('addBookmarkBtn').addEventListener('click', () => openModal('bookmarkModal'));
+      document.getElementById('saveBookmarkBtn').addEventListener('click', saveBookmark);
+
+      // File handlers
+      document.getElementById('createFolderBtn').addEventListener('click', () => openModal('folderModal'));
+      document.getElementById('createFolderConfirmBtn').addEventListener('click', createFolder);
+      document.getElementById('uploadFileBtn').addEventListener('click', () => document.getElementById('fileUploadInput').click());
+      document.getElementById('fileUploadInput').addEventListener('change', handleFileUpload);
+
+      // Timer handlers
+      document.getElementById('timerStartBtn').addEventListener('click', toggleTimer);
+      document.getElementById('timerResetBtn').addEventListener('click', resetTimer);
+      document.querySelectorAll('.timer-type-btn').forEach(btn => {
+        btn.addEventListener('click', () => setTimerType(btn));
+      });
+
+      // Calendar handlers
+      document.getElementById('prevMonth').addEventListener('click', () => navigateCalendar(-1));
+      document.getElementById('nextMonth').addEventListener('click', () => navigateCalendar(1));
+
+      // Layout handlers
+      document.getElementById('addLayoutItem').addEventListener('click', () => openModal('layoutItemModal'));
+      document.getElementById('addLayoutItemConfirm').addEventListener('click', addLayoutItem);
+      document.getElementById('clearCanvas').addEventListener('click', clearLayoutCanvas);
+      document.getElementById('saveLayout').addEventListener('click', () => showToast('Layout saved!', 'success'));
+
+      // AI handlers
+      document.getElementById('aiSendBtn').addEventListener('click', sendAIMessage);
+      document.getElementById('aiInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendAIMessage();
+      });
+      document.getElementById('clearChatBtn').addEventListener('click', clearAIChat);
+
+      // Export/Import handlers
+      document.getElementById('exportBtn').addEventListener('click', exportData);
+      document.getElementById('importBtn').addEventListener('click', () => {
+        document.getElementById('importInput').click();
+        closeDropdown('settingsDropdown');
+      });
+      document.getElementById('importInput').addEventListener('change', importData);
+
+      // Reset handler
+      document.getElementById('resetBtn').addEventListener('click', () => {
+        showConfirm('Reset All Data', 'This will delete all your data. This cannot be undone.', () => {
+          loadDemoData();
+          renderAll();
+          showToast('Data reset to defaults', 'info');
+        });
+        closeDropdown('settingsDropdown');
+      });
+
+      // Priority options
+      document.querySelectorAll('.priority-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          document.querySelectorAll('.priority-option').forEach(o => o.classList.remove('selected'));
+          opt.classList.add('selected');
+        });
+      });
+
+      // Color options
+      document.querySelectorAll('.color-options').forEach(container => {
+        container.querySelectorAll('.color-option').forEach(opt => {
+          opt.addEventListener('click', () => {
+            container.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+          });
+        });
+      });
+
+      // Global search
+      document.getElementById('globalSearch').addEventListener('input', handleGlobalSearch);
+    }
+
+    // ==================== View Management ====================
+    function switchView(view) {
+      AppState.currentView = view;
+      document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+        item.classList.toggle('active', item.dataset.view === view);
+      });
+
+      document.getElementById('dashboardView').style.display = view === 'dashboard' ? '' : 'none';
+      document.getElementById('filesView').style.display = view === 'files' ? '' : 'none';
+      document.getElementById('canvasView').style.display = view === 'canvas' ? '' : 'none';
+      document.getElementById('aiView').style.display = view === 'ai' ? '' : 'none';
+
+      if (view === 'canvas') {
+        renderLayoutCanvas();
+      }
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // ==================== Modal Management ====================
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    function openTaskModal(task = null) {
+      AppState.editingTask = task;
+      document.getElementById('taskModalTitle').textContent = task ? 'Edit Task' : 'Add Task';
+      document.getElementById('taskTitleInput').value = task?.title || '';
+      document.getElementById('taskDueInput').value = task?.due || '';
+      document.getElementById('taskTagsInput').value = task?.tags?.join(', ') || '';
+
+      document.querySelectorAll('.priority-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.priority === (task?.priority || 'low'));
+      });
+
+      openModal('taskModal');
+    }
+
+    function openNoteModal(note = null) {
+      AppState.editingNote = note;
+      document.getElementById('noteModalTitle').textContent = note ? 'Edit Note' : 'Add Note';
+      document.getElementById('noteTitleInput').value = note?.title || '';
+      document.getElementById('noteContentInput').value = note?.content || '';
+
+      const colorOptions = document.querySelector('#noteModal .color-options');
+      colorOptions.querySelectorAll('.color-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.color === (note?.color || 'blue'));
+      });
+
+      openModal('noteModal');
+    }
+
+    function showConfirm(title, message, onConfirm) {
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmMessage').textContent = message;
+      document.getElementById('confirmActionBtn').onclick = () => {
+        onConfirm();
+        closeModal('confirmModal');
+      };
+      openModal('confirmModal');
+    }
+
+    // ==================== Rendering Functions ====================
+    function renderAll() {
+      renderTasks();
+      renderNotes();
+      renderProjects();
+      renderWorkspaces();
+      renderFiles();
+      renderBookmarks();
+      renderCalendar();
+    }
+
+    function renderTasks() {
+      const container = document.getElementById('taskList');
+      const tasks = AppState.tasks.filter(t => t.workspace === AppState.currentWorkspace);
+
+      if (tasks.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-check-circle"></i>
+            <p>No tasks yet. Add one to get started!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = tasks.map(task => `
+        <div class="task-item" data-id="${task.id}">
+          <div class="task-checkbox ${task.completed ? 'checked' : ''}" onclick="toggleTask('${task.id}')">
+            ${task.completed ? '<i class="fas fa-check"></i>' : ''}
+          </div>
+          <div class="task-content" onclick="openTaskModal(AppState.tasks.find(t => t.id === '${task.id}'))">
+            <div class="task-text ${task.completed ? 'completed' : ''}">${escapeHtml(task.title)}</div>
+            <div class="task-meta">
+              ${task.due ? `<span class="tag tag-blue"><i class="fas fa-calendar"></i> ${formatDate(task.due)}</span>` : ''}
+              <span class="tag tag-${getPriorityColor(task.priority)}">${task.priority}</span>
+              ${task.tags?.map(tag => `<span class="tag tag-purple">${escapeHtml(tag)}</span>`).join('') || ''}
+            </div>
+          </div>
+          <button class="btn-icon" onclick="deleteTask('${task.id}')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      `).join('');
+
+      // Initialize sortable
+      if (typeof Sortable !== 'undefined') {
+        new Sortable(container, {
+          animation: 150,
+          ghostClass: 'sortable-ghost',
+          chosenClass: 'sortable-chosen'
+        });
+      }
+    }
+
+    function renderNotes() {
+      const container = document.getElementById('notesList');
+      const notes = AppState.notes.filter(n => n.workspace === AppState.currentWorkspace);
+
+      if (notes.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-sticky-note"></i>
+            <p>No notes yet. Create one!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = notes.map(note => `
+        <div class="note-card ${note.color}" onclick="openNoteModal(AppState.notes.find(n => n.id === '${note.id}'))">
+          <div class="note-title">${escapeHtml(note.title)}</div>
+          <div class="note-preview">${escapeHtml(note.content)}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderProjects() {
+      const container = document.getElementById('projectsList');
+      const projects = AppState.projects.filter(p => p.workspace === AppState.currentWorkspace);
+
+      if (projects.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-project-diagram"></i>
+            <p>No projects yet. Create one!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = projects.map(project => `
+        <div class="project-card">
+          <div class="project-header">
+            <div class="project-color" style="background: ${project.color}"></div>
+            <div class="project-name">${escapeHtml(project.name)}</div>
+          </div>
+          <div class="project-stats">
+            <span><i class="fas fa-tasks"></i> ${project.completed}/${project.tasks} tasks</span>
+            <span><i class="fas fa-percentage"></i> ${Math.round((project.completed/project.tasks)*100) || 0}%</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderWorkspaces() {
+      const container = document.getElementById('workspaceList');
+      container.innerHTML = AppState.workspaces.map(ws => `
+        <div class="workspace-item ${ws.id === AppState.currentWorkspace ? 'active' : ''}"
+             onclick="switchWorkspace('${ws.id}')">
+          <div class="workspace-dot" style="background: ${ws.color}"></div>
+          <span>${escapeHtml(ws.name)}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderFiles() {
+      const container = document.getElementById('fileGrid');
+
+      if (AppState.files.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <i class="fas fa-folder-open"></i>
+            <p>No files yet. Upload or create a folder!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = AppState.files.map(file => `
+        <div class="file-item" data-id="${file.id}">
+          <div class="file-icon ${file.type}">
+            <i class="fas fa-${getFileIcon(file.type)}"></i>
+          </div>
+          <div class="file-name">${escapeHtml(file.name)}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderBookmarks() {
+      const container = document.getElementById('bookmarksList');
+
+      if (AppState.bookmarks.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-bookmark"></i>
+            <p>No bookmarks yet. Add one!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = AppState.bookmarks.map(bookmark => `
+        <a class="quick-link" href="${escapeHtml(bookmark.url)}" target="_blank" rel="noopener">
+          <div class="quick-link-icon" style="background: var(--bg-tertiary);">
+            <i class="fas fa-link"></i>
+          </div>
+          <span style="font-size: 14px;">${escapeHtml(bookmark.title)}</span>
+        </a>
+      `).join('');
+    }
+
+    function renderCalendar() {
+      const { month, year } = AppState.calendar;
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+
+      document.getElementById('calendarMonthYear').textContent = `${monthNames[month]} ${year}`;
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const today = new Date();
+
+      let html = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        .map(d => `<div class="calendar-header">${d}</div>`).join('');
+
+      // Empty cells before first day
+      for (let i = 0; i < firstDay; i++) {
+        html += '<div class="calendar-day"></div>';
+      }
+
+      // Days of month
+      for (let day = 1; day <= daysInMonth; day++) {
+        const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const hasEvent = AppState.tasks.some(t => t.due === dateStr && !t.completed);
+
+        html += `<div class="calendar-day ${isToday ? 'today' : ''} ${hasEvent ? 'has-event' : ''}">${day}</div>`;
+      }
+
+      document.getElementById('calendarGrid').innerHTML = html;
+    }
+
+    function renderLayoutCanvas() {
+      const canvas = document.getElementById('layoutCanvas');
+      const existingItems = canvas.querySelectorAll('.layout-item');
+      existingItems.forEach(item => item.remove());
+
+      AppState.layoutItems.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'layout-item';
+        el.dataset.id = item.id;
+        el.style.cssText = `left: ${item.x}px; top: ${item.y}px; width: ${item.width}px; height: ${item.height}px; border-color: ${item.color};`;
+        el.innerHTML = `<span style="color: ${item.color}">${escapeHtml(item.label)}</span>`;
+
+        makeDraggable(el);
+        makeResizable(el);
+
+        canvas.appendChild(el);
+      });
+    }
+
+    // ==================== Data Operations ====================
+    function saveTask() {
+      const title = document.getElementById('taskTitleInput').value.trim();
+      if (!title) {
+        showToast('Please enter a task title', 'error');
+        return;
+      }
+
+      const priority = document.querySelector('.priority-option.selected').dataset.priority;
+      const due = document.getElementById('taskDueInput').value;
+      const tagsInput = document.getElementById('taskTagsInput').value;
+      const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+
+      if (AppState.editingTask) {
+        const task = AppState.tasks.find(t => t.id === AppState.editingTask.id);
+        if (task) {
+          task.title = title;
+          task.priority = priority;
+          task.due = due;
+          task.tags = tags;
+        }
+        showToast('Task updated', 'success');
+      } else {
+        AppState.tasks.push({
+          id: Date.now().toString(),
+          title,
+          completed: false,
+          due,
+          priority,
+          tags,
+          workspace: AppState.currentWorkspace
+        });
+        showToast('Task added', 'success');
+      }
+
+      closeModal('taskModal');
+      renderTasks();
+      renderCalendar();
+    }
+
+    function toggleTask(id) {
+      const task = AppState.tasks.find(t => t.id === id);
+      if (task) {
+        task.completed = !task.completed;
+        renderTasks();
+      }
+    }
+
+    function deleteTask(id) {
+      showConfirm('Delete Task', 'Are you sure you want to delete this task?', () => {
+        AppState.tasks = AppState.tasks.filter(t => t.id !== id);
+        renderTasks();
+        showToast('Task deleted', 'info');
+      });
+    }
+
+    function saveNote() {
+      const title = document.getElementById('noteTitleInput').value.trim();
+      const content = document.getElementById('noteContentInput').value.trim();
+
+      if (!title) {
+        showToast('Please enter a note title', 'error');
+        return;
+      }
+
+      const color = document.querySelector('#noteModal .color-option.selected').dataset.color;
+
+      if (AppState.editingNote) {
+        const note = AppState.notes.find(n => n.id === AppState.editingNote.id);
+        if (note) {
+          note.title = title;
+          note.content = content;
+          note.color = color;
+        }
+        showToast('Note updated', 'success');
+      } else {
+        AppState.notes.push({
+          id: Date.now().toString(),
+          title,
+          content,
+          color,
+          workspace: AppState.currentWorkspace
+        });
+        showToast('Note created', 'success');
+      }
+
+      closeModal('noteModal');
+      renderNotes();
+    }
+
+    function saveProject() {
+      const name = document.getElementById('projectNameInput').value.trim();
+      if (!name) {
+        showToast('Please enter a project name', 'error');
+        return;
+      }
+
+      const description = document.getElementById('projectDescInput').value.trim();
+      const color = document.querySelector('#projectModal .color-option.selected').dataset.color;
+
+      AppState.projects.push({
+        id: Date.now().toString(),
+        name,
+        description,
+        color,
+        tasks: 0,
+        completed: 0,
+        workspace: AppState.currentWorkspace
+      });
+
+      closeModal('projectModal');
+      document.getElementById('projectNameInput').value = '';
+      document.getElementById('projectDescInput').value = '';
+      renderProjects();
+      showToast('Project created', 'success');
+    }
+
+    function saveWorkspace() {
+      const name = document.getElementById('workspaceNameInput').value.trim();
+      if (!name) {
+        showToast('Please enter a workspace name', 'error');
+        return;
+      }
+
+      const color = document.querySelector('#workspaceModal .color-option.selected').dataset.color;
+      const id = Date.now().toString();
+
+      AppState.workspaces.push({ id, name, color });
+      closeModal('workspaceModal');
+      document.getElementById('workspaceNameInput').value = '';
+      renderWorkspaces();
+      showToast('Workspace created', 'success');
+    }
+
+    function switchWorkspace(id) {
+      AppState.currentWorkspace = id;
+      renderAll();
+    }
+
+    function saveBookmark() {
+      const title = document.getElementById('bookmarkTitleInput').value.trim();
+      const url = document.getElementById('bookmarkUrlInput').value.trim();
+
+      if (!title || !url) {
+        showToast('Please fill in all fields', 'error');
+        return;
+      }
+
+      AppState.bookmarks.push({
+        id: Date.now().toString(),
+        title,
+        url
+      });
+
+      closeModal('bookmarkModal');
+      document.getElementById('bookmarkTitleInput').value = '';
+      document.getElementById('bookmarkUrlInput').value = '';
+      renderBookmarks();
+      showToast('Bookmark added', 'success');
+    }
+
+    function createFolder() {
+      const name = document.getElementById('folderNameInput').value.trim();
+      if (!name) {
+        showToast('Please enter a folder name', 'error');
+        return;
+      }
+
+      AppState.files.push({
+        id: Date.now().toString(),
+        name,
+        type: 'folder',
+        parent: null
+      });
+
+      closeModal('folderModal');
+      document.getElementById('folderNameInput').value = '';
+      renderFiles();
+      showToast('Folder created', 'success');
+    }
+
+    function handleFileUpload(e) {
+      const files = e.target.files;
+      if (!files.length) return;
+
+      Array.from(files).forEach(file => {
+        const type = getFileType(file.name);
+        AppState.files.push({
+          id: Date.now().toString() + Math.random(),
+          name: file.name,
+          type,
+          parent: null,
+          size: file.size
+        });
+      });
+
+      renderFiles();
+      showToast(`${files.length} file(s) added`, 'success');
+      e.target.value = '';
+    }
+
+    // ==================== Timer Functions ====================
+    function toggleTimer() {
+      const btn = document.getElementById('timerStartBtn');
+
+      if (AppState.timerState.running) {
+        clearInterval(AppState.timerState.interval);
+        AppState.timerState.running = false;
+        btn.innerHTML = '<i class="fas fa-play"></i> Start';
+      } else {
+        AppState.timerState.running = true;
+        btn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+
+        AppState.timerState.interval = setInterval(() => {
+          AppState.timerState.time--;
+          updateTimerDisplay();
+
+          if (AppState.timerState.time <= 0) {
+            clearInterval(AppState.timerState.interval);
+            AppState.timerState.running = false;
+            btn.innerHTML = '<i class="fas fa-play"></i> Start';
+            showToast('Timer complete! Take a break.', 'success');
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(AppState.timerState.interval);
+      AppState.timerState.running = false;
+      document.getElementById('timerStartBtn').innerHTML = '<i class="fas fa-play"></i> Start';
+
+      const activeBtn = document.querySelector('.timer-type-btn.active');
+      AppState.timerState.time = parseInt(activeBtn.dataset.time);
+      updateTimerDisplay();
+    }
+
+    function setTimerType(btn) {
+      document.querySelectorAll('.timer-type-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      clearInterval(AppState.timerState.interval);
+      AppState.timerState.running = false;
+      document.getElementById('timerStartBtn').innerHTML = '<i class="fas fa-play"></i> Start';
+
+      AppState.timerState.time = parseInt(btn.dataset.time);
+      updateTimerDisplay();
+    }
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(AppState.timerState.time / 60);
+      const seconds = AppState.timerState.time % 60;
+      document.getElementById('timerDisplay').textContent =
+        `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    // ==================== Calendar Functions ====================
+    function navigateCalendar(direction) {
+      AppState.calendar.month += direction;
+
+      if (AppState.calendar.month > 11) {
+        AppState.calendar.month = 0;
+        AppState.calendar.year++;
+      } else if (AppState.calendar.month < 0) {
+        AppState.calendar.month = 11;
+        AppState.calendar.year--;
+      }
+
+      renderCalendar();
+    }
+
+    // ==================== Layout Canvas Functions ====================
+    function addLayoutItem() {
+      const label = document.getElementById('layoutItemLabel').value.trim();
+      if (!label) {
+        showToast('Please enter a zone label', 'error');
+        return;
+      }
+
+      const color = document.querySelector('#layoutItemModal .color-option.selected').dataset.color;
+
+      AppState.layoutItems.push({
+        id: Date.now().toString(),
+        label,
+        color,
+        x: 50 + Math.random() * 100,
+        y: 50 + Math.random() * 100,
+        width: 150,
+        height: 100
+      });
+
+      closeModal('layoutItemModal');
+      document.getElementById('layoutItemLabel').value = '';
+      renderLayoutCanvas();
+      showToast('Zone added', 'success');
+    }
+
+    function clearLayoutCanvas() {
+      showConfirm('Clear Canvas', 'This will remove all layout zones.', () => {
+        AppState.layoutItems = [];
+        renderLayoutCanvas();
+        showToast('Canvas cleared', 'info');
+      });
+    }
+
+    function makeDraggable(el) {
+      let isDragging = false;
+      let startX, startY, origX, origY;
+
+      el.addEventListener('mousedown', (e) => {
+        if (e.target.classList.contains('resize-handle')) return;
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        origX = el.offsetLeft;
+        origY = el.offsetTop;
+        el.classList.add('selected');
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        el.style.left = (origX + dx) + 'px';
+        el.style.top = (origY + dy) + 'px';
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (isDragging) {
+          isDragging = false;
+          el.classList.remove('selected');
+          updateLayoutItemPosition(el);
+        }
+      });
+    }
+
+    function makeResizable(el) {
+      const handle = document.createElement('div');
+      handle.className = 'resize-handle';
+      handle.style.cssText = 'position: absolute; bottom: 0; right: 0; width: 15px; height: 15px; cursor: se-resize;';
+      el.appendChild(handle);
+
+      let isResizing = false;
+      let startX, startY, startWidth, startHeight;
+
+      handle.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        isResizing = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        startWidth = el.offsetWidth;
+        startHeight = el.offsetHeight;
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isResizing) return;
+        const width = startWidth + (e.clientX - startX);
+        const height = startHeight + (e.clientY - startY);
+        el.style.width = Math.max(50, width) + 'px';
+        el.style.height = Math.max(50, height) + 'px';
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (isResizing) {
+          isResizing = false;
+          updateLayoutItemPosition(el);
+        }
+      });
+    }
+
+    function updateLayoutItemPosition(el) {
+      const id = el.dataset.id;
+      const item = AppState.layoutItems.find(i => i.id === id);
+      if (item) {
+        item.x = el.offsetLeft;
+        item.y = el.offsetTop;
+        item.width = el.offsetWidth;
+        item.height = el.offsetHeight;
+      }
+    }
+
+    // ==================== AI Chat Functions ====================
+    function sendAIMessage() {
+      const input = document.getElementById('aiInput');
+      const message = input.value.trim();
+      if (!message) return;
+
+      const model = document.getElementById('aiModelSelect').value;
+
+      // Add user message to UI
+      addChatMessage(message, 'user');
+      input.value = '';
+
+      // Add loading indicator
+      const loadingId = 'loading-' + Date.now();
+      const messagesContainer = document.getElementById('aiChatMessages');
+      const loadingEl = document.createElement('div');
+      loadingEl.id = loadingId;
+      loadingEl.className = 'ai-message assistant';
+      loadingEl.innerHTML = '<div class="loading-spinner"></div>';
+      messagesContainer.appendChild(loadingEl);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+      // Send to Poe API
+      if (window.Poe) {
+        const handlerName = 'ai-response-' + Date.now();
+
+        window.Poe.registerHandler(handlerName, (result) => {
+          const msg = result.responses[0];
+          const loadingElement = document.getElementById(loadingId);
+
+          if (msg.status === 'error') {
+            if (loadingElement) {
+              loadingElement.innerHTML = `<div class="markdown-content"><p style="color: var(--accent-danger);">Error: ${msg.statusText || 'Something went wrong'}</p></div>`;
+            }
+          } else if (msg.status === 'incomplete') {
+            if (loadingElement) {
+              loadingElement.innerHTML = `<div class="markdown-content">${marked.parse(msg.content)}</div>`;
+            }
+          } else if (msg.status === 'complete') {
+            if (loadingElement) {
+              loadingElement.innerHTML = `<div class="markdown-content">${marked.parse(msg.content)}</div>`;
+            }
+          }
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        });
+
+        window.Poe.sendUserMessage(`@${model} ${message}`, {
+          handler: handlerName,
+          stream: true,
+          openChat: false
+        }).catch(err => {
+          const loadingElement = document.getElementById(loadingId);
+          if (loadingElement) {
+            loadingElement.innerHTML = `<div class="markdown-content"><p style="color: var(--accent-danger);">Error: ${err.message || 'Failed to send message'}</p></div>`;
+          }
+        });
+      } else {
+        // Demo mode without Poe API
+        setTimeout(() => {
+          const loadingElement = document.getElementById(loadingId);
+          if (loadingElement) {
+            loadingElement.innerHTML = `<div class="markdown-content"><p>I'm running in demo mode. Connect to Poe to enable AI responses!</p></div>`;
+          }
+        }, 1000);
+      }
+    }
+
+    function addChatMessage(content, role) {
+      const messagesContainer = document.getElementById('aiChatMessages');
+      const messageEl = document.createElement('div');
+      messageEl.className = `ai-message ${role}`;
+
+      if (role === 'user') {
+        messageEl.textContent = content;
+      } else {
+        messageEl.innerHTML = `<div class="markdown-content">${marked.parse(content)}</div>`;
+      }
+
+      messagesContainer.appendChild(messageEl);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function clearAIChat() {
+      const messagesContainer = document.getElementById('aiChatMessages');
+      messagesContainer.innerHTML = `
+        <div class="ai-message assistant">
+          <div class="markdown-content">
+            <p>👋 Hello! I'm your AI workspace assistant. How can I help you today?</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // ==================== Export/Import Functions ====================
+    function exportData() {
+      const data = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        tasks: AppState.tasks,
+        notes: AppState.notes,
+        projects: AppState.projects,
+        workspaces: AppState.workspaces,
+        files: AppState.files,
+        bookmarks: AppState.bookmarks,
+        layoutItems: AppState.layoutItems
+      };
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `nexus-workspace-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      showToast('Data exported successfully', 'success');
+    }
+
+    function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = JSON.parse(event.target.result);
+
+          if (data.tasks) AppState.tasks = data.tasks;
+          if (data.notes) AppState.notes = data.notes;
+          if (data.projects) AppState.projects = data.projects;
+          if (data.workspaces) AppState.workspaces = data.workspaces;
+          if (data.files) AppState.files = data.files;
+          if (data.bookmarks) AppState.bookmarks = data.bookmarks;
+          if (data.layoutItems) AppState.layoutItems = data.layoutItems;
+
+          renderAll();
+          showToast('Data imported successfully', 'success');
+        } catch (err) {
+          showToast('Failed to import data. Invalid file format.', 'error');
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    }
+
+    // ==================== Search Function ====================
+    function handleGlobalSearch(e) {
+      const query = e.target.value.toLowerCase();
+      if (!query) {
+        renderAll();
+        return;
+      }
+
+      // Filter tasks
+      const filteredTasks = AppState.tasks.filter(t =>
+        t.title.toLowerCase().includes(query) ||
+        t.tags?.some(tag => tag.toLowerCase().includes(query))
+      );
+
+      // Render filtered results (simplified)
+      const taskContainer = document.getElementById('taskList');
+      if (filteredTasks.length === 0) {
+        taskContainer.innerHTML = `<div class="empty-state"><i class="fas fa-search"></i><p>No matching tasks found</p></div>`;
+      } else {
+        const originalTasks = AppState.tasks;
+        AppState.tasks = filteredTasks;
+        renderTasks();
+        AppState.tasks = originalTasks;
+      }
+    }
+
+    // ==================== Utility Functions ====================
+    function escapeHtml(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function getPriorityColor(priority) {
+      const colors = { low: 'green', medium: 'yellow', high: 'red' };
+      return colors[priority] || 'blue';
+    }
+
+    function getFileIcon(type) {
+      const icons = {
+        folder: 'folder',
+        image: 'image',
+        document: 'file-alt',
+        code: 'code',
+        other: 'file'
+      };
+      return icons[type] || 'file';
+    }
+
+    function getFileType(filename) {
+      const ext = filename.split('.').pop().toLowerCase();
+      const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
+      const codeExts = ['js', 'ts', 'py', 'html', 'css', 'json'];
+      const docExts = ['pdf', 'doc', 'docx', 'txt', 'md'];
+
+      if (imageExts.includes(ext)) return 'image';
+      if (codeExts.includes(ext)) return 'code';
+      if (docExts.includes(ext)) return 'document';
+      return 'other';
+    }
+
+    function closeDropdown(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+        <span>${escapeHtml(message)}</span>
+      `;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Initialize app
+    init();
+  </script>
+</body>
+</html>
