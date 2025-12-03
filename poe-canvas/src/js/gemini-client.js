@@ -4,22 +4,6 @@
 const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 /**
- * Call the Gemini API to generate content
- * @param {string} message - The user's message/prompt
- * @param {string} apiKey - Google API Key
- * @param {string} model - Model name (default: gemini-pro)
- * @returns {Promise<string>} - The generated text
- */
-export async function callGemini(message, apiKey, model = 'gemini-pro') {
-    if (!apiKey) throw new Error('Gemini API key is missing');
-
-    const url = `${BASE_URL}/${model}:generateContent?key=${apiKey}`;
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 contents: [{

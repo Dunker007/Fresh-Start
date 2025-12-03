@@ -480,49 +480,35 @@
                         AI Assistant
                       </div>
                       <div style="display: flex; align-items: center; gap: 12px;">
-                        <div id="llmStatus"
-                          style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted);">
-                          <span id="llmStatusDot"
-                            style="width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted);"></span>
-                          <span id="llmStatusText">Checking...</span>
-                        </div>
-                        <select class="input-field" id="aiModelSelect"
-                          style="width: auto; padding: 8px 12px; font-size: 13px;">
-                          <option value="demo">Demo Mode</option>
-                        </select>
-                        <button class="btn-icon" id="refreshModelsBtn" title="Refresh models">
-                          <i class="fas fa-sync-alt"></i>
-                        </button>
-                        <button class="btn-icon" id="geminiSettingsBtn" title="Gemini Settings">
-                          <i class="fas fa-cog"></i>
-                        </button>
-                        <button class="btn-icon" id="clearChatBtn">
-                          <i class="fas fa-trash"></i>
-                        </button>
-                      </div>
-                    </div>
-                    <div class="ai-chat-messages" id="aiChatMessages">
-                      <div class="ai-message assistant">
-                        <div class="markdown-content">
-                          <p>👋 Hello! I'm your AI workspace assistant powered by <strong>local LLM</strong>.</p>
-                          <p>I can connect to:</p>
-                          <ul>
-                            <li><strong>LM Studio</strong> (localhost:1234)</li>
-                            <li><strong>Ollama</strong> (localhost:11434)</li>
-                          </ul>
-                          <p>Check the status indicator above. If no LLM is detected, start one and click the refresh
-                            button.</p>
+                        <div id="llmStatus" <i class="fas fa-cog"></i>
+                          </button>
+                          <button class="btn-icon" id="clearChatBtn">
+                            <i class="fas fa-trash"></i>
+                          </button>
                         </div>
                       </div>
-                    </div>
-                    <div class="ai-input-area">
-                      <input type="text" class="input-field" id="aiInput" placeholder="Ask me anything...">
-                      <button class="btn-primary" id="aiSendBtn">
-                        <i class="fas fa-paper-plane"></i>
-                      </button>
+                      <div class="ai-chat-messages" id="aiChatMessages">
+                        <div class="ai-message assistant">
+                          <div class="markdown-content">
+                            <p>👋 Hello! I'm your AI workspace assistant powered by <strong>local LLM</strong>.</p>
+                            <p>I can connect to:</p>
+                            <ul>
+                              <li><strong>LM Studio</strong> (localhost:1234)</li>
+                              <li><strong>Ollama</strong> (localhost:11434)</li>
+                            </ul>
+                            <p>Check the status indicator above. If no LLM is detected, start one and click the refresh
+                              button.</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="ai-input-area">
+                        <input type="text" class="input-field" id="aiInput" placeholder="Ask me anything...">
+                        <button class="btn-primary" id="aiSendBtn">
+                          <i class="fas fa-paper-plane"></i>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
     </main>
   </div>
 

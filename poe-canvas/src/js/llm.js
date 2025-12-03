@@ -57,8 +57,8 @@ export async function detectLocalLLM() {
 
   // 4. Fallback to Gemini if Key exists and no local LLM
   if (geminiKey) {
-    updateLLMState('gemini', ['gemini-pro', 'gemini-1.5-flash'], 'Gemini API');
-    return { provider: 'gemini', models: ['gemini-pro'], connected: true };
+    updateLLMState('gemini', ['gemini-1.5-flash', 'gemini-pro', 'gemini-1.5-pro'], 'Gemini API');
+    return { provider: 'gemini', models: ['gemini-1.5-flash'], connected: true };
   }
 
   // No LLM found

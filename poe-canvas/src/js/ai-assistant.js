@@ -1,5 +1,6 @@
 // ai-assistant.js - AI-powered productivity features
 import { callLLM } from './llm.js';
+import { PROMPT_TEMPLATES, fillTemplate } from './prompts.js';
 import { updateState } from './state.js';
 import { showToast } from './ui.js';
 import { renderTasks } from './tasks.js';
@@ -678,3 +679,74 @@ window.initNoteAIMenu = function () {
 window.initProjectAIMenu = function () {
   console.log('Project AI menu initialized');
 };
+
+// ==================== AI Templates & Artifacts ====================
+
+export function setupAITemplates() {
+  const select = document.getElementById('aiTemplateSelect');
+  if (!select) return;
+
+  // Populate dropdown
+  PROMPT_TEMPLATES.forEach(template => {
+    const option = document.createElement('option');
+    option.value = template.id;
+    option.textContent = template.name;
+    select.appendChild(option);
+  });
+
+  // Handle selection
+  select.addEventListener('change', () => {
+    const templateId = select.value;
+    if (!templateId) return;
+
+    const template = PROMPT_TEMPLATES.find(t => t.id === templateId);
+    if (template) {
+      const input = document.getElementById('aiInput');
+      input.value = template.template;
+      input.focus();
+      // Reset selection so it can be selected again
+      select.value = '';
+    }
+  });
+
+  // Handle Artifact Generation
+  document.getElementById('aiArtifactBtn')?.addEventListener('click', generateArtifact);
+}
+
+async function generateArtifact() {
+  const input = document.getElementById('aiInput');
+  const prompt = input.value.trim();
+
+  if (!prompt) {
+    showToast('Please enter a prompt for the artifact', 'warning');
+    return;
+  }
+
+  showToast('Creating artifact...', 'info');
+
+  try {
+    const fullPrompt = `Create a detailed, structured Markdown report/artifact based on this request: "${prompt}".
+    
+    Requirements:
+    - Use proper Markdown formatting (H1, H2, lists, code blocks).
+    - Be comprehensive and professional.
+    - Return ONLY the markdown content.`;
+
+    const content = await callLLM(fullPrompt, appState);
+
+    // Save to file (Download)
+    const filename = `Artifact-${Date.now()}.md`;
+    const blob = new Blob([content], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+
+    showToast('Artifact created & downloaded!', 'success');
+
+  } catch (error) {
+    console.error('Artifact generation failed:', error);
+    showToast('Failed to create artifact', 'error');
+  }
+}

@@ -9,7 +9,7 @@ import { initProjects, renderProjects, addProject, setAppState as setProjectsSta
 import { initTimer, renderTimer, setAppState as setTimerState } from './timer.js';
 import { initCalendar, renderCalendar, setAppState as setCalendarState } from './calendar.js';
 import { initLayout, renderLayout, addLayoutItem, clearLayout, setAppState as setLayoutState } from './layout.js';
-import { setAppState as setAIState, showAIContextMenu } from './ai-assistant.js';
+import { setAppState as setAIState, showAIContextMenu, setupAITemplates } from './ai-assistant.js';
 
 let appState = null;
 
@@ -43,6 +43,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // Setup event listeners
   setupEventListeners();
+  setupAITemplates();
 
   // Detect external services
   try { await detectLocalLLM(); } catch (e) { console.log('LLM detection failed:', e); }
