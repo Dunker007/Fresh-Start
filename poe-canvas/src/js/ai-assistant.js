@@ -6,6 +6,64 @@ import { renderTasks } from './tasks.js';
 import { renderNotes } from './notes.js';
 import { renderProjects } from './projects.js';
 
+// ==================== AI Loading State Helpers ====================
+
+/**
+ * Set loading state on an AI action button
+ * @param {HTMLElement} buttonEl - The button element
+ * @param {boolean} loading - Whether to show loading state
+ * @param {string} originalIcon - Original icon class (default: fa-magic)
+ */
+export function setAILoading(buttonEl, loading, originalIcon = 'fa-magic') {
+  if (!buttonEl) return;
+
+  if (loading) {
+    buttonEl.disabled = true;
+    buttonEl.classList.add('ai-loading');
+    const icon = buttonEl.querySelector('i');
+    if (icon) {
+      icon.className = 'fas fa-spinner fa-spin';
+    }
+  } else {
+    buttonEl.disabled = false;
+    buttonEl.classList.remove('ai-loading');
+    const icon = buttonEl.querySelector('i');
+    if (icon) {
+      icon.className = `fas ${originalIcon}`;
+    }
+  }
+}
+
+/**
+ * Create a loading indicator element
+ * @param {string} message - Loading message to display
+ * @returns {HTMLElement} Loading element
+ */
+export function createLoadingIndicator(message = 'AI is thinking...') {
+  const loader = document.createElement('div');
+  loader.className = 'ai-loading-indicator';
+  loader.innerHTML = `
+    <div class="loading-spinner"></div>
+    <span>${message}</span>
+  `;
+  return loader;
+}
+
+/**
+ * Wrap an AI operation with loading state
+ * @param {HTMLElement} buttonEl - Button that triggered the action
+ * @param {Function} operation - Async operation to perform
+ * @param {string} originalIcon - Original icon class
+ */
+export async function withAILoading(buttonEl, operation, originalIcon = 'fa-magic') {
+  setAILoading(buttonEl, true, originalIcon);
+  try {
+    await operation();
+  } finally {
+    setAILoading(buttonEl, false, originalIcon);
+  }
+}
+
 // ==================== AI Task Breakdown ====================
 
 /**
@@ -585,7 +643,10 @@ export default {
   showAIContextMenu,
   aiContextAction,
   applyEnhancements,
-  createTasksFromInsights
+  createTasksFromInsights,
+  setAILoading,
+  withAILoading,
+  createLoadingIndicator
 };
 
 // ==================== Global Wrapper Functions ====================
