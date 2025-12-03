@@ -12,6 +12,7 @@ import { initLayout, renderLayout, addLayoutItem, clearLayout } from './layout.j
 import { showAIContextMenu } from './ai-assistant.js';
 import { initShortcuts } from './shortcuts.js';
 import { initCommands } from './commands.js';
+import * as google from './google/index.js';
 
 // Initialize app
 window.addEventListener('DOMContentLoaded', async () => {
@@ -39,6 +40,17 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // Detect external services
   try { await detectLocalLLM(); } catch (e) { console.log('LLM detection failed:', e); }
+
+  // Initialize Google Auth if client ID is configured
+  const googleClientId = localStorage.getItem('google_client_id');
+  if (googleClientId) {
+    try { 
+      google.auth.initAuth(googleClientId); 
+      console.log('Google Auth initialized');
+    } catch (e) { 
+      console.log('Google Auth init failed:', e); 
+    }
+  }
 
   console.log('Nexus Workspace initialized');
 });
