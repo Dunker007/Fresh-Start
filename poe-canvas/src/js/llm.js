@@ -57,7 +57,7 @@ export async function detectLocalLLM() {
 
   // 4. Fallback to Gemini if Key exists and no local LLM
   if (geminiKey) {
-    updateLLMState('gemini', ['gemini-1.5-flash', 'gemini-pro', 'gemini-1.5-pro'], 'Gemini API');
+    updateLLMState('gemini', ['gemini-1.5-flash', 'gemini-3.0-pro', 'gemini-1.5-pro', 'gemini-pro'], 'Gemini API');
     return { provider: 'gemini', models: ['gemini-1.5-flash'], connected: true };
   }
 
@@ -168,5 +168,8 @@ export async function sendToLocalLLM(message) {
   throw new Error('Unknown LLM provider');
 }
 
-export default { detectLocalLLM, sendToLocalLLM, setAppState };
+// Alias for compatibility
+export const callLLM = sendToLocalLLM;
+
+export default { detectLocalLLM, sendToLocalLLM, callLLM, setAppState };
 

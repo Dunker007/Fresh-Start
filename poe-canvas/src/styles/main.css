@@ -538,6 +538,13 @@
       position: relative;
     }
 
+    .task-dot {
+      width: 4px;
+      height: 4px;
+      background: var(--accent-primary);
+      border-radius: 50%;
+    }
+
     /* Quick Links */
     .quick-link {
       display: flex;

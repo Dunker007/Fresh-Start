@@ -1,7 +1,7 @@
 // main.js - App initialization and event binding
 import { loadState, saveState } from './state.js';
 import { detectLocalLLM, sendToLocalLLM, setAppState as setLLMState } from './llm.js';
-import { checkFilesystemBridge, loadDirectory, goUpDirectory, setAppState as setFSState } from './filesystem.js';
+import { checkFilesystemBridge, loadDirectory, loadDriveFiles, goUpDirectory, setAppState as setFSState } from './filesystem.js';
 import { initUI, showToast, openModal, closeModal } from './ui.js';
 import { initTasks, renderTasks, addTask, setAppState as setTasksState } from './tasks.js';
 import { initNotes, renderNotes, addNote, setAppState as setNotesState } from './notes.js';
@@ -10,6 +10,7 @@ import { initTimer, renderTimer, setAppState as setTimerState } from './timer.js
 import { initCalendar, renderCalendar, setAppState as setCalendarState } from './calendar.js';
 import { initLayout, renderLayout, addLayoutItem, clearLayout, setAppState as setLayoutState } from './layout.js';
 import { setAppState as setAIState, showAIContextMenu, setupAITemplates } from './ai-assistant.js';
+import * as google from './google/index.js';
 
 let appState = null;
 
@@ -44,6 +45,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Setup event listeners
   setupEventListeners();
   setupAITemplates();
+
+  // Initialize Google Auth
+  const googleClientId = localStorage.getItem('google_client_id');
+  if (googleClientId) {
+    google.auth.initAuth(googleClientId);
+  }
 
   // Detect external services
   try { await detectLocalLLM(); } catch (e) { console.log('LLM detection failed:', e); }
@@ -132,6 +139,7 @@ function setupEventListeners() {
   document.getElementById('goDesktop')?.addEventListener('click', () => loadDirectory(appState.fs.paths.desktop || ''));
   document.getElementById('goDocuments')?.addEventListener('click', () => loadDirectory(appState.fs.paths.documents || ''));
   document.getElementById('goDownloads')?.addEventListener('click', () => loadDirectory(appState.fs.paths.downloads || ''));
+  document.getElementById('goDrive')?.addEventListener('click', () => loadDriveFiles('root'));
   document.getElementById('goUp')?.addEventListener('click', goUpDirectory);
   document.getElementById('refreshFiles')?.addEventListener('click', () => {
     if (appState.fs.currentPath) loadDirectory(appState.fs.currentPath);
@@ -145,6 +153,62 @@ function setupEventListeners() {
 
   // Theme toggle
   document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
+
+  // Google Settings handlers
+  document.getElementById('openGoogleSettings')?.addEventListener('click', () => {
+    const clientId = localStorage.getItem('google_client_id');
+    if (clientId) {
+      document.getElementById('googleClientIdInput').value = clientId;
+    }
+    updateGoogleStatusUI();
+    openModal('googleSettingsModal');
+  });
+
+  document.getElementById('saveGoogleSettingsBtn')?.addEventListener('click', () => {
+    const clientId = document.getElementById('googleClientIdInput').value.trim();
+    if (clientId) {
+      localStorage.setItem('google_client_id', clientId);
+      google.auth.initAuth(clientId);
+      showToast('Google Client ID saved', 'success');
+      updateGoogleStatusUI();
+    }
+  });
+
+  document.getElementById('googleSignInBtn')?.addEventListener('click', () => {
+    google.auth.signIn();
+  });
+
+  document.getElementById('googleSignOutBtn')?.addEventListener('click', () => {
+    google.auth.signOut();
+    updateGoogleStatusUI();
+  });
+
+  // Listen for auth events
+  window.addEventListener('google-auth-success', () => {
+    showToast('Signed in to Google', 'success');
+    updateGoogleStatusUI();
+    // closeModal('googleSettingsModal'); // Optional: keep open to see status
+  });
+
+  window.addEventListener('google-auth-signout', () => {
+    showToast('Signed out of Google', 'info');
+    updateGoogleStatusUI();
+  });
+}
+
+function updateGoogleStatusUI() {
+  const isAuth = google.auth.isAuthenticated();
+  const statusEl = document.getElementById('googleAuthStatus');
+  const signInBtn = document.getElementById('googleSignInBtn');
+  const signOutBtn = document.getElementById('googleSignOutBtn');
+
+  if (statusEl) {
+    statusEl.textContent = isAuth ? 'Connected' : 'Not connected';
+    statusEl.style.color = isAuth ? 'var(--accent-success)' : 'var(--text-muted)';
+  }
+
+  if (signInBtn) signInBtn.style.display = isAuth ? 'none' : 'block';
+  if (signOutBtn) signOutBtn.style.display = isAuth ? 'block' : 'none';
 }
 
 function switchView(view) {

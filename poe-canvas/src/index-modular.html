@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.0/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <!-- App Styles -->
   <link rel="stylesheet" href="./styles/main.css">
@@ -84,6 +85,10 @@
             <div class="dropdown-item" id="importBtn">
               <i class="fas fa-upload"></i>
               <span>Import Data</span>
+            </div>
+            <div class="dropdown-item" id="openGoogleSettings">
+              <i class="fab fa-google"></i>
+              <span>Google Integration</span>
             </div>
             <div class="dropdown-divider"></div>
             <div class="dropdown-item" id="resetBtn">
@@ -420,6 +425,9 @@
                         </button>
                         <button class="btn-secondary" id="goDownloads" title="Downloads">
                           <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn-secondary" id="goDrive" title="Google Drive">
+                          <i class="fab fa-google-drive"></i>
                         </button>
                         <button class="btn-icon" id="goUp" title="Up">
                           <i class="fas fa-level-up-alt"></i>
@@ -785,6 +793,52 @@
       <div class="modal-footer">
         <button class="btn-secondary" onclick="closeModal('geminiSettingsModal')">Cancel</button>
         <button class="btn-primary" id="saveGeminiKeyBtn">Save & Connect</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Google Settings Modal -->
+  <div class="modal-overlay" id="googleSettingsModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Google Integration</h3>
+        <button class="btn-icon" onclick="closeModal('googleSettingsModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 16px; color: var(--text-secondary); font-size: 14px;">
+          Connect your Google account to access Drive files and Calendar events.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Client ID</label>
+          <input type="text" class="input-field" id="googleClientIdInput" placeholder="apps.googleusercontent.com">
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+            From <a href="https://console.cloud.google.com/apis/credentials" target="_blank"
+              style="color: var(--accent-primary);">Google Cloud Console</a>
+          </p>
+        </div>
+
+        <div id="googleAuthSection"
+          style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-weight: 500; margin-bottom: 4px;">Account Status</div>
+              <div id="googleAuthStatus" style="font-size: 14px; color: var(--text-muted);">Not connected</div>
+            </div>
+            <button class="btn-primary" id="googleSignInBtn">
+              <i class="fab fa-google"></i> Sign In
+            </button>
+            <button class="btn-secondary" id="googleSignOutBtn" style="display: none;">
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('googleSettingsModal')">Close</button>
+        <button class="btn-primary" id="saveGoogleSettingsBtn">Save Client ID</button>
       </div>
     </div>
   </div>
