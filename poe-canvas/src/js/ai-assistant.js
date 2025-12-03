@@ -451,14 +451,16 @@ function getContextMenuItems(itemType, itemId) {
       { icon: 'fas fa-magic', label: 'AI: Break into Subtasks', action: 'breakdown' },
       { icon: 'fas fa-clock', label: 'AI: Estimate Time', action: 'estimate' },
       { icon: 'fas fa-link', label: 'AI: Find Related Tasks', action: 'related' },
-      { icon: 'fas fa-list', label: 'AI: Generate Checklist', action: 'checklist' }
+      { icon: 'fas fa-list', label: 'AI: Generate Checklist', action: 'checklist' },
+      { icon: 'fab fa-google', label: 'Search Google', action: 'search' }
     ],
     note: [
       { icon: 'fas fa-magic', label: 'AI: Enhance Note', action: 'enhance' },
       { icon: 'fas fa-compress', label: 'AI: Summarize', action: 'summarize' },
       { icon: 'fas fa-tasks', label: 'AI: Extract Actions', action: 'extract-actions' },
       { icon: 'fas fa-tags', label: 'AI: Suggest Tags', action: 'suggest-tags' },
-      { icon: 'fas fa-expand', label: 'AI: Expand Outline', action: 'expand' }
+      { icon: 'fas fa-expand', label: 'AI: Expand Outline', action: 'expand' },
+      { icon: 'fab fa-google', label: 'Search Google', action: 'search' }
     ],
     project: [
       { icon: 'fas fa-chart-line', label: 'AI: Project Insights', action: 'insights' },
@@ -470,40 +472,6 @@ function getContextMenuItems(itemType, itemId) {
   return baseItems[itemType] || [];
 }
 
-/**
- * Handle AI context menu action
- */
-export async function aiContextAction(action, itemType, itemId) {
-  const actionMap = {
-    // Task actions
-    'breakdown': () => aiBreakdownTask(itemId),
-    'estimate': () => aiEstimateTime(itemId),
-    'related': () => aiFindRelated(itemId),
-    'checklist': () => aiGenerateChecklist(itemId),
-
-    // Note actions
-    'enhance': () => aiEnhanceNote(itemId),
-    'summarize': () => aiSummarizeNote(itemId),
-    'extract-actions': () => aiExtractActions(itemId),
-    'suggest-tags': () => aiSuggestTags(itemId),
-    'expand': () => aiExpandOutline(itemId),
-
-    // Project actions
-    'insights': () => aiProjectInsights(itemId),
-    'next-steps': () => aiSuggestNextSteps(itemId),
-    'blockers': () => aiIdentifyBlockers(itemId)
-  };
-
-  const handler = actionMap[action];
-  if (handler) {
-    await handler();
-  } else {
-    showToast(`🚧 ${action} coming soon!`, 'info');
-  }
-}
-
-// Global function for onclick handlers
-window.aiContextAction = aiContextAction;
 
 // ==================== Additional AI Functions ====================
 
@@ -512,12 +480,12 @@ async function aiEstimateTime(taskId) {
   showToast('🤖 AI is estimating time...', 'info');
 
   try {
-    const prompt = `Estimate how long this task will take. Return ONLY a simple time estimate like "30 minutes", "2 hours", "1 day", etc.
+    const prompt = `Estimate how long this task will take.Return ONLY a simple time estimate like "30 minutes", "2 hours", "1 day", etc.
 
-Task: "${task.title}"`;
+    Task: "${task.title}"`;
 
     const estimate = await callLLM(prompt, appState);
-    showToast(`⏱️ AI estimates: ${estimate.trim()}`, 'success');
+    showToast(`⏱️ AI estimates: ${estimate.trim()} `, 'success');
   } catch (error) {
     showToast('❌ Estimation failed', 'error');
   }
@@ -534,9 +502,9 @@ async function aiGenerateChecklist(taskId) {
   showToast('🤖 AI is generating checklist...', 'info');
 
   try {
-    const prompt = `Create a checklist for this task. Return ONLY a JSON array of checkbox items.
+    const prompt = `Create a checklist for this task.Return ONLY a JSON array of checkbox items.
 
-Task: "${task.title}"
+    Task: "${task.title}"
 
 Return format: ["Step 1", "Step 2", "Step 3"]`;
 
@@ -555,11 +523,11 @@ async function aiSummarizeNote(noteId) {
   try {
     const prompt = `Summarize this note in one concise sentence:
 
-Title: "${note.title}"
-Content: "${note.content}"`;
+  Title: "${note.title}"
+  Content: "${note.content}"`;
 
     const summary = await callLLM(prompt, appState);
-    showToast(`📝 Summary: ${summary.trim()}`, 'success');
+    showToast(`📝 Summary: ${summary.trim()} `, 'success');
   } catch (error) {
     showToast('❌ Summarization failed', 'error');
   }
@@ -584,8 +552,8 @@ async function aiExpandOutline(noteId) {
   try {
     const prompt = `Expand this note into a detailed outline with subpoints:
 
-Title: "${note.title}"
-Content: "${note.content}"
+  Title: "${note.title}"
+  Content: "${note.content}"
 
 Return a markdown outline with headers and bullet points.`;
 
@@ -605,6 +573,47 @@ async function aiSuggestNextSteps(projectId) {
 async function aiIdentifyBlockers(projectId) {
   // Reuse project insights
   await aiProjectInsights(projectId);
+}
+
+// ==================== Smart Google Search ====================
+
+async function aiSmartSearch(itemId, itemType) {
+  let content = '';
+
+  if (itemType === 'task') {
+    const task = appState.tasks.find(t => t.id === itemId);
+    if (!task) return;
+    content = `Task: ${task.title} `;
+  } else if (itemType === 'note') {
+    const note = appState.notes.find(n => n.id === itemId);
+    if (!note) return;
+    content = `Note Title: ${note.title} \nContent: ${note.content} `;
+  } else {
+    return;
+  }
+
+  showToast('🔍 Generating search query...', 'info');
+
+  try {
+    const prompt = `Generate an optimal Google Search query to help with this item.Return ONLY the query string, no quotes.
+
+    ${content} `;
+
+    const query = await callLLM(prompt, appState);
+    const cleanQuery = query.trim().replace(/^"|"$/g, '');
+
+    showToast(`🚀 Searching: ${cleanQuery} `, 'success');
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(cleanQuery)}`, '_blank');
+
+  } catch (error) {
+    console.error('Smart search failed:', error);
+    // Fallback to simple title search
+    const fallback = itemType === 'task'
+      ? appState.tasks.find(t => t.id === itemId).title
+      : appState.notes.find(n => n.id === itemId).title;
+
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(fallback)}`, '_blank');
+  }
 }
 
 // Export all functions

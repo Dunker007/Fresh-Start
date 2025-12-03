@@ -79,6 +79,54 @@ function setupEventListeners() {
   document.getElementById('clearChatBtn')?.addEventListener('click', clearAIChat);
   document.getElementById('refreshModelsBtn')?.addEventListener('click', detectLocalLLM);
 
+  // Gemini Settings handlers
+  document.getElementById('geminiSettingsBtn')?.addEventListener('click', () => {
+    const key = localStorage.getItem('gemini_api_key');
+    if (key) {
+      document.getElementById('geminiKeyInput').value = key;
+    }
+    openModal('geminiSettingsModal');
+  });
+
+  document.getElementById('saveGeminiKeyBtn')?.addEventListener('click', async () => {
+    const keyInput = document.getElementById('geminiKeyInput');
+    const apiKey = keyInput.value.trim();
+
+    if (!apiKey) {
+      localStorage.removeItem('gemini_api_key');
+      showToast('Gemini key removed', 'info');
+      closeModal('geminiSettingsModal');
+      detectLocalLLM();
+      return;
+    }
+
+    // Validate key
+    const btn = document.getElementById('saveGeminiKeyBtn');
+    const originalText = btn.textContent;
+    btn.textContent = 'Validating...';
+    btn.disabled = true;
+
+    try {
+      const { validateKey } = await import('./gemini-client.js');
+      const isValid = await validateKey(apiKey);
+
+      if (isValid) {
+        localStorage.setItem('gemini_api_key', apiKey);
+        showToast('Gemini API Key saved!', 'success');
+        closeModal('geminiSettingsModal');
+        detectLocalLLM(); // Refresh connection status
+      } else {
+        showToast('Invalid API Key', 'error');
+      }
+    } catch (e) {
+      console.error(e);
+      showToast('Validation failed', 'error');
+    } finally {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+  });
+
   // Filesystem handlers
   document.getElementById('goDesktop')?.addEventListener('click', () => loadDirectory(appState.fs.paths.desktop || ''));
   document.getElementById('goDocuments')?.addEventListener('click', () => loadDirectory(appState.fs.paths.documents || ''));

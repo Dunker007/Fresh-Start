@@ -54,46 +54,9 @@
           <div class="workspace-list" id="workspaceList">
             <!-- Workspaces populated by JS -->
           </div>
-          <div class="nav-item" id="addWorkspaceBtn" style="color: var(--accent-primary);">
-            <i class="fas fa-plus"></i>
-            <span>New Workspace</span>
-          </div>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Quick Access</div>
-          <a class="quick-link" href="https://drive.google.com" target="_blank" rel="noopener">
-            <div class="quick-link-icon" style="background: rgba(251,188,4,0.15); color: #fbbc04;">
-              <i class="fab fa-google-drive"></i>
-            </div>
-            <span style="font-size: 14px;">Google Drive</span>
-          </a>
-          <a class="quick-link" href="https://calendar.google.com" target="_blank" rel="noopener">
-            <div class="quick-link-icon" style="background: rgba(66,133,244,0.15); color: #4285f4;">
-              <i class="fas fa-calendar"></i>
-            </div>
-            <span style="font-size: 14px;">Calendar</span>
-          </a>
-          <a class="quick-link" href="https://docs.google.com" target="_blank" rel="noopener">
-            <div class="quick-link-icon" style="background: rgba(66,133,244,0.15); color: #4285f4;">
-              <i class="fas fa-file-alt"></i>
-            </div>
-            <span style="font-size: 14px;">Docs</span>
-          </a>
-          <a class="quick-link" href="https://mail.google.com" target="_blank" rel="noopener">
-            <div class="quick-link-icon" style="background: rgba(234,67,53,0.15); color: #ea4335;">
-              <i class="fas fa-envelope"></i>
-            </div>
-            <span style="font-size: 14px;">Gmail</span>
-          </a>
-        </div>
-      </nav>
-
-      <div class="sidebar-footer">
-        <button class="btn-secondary" style="width: 100%;" id="exportBtn">
           <i class="fas fa-download"></i> Export Data
-        </button>
-      </div>
+          </button>
+        </div>
     </aside>
 
     <!-- Main Content -->
@@ -326,40 +289,240 @@
                 style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted);">
                 <span id="llmStatusDot"
                   style="width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted);"></span>
-                <span id="llmStatusText">Checking...</span>
-              </div>
-              <select class="input-field" id="aiModelSelect" style="width: auto; padding: 8px 12px; font-size: 13px;">
-                <option value="demo">Demo Mode</option>
-              </select>
-              <button class="btn-icon" id="refreshModelsBtn" title="Refresh models">
-                <i class="fas fa-sync-alt"></i>
-              </button>
-              <button class="btn-icon" id="clearChatBtn">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-          </div>
-          <div class="ai-chat-messages" id="aiChatMessages">
-            <div class="ai-message assistant">
-              <div class="markdown-content">
-                <p>👋 Hello! I'm your AI workspace assistant powered by <strong>local LLM</strong>.</p>
-                <p>I can connect to:</p>
-                <ul>
-                  <li><strong>LM Studio</strong> (localhost:1234)</li>
-                  <li><strong>Ollama</strong> (localhost:11434)</li>
-                </ul>
-                <p>Check the status indicator above. If no LLM is detected, start one and click the refresh button.</p>
-              </div>
-            </div>
-          </div>
-          <div class="ai-input-area">
-            <input type="text" class="input-field" id="aiInput" placeholder="Ask me anything...">
-            <button class="btn-primary" id="aiSendBtn">
-              <i class="fas fa-paper-plane"></i>
-            </button>
-          </div>
-        </div>
-      </div>
+                </header>
+
+                <!-- Dashboard View -->
+                <div class="workspace-area" id="dashboardView">
+                  <!-- Tasks Widget -->
+                  <div class="widget" id="tasksWidget">
+                    <div class="widget-header">
+                      <div class="widget-title">
+                        <i class="fas fa-check-circle"></i>
+                        Tasks
+                      </div>
+                      <button class="btn-icon" id="addTaskBtn">
+                        <i class="fas fa-plus"></i>
+                      </button>
+                    </div>
+                    <div class="widget-content" id="tasksList">
+                      <!-- Tasks populated by JS -->
+                    </div>
+                  </div>
+
+                  <!-- Timer Widget -->
+                  <div class="widget">
+                    <div class="widget-header">
+                      <div class="widget-title">
+                        <i class="fas fa-clock"></i>
+                        Focus Timer
+                      </div>
+                    </div>
+                    <div class="widget-content" style="text-align: center; padding: 24px;">
+                      <div class="timer-type-btns">
+                        <button class="timer-type-btn active" data-time="1500">Focus</button>
+                        <button class="timer-type-btn" data-time="300">Short Break</button>
+                        <button class="timer-type-btn" data-time="900">Long Break</button>
+                      </div>
+                      <div class="timer-display" id="timerDisplay">25:00</div>
+                      <div class="timer-controls">
+                        <button class="btn-primary" id="timerStartBtn">
+                          <i class="fas fa-play"></i> Start
+                        </button>
+                        <button class="btn-secondary" id="timerResetBtn">
+                          <i class="fas fa-undo"></i> Reset
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Notes Widget -->
+                  <div class="widget" id="notesWidget">
+                    <div class="widget-header">
+                      <div class="widget-title">
+                        <i class="fas fa-sticky-note"></i>
+                        Quick Notes
+                      </div>
+                      <button class="btn-icon" id="addNoteBtn">
+                        <i class="fas fa-plus"></i>
+                      </button>
+                    </div>
+                    <div class="widget-content" id="notesList">
+                      <!-- Notes populated by JS -->
+                    </div>
+                  </div>
+
+                  <!-- Calendar Widget -->
+                  <div class="widget">
+                    <div class="widget-header">
+                      <div class="widget-title">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span id="calendarMonth"></span>
+                      </div>
+                      <div style="display: flex; gap: 4px;">
+                        <button class="btn-icon" id="calendarPrev"><i class="fas fa-chevron-left"></i></button>
+                        <button class="btn-icon" id="calendarNext"><i class="fas fa-chevron-right"></i></button>
+                      </div>
+                    </div>
+                    <div class="widget-content">
+                      <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendar populated by JS -->
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Projects Widget -->
+                  <div class="widget" id="projectsWidget">
+                    <div class="widget-header">
+                      <div class="widget-title">
+                        <i class="fas fa-project-diagram"></i>
+                        Projects
+                      </div>
+                      <button class="btn-icon" id="addProjectBtn">
+                        <i class="fas fa-plus"></i>
+                      </button>
+                    </div>
+                    <div class="widget-content" id="projectsList">
+                      <!-- Projects populated by JS -->
+                    </div>
+                  </div>
+
+                  <!-- Bookmarks Widget -->
+                  <div class="widget">
+                    <div class="widget-header">
+                      <div class="widget-title">
+                        <i class="fas fa-bookmark"></i>
+                        Bookmarks
+                      </div>
+                      <button class="btn-icon" id="addBookmarkBtn">
+                        <i class="fas fa-plus"></i>
+                      </button>
+                    </div>
+                    <div class="widget-content" id="bookmarksList">
+                      <!-- Bookmarks populated by JS -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- File Manager View -->
+                <div class="workspace-area" id="filesView" style="display: none;">
+                  <div class="widget" style="grid-column: 1 / -1; max-height: none;">
+                    <div class="widget-header">
+                      <div class="widget-title">
+                        <i class="fas fa-folder-open"></i>
+                        <span id="currentPath">Files</span>
+                      </div>
+                      <div style="display: flex; gap: 8px;">
+                        <button class="btn-secondary" id="goDesktop" title="Desktop">
+                          <i class="fas fa-desktop"></i>
+                        </button>
+                        <button class="btn-secondary" id="goDocuments" title="Documents">
+                          <i class="fas fa-file-alt"></i>
+                        </button>
+                        <button class="btn-secondary" id="goDownloads" title="Downloads">
+                          <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn-icon" id="goUp" title="Up">
+                          <i class="fas fa-level-up-alt"></i>
+                        </button>
+                        <button class="btn-icon" id="refreshFiles" title="Refresh">
+                          <i class="fas fa-sync-alt"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="widget-content">
+                      <div id="bridgeStatus"
+                        style="padding: 8px 12px; margin-bottom: 12px; border-radius: var(--radius-sm); background: var(--bg-tertiary); font-size: 13px; display: none;">
+                        <i class="fas fa-info-circle"></i> <span id="bridgeStatusText"></span>
+                      </div>
+                      <div class="file-grid" id="fileGrid">
+                        <!-- Files populated by JS -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Layout Planner View -->
+                <div class="workspace-area" id="canvasView" style="display: none;">
+                  <div class="widget" style="grid-column: 1 / -1; max-height: none;">
+                    <div class="widget-header">
+                      <div class="widget-title">
+                        <i class="fas fa-object-group"></i>
+                        Layout Planner
+                      </div>
+                      <div style="display: flex; gap: 8px;">
+                        <button class="btn-secondary" id="addLayoutItem">
+                          <i class="fas fa-plus"></i> Add Zone
+                        </button>
+                        <button class="btn-secondary" id="clearCanvas">
+                          <i class="fas fa-trash"></i> Clear
+                        </button>
+                        <button class="btn-primary" id="saveLayout">
+                          <i class="fas fa-save"></i> Save Layout
+                        </button>
+                      </div>
+                    </div>
+                    <div class="widget-content" style="padding: 0;">
+                      <div class="layout-canvas" id="layoutCanvas">
+                        <div class="layout-grid"></div>
+                        <!-- Layout items populated by JS -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- AI Assistant View -->
+                <div class="workspace-area" id="aiView" style="display: none;">
+                  <div class="widget"
+                    style="grid-column: 1 / -1; max-height: none; height: calc(100vh - 124px); display: flex; flex-direction: column;">
+                    <div class="widget-header">
+                      <div class="widget-title">
+                        <i class="fas fa-robot"></i>
+                        AI Assistant
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 12px;">
+                        <div id="llmStatus"
+                          style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted);">
+                          <span id="llmStatusDot"
+                            style="width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted);"></span>
+                          <span id="llmStatusText">Checking...</span>
+                        </div>
+                        <select class="input-field" id="aiModelSelect"
+                          style="width: auto; padding: 8px 12px; font-size: 13px;">
+                          <option value="demo">Demo Mode</option>
+                        </select>
+                        <button class="btn-icon" id="refreshModelsBtn" title="Refresh models">
+                          <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="btn-icon" id="geminiSettingsBtn" title="Gemini Settings">
+                          <i class="fas fa-cog"></i>
+                        </button>
+                        <button class="btn-icon" id="clearChatBtn">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="ai-chat-messages" id="aiChatMessages">
+                      <div class="ai-message assistant">
+                        <div class="markdown-content">
+                          <p>👋 Hello! I'm your AI workspace assistant powered by <strong>local LLM</strong>.</p>
+                          <p>I can connect to:</p>
+                          <ul>
+                            <li><strong>LM Studio</strong> (localhost:1234)</li>
+                            <li><strong>Ollama</strong> (localhost:11434)</li>
+                          </ul>
+                          <p>Check the status indicator above. If no LLM is detected, start one and click the refresh
+                            button.</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ai-input-area">
+                      <input type="text" class="input-field" id="aiInput" placeholder="Ask me anything...">
+                      <button class="btn-primary" id="aiSendBtn">
+                        <i class="fas fa-paper-plane"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
     </main>
   </div>
 
@@ -603,6 +766,39 @@
       <div class="modal-footer">
         <button class="btn-secondary" onclick="closeModal('confirmModal')">Cancel</button>
         <button class="btn-primary" id="confirmActionBtn" style="background: var(--accent-danger);">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gemini Settings Modal -->
+  <div class="modal-overlay" id="geminiSettingsModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Gemini API Settings</h3>
+        <button class="btn-icon" onclick="closeModal('geminiSettingsModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 16px; color: var(--text-secondary); font-size: 14px;">
+          Enter your Google Gemini API Key to enable cloud-based AI features.
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--accent-primary);">Get a
+            key here</a>.
+        </p>
+        <div class="form-group">
+          <label class="form-label">API Key</label>
+          <input type="password" class="input-field" id="geminiKeyInput" placeholder="AIzaSy...">
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="geminiAutoConnect" checked>
+            Auto-connect on startup
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('geminiSettingsModal')">Cancel</button>
+        <button class="btn-primary" id="saveGeminiKeyBtn">Save & Connect</button>
       </div>
     </div>
   </div>

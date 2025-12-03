@@ -4,33 +4,9 @@ Desktop workspace app with local LLM integration, real filesystem access, and Go
 
 ## Tech Stack
 
-- **Frontend**: Vanilla JS, Tailwind CSS, Google Material Design
-- **Desktop**: Tauri (Rust backend, ~600KB vs Electron's 100MB+)
-- **Database**: SQLite via better-sqlite3 (TODO)
-- **LLM**: LM Studio (localhost:1234) / Ollama (localhost:11434)
-
-## Project Structure
-
-```
-poe-canvas/
-├── src/                    # Frontend source
-│   ├── index.html          # Main HTML
-│   ├── styles/
-│   │   └── main.css        # Extracted styles
-│   └── js/
-│       ├── state.js        # Central state management
-│       ├── llm.js          # Local LLM integration
-│       ├── files.js        # Filesystem operations (TODO)
-│       └── main.js         # App initialization (TODO)
-├── src-tauri/              # Rust backend
-│   ├── src/
-│   │   └── main.rs         # Tauri commands
-│   ├── Cargo.toml          # Rust dependencies
-│   └── tauri.conf.json     # Tauri configuration
-├── src-original/           # Original monolithic index.html
-├── package.json            # Node dependencies
-└── vite.config.js          # Dev server config
-```
+- **Frontend**: Vanilla JS (Modular ES6), CSS Variables
+- **Desktop**: Node.js Bridge (Filesystem Access)
+- **LLM**: LM Studio, Ollama, Google Gemini API
 
 ## Quick Start
 
@@ -38,41 +14,33 @@ poe-canvas/
 # Install dependencies
 npm install
 
-# Run in browser (dev mode)
-npm run dev
-
-# Run as desktop app
-npm run tauri:dev
-
-# Build for production
-npm run tauri:build
+# Run dev server
+npx -y serve@latest .
 ```
 
 ## Features
 
-### Working (from Poe Canvas)
-- ✅ Dashboard with widgets
-- ✅ Task management
-- ✅ Notes with color coding
-- ✅ Projects tracking
-- ✅ Focus timer (Pomodoro)
-- ✅ Mini calendar
-- ✅ Virtual file manager
-- ✅ Layout planner (drag zones)
-- ✅ AI chat interface
-- ✅ Dark/light mode
-- ✅ JSON export/import
+### ✅ Core Productivity
+- **Dashboard**: Widgets for tasks, notes, projects, timer.
+- **Task Management**: Priorities, due dates, tags, subtasks.
+- **Note Taking**: Rich text notes with color coding.
+- **Projects**: Progress tracking and task grouping.
+- **Focus Timer**: Pomodoro timer with customizable intervals.
+- **Calendar**: Mini calendar for date tracking.
+- **File Manager**: Real filesystem access (Desktop, Documents, Downloads).
+- **Layout Planner**: Drag-and-drop workspace organization.
 
-### In Progress
-- 🔄 Local LLM detection (llm.js)
-- 🔄 Modular JS architecture
+### 🤖 AI-Powered (Local + Cloud)
+- **Local LLM Support**: Auto-detects LM Studio and Ollama.
+- **Google Gemini Integration**: Cloud-based AI fallback/primary.
+- **AI Task Breakdown**: Breaks complex tasks into actionable subtasks.
+- **AI Note Enhancement**: Summarizes, extracts actions, and suggests tags.
+- **AI Project Insights**: Analyzes progress, identifies blockers, and suggests next steps.
+- **Smart Google Search**: Generates optimal search queries from your content.
 
-### TODO (Priority Order)
-1. **Real filesystem** - Read Desktop/Documents/Downloads
-2. **LM Studio/Ollama chat** - Wire up llm.js to UI
-3. **SQLite persistence** - Replace localStorage
-4. **File watching** - Live updates with chokidar
-5. **Google OAuth** - Drive/Calendar/Gmail integration
+### 🌐 Google Ecosystem
+- **Quick Access**: Sidebar links to Drive, Calendar, Docs, Gmail.
+- **Smart Search**: Context-aware Google Search integration.
 
 ## Local LLM Setup
 
@@ -88,26 +56,21 @@ The app auto-detects local LLMs:
 2. Pull a model: `ollama pull llama3.2`
 3. Ollama runs automatically on localhost:11434
 
-## Development Notes
+**Google Gemini**:
+1. Get an API Key from [Google AI Studio](https://aistudio.google.com/).
+2. Click the ⚙️ icon in the AI Assistant view.
+3. Enter your key to enable cloud AI.
 
-### For Gemini/Antigravity
-The `src-original/index.html` contains the complete working app (2886 lines).
-Refer to it when implementing features in the modular structure.
+## Development
 
-Key patterns:
-- `AppState` object holds all state
-- `render*()` functions update DOM
-- `setup*Listeners()` wire up events
-- Modal pattern for forms
-
-### For Claude Desktop
-This project is set up for Tauri. Key files:
-- `src-tauri/src/main.rs` - Native commands
-- `src-tauri/tauri.conf.json` - Permissions and window config
-- `src/js/llm.js` - LLM integration ready for use
+The project uses a modular ES6 architecture in `src/js/`.
+- `main.js`: Entry point and initialization.
+- `state.js`: Centralized state management.
+- `llm.js`: LLM provider abstraction (Local + Gemini).
+- `ai-assistant.js`: AI feature logic.
+- `filesystem.js`: Node.js bridge integration.
 
 ## Credits
 
-- Original canvas app built on Poe
-- Handoff package prepared with architecture docs
-- Tauri scaffold by Claude Desktop
+- Built with ❤️ by the Antigravity Team
+
