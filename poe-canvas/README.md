@@ -1,5 +1,7 @@
 # Nexus Workspace
 
+> **🤖 AI Agents:** Read [AI_PROTOCOL.md](./AI_PROTOCOL.md) before starting any work.
+
 Desktop workspace app with local LLM integration, real filesystem access, and Google ecosystem connectivity.
 
 ## Tech Stack

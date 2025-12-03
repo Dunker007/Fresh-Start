@@ -13,8 +13,8 @@
     "dist:win": "electron-builder --win"
   },
   "devDependencies": {
-    "electron": "^28.1.0",
-    "electron-builder": "^24.9.1",
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3",
     "vite": "^5.4.21"
   },
   "build": {
