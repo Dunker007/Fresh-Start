@@ -1,68 +1,3 @@
-# HtmlPublisher.ps1
-# Module for publishing content as HTML
-
-function Publish-ContentAsHtml {
-    param(
-        [Parameter(Mandatory = $true)]
-        [string]$Title,
-        
-        [Parameter(Mandatory = $true)]
-        [string]$Content,
-        
-        [string]$OutputDir = "..\..\data\published",
-        [string[]]$Keywords = @(),
-        [string]$TemplateName = "default"
-    )
-
-    # Generate filename
-    $DateStr = Get-Date -Format "yyyy-MM-dd"
-    $SanitizedTitle = $Title -replace "[^a-zA-Z0-9]", "-"
-    $HtmlFileName = "$SanitizedTitle.html"
-    
-    # Ensure output directory exists
-    $TargetDir = Join-Path $PSScriptRoot $OutputDir $DateStr
-    if (-not (Test-Path $TargetDir)) {
-        New-Item -ItemType Directory -Path $TargetDir -Force | Out-Null
-    }
-    
-    # Load template
-    $TemplatePath = Join-Path $PSScriptRoot "..\..\config\templates\$TemplateName.html"
-    if (Test-Path $TemplatePath) {
-        $HtmlTemplate = Get-Content $TemplatePath -Raw
-    }
-    else {
-        $HtmlTemplate = Get-DefaultHtmlTemplate
-    }
-    
-    # Generate meta description (first 155 chars of content)
-    $MetaDescription = ($Content -replace '<[^>]+>', '' -replace '\s+', ' ').Trim()
-    if ($MetaDescription.Length -gt 155) {
-        $MetaDescription = $MetaDescription.Substring(0, 155) + "..."
-    }
-    
-    # Build the HTML
-    $Html = $HtmlTemplate `
-        -replace '{{TITLE}}', $Title `
-        -replace '{{CONTENT}}', $Content `
-        -replace '{{DATE}}', (Get-Date -Format "MMMM dd, yyyy") `
-        -replace '{{YEAR}}', (Get-Date -Format "yyyy") `
-        -replace '{{KEYWORDS}}', ($Keywords -join ', ') `
-        -replace '{{META_DESCRIPTION}}', $MetaDescription
-    
-    # Save HTML file
-    $HtmlPath = Join-Path $TargetDir $HtmlFileName
-    Set-Content -Path $HtmlPath -Value $Html -Encoding UTF8
-    
-    return @{
-        HtmlPath     = $HtmlPath
-        MarkdownPath = $null
-        Title        = $Title
-        PublishedAt  = Get-Date
-    }
-}
-
-function Get-DefaultHtmlTemplate {
-    return @"
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -72,12 +7,17 @@ function Get-DefaultHtmlTemplate {
     <meta name="keywords" content="{{KEYWORDS}}">
     <meta name="author" content="Fresh-Start AI">
     <title>{{TITLE}} | DLX Studios</title>
+    
+    <!-- AdSense Header Code -->
+    {{AD_HEADER}}
+
     <style>
         :root {
             --primary: #2563eb;
             --text: #1f2937;
             --text-light: #6b7280;
-            --bg: #ffffff;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
             --border: #e5e7eb;
         }
         * {
@@ -92,11 +32,27 @@ function Get-DefaultHtmlTemplate {
             background: var(--bg);
             padding: 20px;
         }
-        .container {
-            max-width: 800px;
+        .layout {
+            max-width: 1200px;
             margin: 0 auto;
-            background: white;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+        }
+        .main-content {
+            background: var(--card-bg);
             padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .sidebar-widget {
+            background: var(--card-bg);
+            padding: 20px;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
@@ -142,6 +98,14 @@ function Get-DefaultHtmlTemplate {
         .content li {
             margin-bottom: 10px;
         }
+        .content a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .content a:hover {
+            text-decoration: underline;
+        }
         .content code {
             background: #f3f4f6;
             padding: 2px 6px;
@@ -157,11 +121,6 @@ function Get-DefaultHtmlTemplate {
             overflow-x: auto;
             margin-bottom: 20px;
         }
-        .content pre code {
-            background: none;
-            padding: 0;
-            color: inherit;
-        }
         footer {
             margin-top: 60px;
             padding-top: 20px;
@@ -169,9 +128,15 @@ function Get-DefaultHtmlTemplate {
             text-align: center;
             color: var(--text-light);
             font-size: 0.9em;
+            grid-column: 1 / -1;
+        }
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
         }
         @media (max-width: 768px) {
-            .container {
+            .main-content {
                 padding: 20px;
             }
             h1 {
@@ -181,23 +146,38 @@ function Get-DefaultHtmlTemplate {
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>{{TITLE}}</h1>
-            <div class="meta">
-                Published on <time datetime="{{DATE}}">{{DATE}}</time>
+    <div class="layout">
+        <main class="main-content">
+            <header>
+                <h1>{{TITLE}}</h1>
+                <div class="meta">
+                    Published on <time datetime="{{DATE}}">{{DATE}}</time>
+                </div>
+            </header>
+            
+            <!-- AdSense Content Top -->
+            {{AD_CONTENT}}
+
+            <article class="content">
+                {{CONTENT}}
+            </article>
+        </main>
+
+        <aside class="sidebar">
+            <div class="sidebar-widget">
+                <h3>About</h3>
+                <p>Welcome to DLX Studios, exploring the future of AI and automation.</p>
             </div>
-        </header>
-        <article class="content">
-            {{CONTENT}}
-        </article>
+            
+            <div class="sidebar-widget">
+                <!-- AdSense Sidebar -->
+                {{AD_SIDEBAR}}
+            </div>
+        </aside>
+
         <footer>
             <p>&copy; {{YEAR}} DLX Studios. Generated by Fresh-Start AI.</p>
         </footer>
     </div>
 </body>
 </html>
-"@
-}
-
-Export-ModuleMember -Function Publish-ContentAsHtml

@@ -27,6 +27,19 @@ function Write-Log {
         Default { Write-Host $LogEntry }
     }
 
+    # Rotate log if necessary
+    if (Test-Path $LogPath) {
+        $logFile = Get-Item $LogPath
+        if ($logFile.Length -gt 1MB) {
+            # Simple rotation: rename to .1, if .1 exists, overwrite for now
+            $rotatedPath = "$LogPath.1"
+            if (Test-Path $rotatedPath) {
+                Remove-Item $rotatedPath -Force
+            }
+            Rename-Item $LogPath $rotatedPath
+        }
+    }
+
     # Write to file
     try {
         # Ensure directory exists

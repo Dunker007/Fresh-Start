@@ -1,45 +1,617 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nexus Workspace</title>
-  
+
   <!-- External Dependencies -->
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.0/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-  
+
   <!-- App Styles -->
   <link rel="stylesheet" href="./styles/main.css">
 </head>
+
 <body>
-  <!-- 
-    INSTRUCTIONS FOR GEMINI/SONNET:
-    
-    Copy the entire <body> content from src/index.html (lines 1200-1773)
-    Paste it here, replacing this comment block.
-    
-    The HTML structure includes:
-    - .app-container wrapper
-    - .sidebar (nav, workspaces, quick links)
-    - .main-content (header, workspace areas)
-    - All modals (task, note, project, etc.)
-    - Toast container
-    
-    DO NOT include any <script> tags from the original.
-    The module import below handles all JS.
-  -->
-  
   <div class="app-container">
-    <!-- Sidebar and main content go here -->
-    <p style="padding: 40px; color: var(--text-muted);">
-      Replace this with body content from src/index.html (lines 1200-1773)
-    </p>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon"><i class="fas fa-cube"></i></div>
+          <span>Nexus</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Main</div>
+          <div class="nav-item active" data-view="dashboard">
+            <i class="fas fa-th-large"></i>
+            <span>Dashboard</span>
+          </div>
+          <div class="nav-item" data-view="files">
+            <i class="fas fa-folder"></i>
+            <span>File Manager</span>
+          </div>
+          <div class="nav-item" data-view="canvas">
+            <i class="fas fa-object-group"></i>
+            <span>Layout Planner</span>
+          </div>
+          <div class="nav-item" data-view="ai">
+            <i class="fas fa-robot"></i>
+            <span>AI Assistant</span>
+            <span class="badge">New</span>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Workspaces</div>
+          <div class="workspace-list" id="workspaceList">
+            <!-- Workspaces populated by JS -->
+          </div>
+          <div class="nav-item" id="addWorkspaceBtn" style="color: var(--accent-primary);">
+            <i class="fas fa-plus"></i>
+            <span>New Workspace</span>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Quick Access</div>
+          <a class="quick-link" href="https://drive.google.com" target="_blank" rel="noopener">
+            <div class="quick-link-icon" style="background: rgba(251,188,4,0.15); color: #fbbc04;">
+              <i class="fab fa-google-drive"></i>
+            </div>
+            <span style="font-size: 14px;">Google Drive</span>
+          </a>
+          <a class="quick-link" href="https://calendar.google.com" target="_blank" rel="noopener">
+            <div class="quick-link-icon" style="background: rgba(66,133,244,0.15); color: #4285f4;">
+              <i class="fas fa-calendar"></i>
+            </div>
+            <span style="font-size: 14px;">Calendar</span>
+          </a>
+          <a class="quick-link" href="https://docs.google.com" target="_blank" rel="noopener">
+            <div class="quick-link-icon" style="background: rgba(66,133,244,0.15); color: #4285f4;">
+              <i class="fas fa-file-alt"></i>
+            </div>
+            <span style="font-size: 14px;">Docs</span>
+          </a>
+          <a class="quick-link" href="https://mail.google.com" target="_blank" rel="noopener">
+            <div class="quick-link-icon" style="background: rgba(234,67,53,0.15); color: #ea4335;">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <span style="font-size: 14px;">Gmail</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="btn-secondary" style="width: 100%;" id="exportBtn">
+          <i class="fas fa-download"></i> Export Data
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="header">
+        <button class="btn-icon" id="toggleSidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search everything..." id="globalSearch">
+        </div>
+
+        <div class="dropdown" id="settingsDropdown">
+          <button class="btn-icon">
+            <i class="fas fa-cog"></i>
+          </button>
+          <div class="dropdown-menu">
+            <div class="dropdown-item" id="toggleTheme">
+              <i class="fas fa-moon"></i>
+              <span>Toggle Theme</span>
+            </div>
+            <div class="dropdown-item" id="importBtn">
+              <i class="fas fa-upload"></i>
+              <span>Import Data</span>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" id="resetBtn">
+              <i class="fas fa-trash"></i>
+              <span>Reset All Data</span>
+            </div>
+          </div>
+        </div>
+
+        <input type="file" id="importInput" accept=".json" style="display: none;">
+      </header>
+
+      <!-- Dashboard View -->
+      <div class="workspace-area" id="dashboardView">
+        <!-- Tasks Widget -->
+        <div class="widget" id="tasksWidget">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-check-circle"></i>
+              Tasks
+            </div>
+            <button class="btn-icon" id="addTaskBtn">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="widget-content" id="tasksList">
+            <!-- Tasks populated by JS -->
+          </div>
+        </div>
+
+        <!-- Timer Widget -->
+        <div class="widget">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-clock"></i>
+              Focus Timer
+            </div>
+          </div>
+          <div class="widget-content" style="text-align: center; padding: 24px;">
+            <div class="timer-type-btns">
+              <button class="timer-type-btn active" data-time="1500">Focus</button>
+              <button class="timer-type-btn" data-time="300">Short Break</button>
+              <button class="timer-type-btn" data-time="900">Long Break</button>
+            </div>
+            <div class="timer-display" id="timerDisplay">25:00</div>
+            <div class="timer-controls">
+              <button class="btn-primary" id="timerStartBtn">
+                <i class="fas fa-play"></i> Start
+              </button>
+              <button class="btn-secondary" id="timerResetBtn">
+                <i class="fas fa-undo"></i> Reset
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes Widget -->
+        <div class="widget" id="notesWidget">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-sticky-note"></i>
+              Quick Notes
+            </div>
+            <button class="btn-icon" id="addNoteBtn">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="widget-content" id="notesList">
+            <!-- Notes populated by JS -->
+          </div>
+        </div>
+
+        <!-- Calendar Widget -->
+        <div class="widget">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-calendar-alt"></i>
+              <span id="calendarMonth"></span>
+            </div>
+            <div style="display: flex; gap: 4px;">
+              <button class="btn-icon" id="calendarPrev"><i class="fas fa-chevron-left"></i></button>
+              <button class="btn-icon" id="calendarNext"><i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
+          <div class="widget-content">
+            <div class="calendar-grid" id="calendarGrid">
+              <!-- Calendar populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Projects Widget -->
+        <div class="widget" id="projectsWidget">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-project-diagram"></i>
+              Projects
+            </div>
+            <button class="btn-icon" id="addProjectBtn">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="widget-content" id="projectsList">
+            <!-- Projects populated by JS -->
+          </div>
+        </div>
+
+        <!-- Bookmarks Widget -->
+        <div class="widget">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-bookmark"></i>
+              Bookmarks
+            </div>
+            <button class="btn-icon" id="addBookmarkBtn">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="widget-content" id="bookmarksList">
+            <!-- Bookmarks populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- File Manager View -->
+      <div class="workspace-area" id="filesView" style="display: none;">
+        <div class="widget" style="grid-column: 1 / -1; max-height: none;">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-folder-open"></i>
+              <span id="currentPath">Files</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-secondary" id="goDesktop" title="Desktop">
+                <i class="fas fa-desktop"></i>
+              </button>
+              <button class="btn-secondary" id="goDocuments" title="Documents">
+                <i class="fas fa-file-alt"></i>
+              </button>
+              <button class="btn-secondary" id="goDownloads" title="Downloads">
+                <i class="fas fa-download"></i>
+              </button>
+              <button class="btn-icon" id="goUp" title="Up">
+                <i class="fas fa-level-up-alt"></i>
+              </button>
+              <button class="btn-icon" id="refreshFiles" title="Refresh">
+                <i class="fas fa-sync-alt"></i>
+              </button>
+            </div>
+          </div>
+          <div class="widget-content">
+            <div id="bridgeStatus"
+              style="padding: 8px 12px; margin-bottom: 12px; border-radius: var(--radius-sm); background: var(--bg-tertiary); font-size: 13px; display: none;">
+              <i class="fas fa-info-circle"></i> <span id="bridgeStatusText"></span>
+            </div>
+            <div class="file-grid" id="fileGrid">
+              <!-- Files populated by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layout Planner View -->
+      <div class="workspace-area" id="canvasView" style="display: none;">
+        <div class="widget" style="grid-column: 1 / -1; max-height: none;">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-object-group"></i>
+              Layout Planner
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-secondary" id="addLayoutItem">
+                <i class="fas fa-plus"></i> Add Zone
+              </button>
+              <button class="btn-secondary" id="clearCanvas">
+                <i class="fas fa-trash"></i> Clear
+              </button>
+              <button class="btn-primary" id="saveLayout">
+                <i class="fas fa-save"></i> Save Layout
+              </button>
+            </div>
+          </div>
+          <div class="widget-content" style="padding: 0;">
+            <div class="layout-canvas" id="layoutCanvas">
+              <div class="layout-grid"></div>
+              <!-- Layout items populated by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Assistant View -->
+      <div class="workspace-area" id="aiView" style="display: none;">
+        <div class="widget"
+          style="grid-column: 1 / -1; max-height: none; height: calc(100vh - 124px); display: flex; flex-direction: column;">
+          <div class="widget-header">
+            <div class="widget-title">
+              <i class="fas fa-robot"></i>
+              AI Assistant
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div id="llmStatus"
+                style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted);">
+                <span id="llmStatusDot"
+                  style="width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted);"></span>
+                <span id="llmStatusText">Checking...</span>
+              </div>
+              <select class="input-field" id="aiModelSelect" style="width: auto; padding: 8px 12px; font-size: 13px;">
+                <option value="demo">Demo Mode</option>
+              </select>
+              <button class="btn-icon" id="refreshModelsBtn" title="Refresh models">
+                <i class="fas fa-sync-alt"></i>
+              </button>
+              <button class="btn-icon" id="clearChatBtn">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+          <div class="ai-chat-messages" id="aiChatMessages">
+            <div class="ai-message assistant">
+              <div class="markdown-content">
+                <p>👋 Hello! I'm your AI workspace assistant powered by <strong>local LLM</strong>.</p>
+                <p>I can connect to:</p>
+                <ul>
+                  <li><strong>LM Studio</strong> (localhost:1234)</li>
+                  <li><strong>Ollama</strong> (localhost:11434)</li>
+                </ul>
+                <p>Check the status indicator above. If no LLM is detected, start one and click the refresh button.</p>
+              </div>
+            </div>
+          </div>
+          <div class="ai-input-area">
+            <input type="text" class="input-field" id="aiInput" placeholder="Ask me anything...">
+            <button class="btn-primary" id="aiSendBtn">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
+
+  <!-- Task Modal -->
+  <div class="modal-overlay" id="taskModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="taskModalTitle">Add Task</h3>
+        <button class="btn-icon" onclick="closeModal('taskModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Task Title</label>
+          <input type="text" class="input-field" id="taskTitleInput" placeholder="What needs to be done?">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Due Date</label>
+          <input type="date" class="input-field" id="taskDueInput">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <div class="priority-options">
+            <div class="priority-option selected" data-priority="low">Low</div>
+            <div class="priority-option" data-priority="medium">Medium</div>
+            <div class="priority-option" data-priority="high">High</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tags (comma-separated)</label>
+          <input type="text" class="input-field" id="taskTagsInput" placeholder="work, urgent, project">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('taskModal')">Cancel</button>
+        <button class="btn-primary" id="saveTaskBtn">Save Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Note Modal -->
+  <div class="modal-overlay" id="noteModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="noteModalTitle">Add Note</h3>
+        <button class="btn-icon" onclick="closeModal('noteModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input type="text" class="input-field" id="noteTitleInput" placeholder="Note title...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Content</label>
+          <textarea class="input-field" id="noteContentInput" placeholder="Write your note..." rows="6"
+            style="resize: vertical;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color</label>
+          <div class="color-options">
+            <div class="color-option selected" data-color="blue" style="background: #4285f4;"></div>
+            <div class="color-option" data-color="yellow" style="background: #fbbc04;"></div>
+            <div class="color-option" data-color="green" style="background: #34a853;"></div>
+            <div class="color-option" data-color="red" style="background: #ea4335;"></div>
+            <div class="color-option" data-color="purple" style="background: #a855f7;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('noteModal')">Cancel</button>
+        <button class="btn-primary" id="saveNoteBtn">Save Note</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project Modal -->
+  <div class="modal-overlay" id="projectModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">New Project</h3>
+        <button class="btn-icon" onclick="closeModal('projectModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Project Name</label>
+          <input type="text" class="input-field" id="projectNameInput" placeholder="My Awesome Project">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="input-field" id="projectDescInput" placeholder="What's this project about?"
+            rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color</label>
+          <div class="color-options">
+            <div class="color-option selected" data-color="#4285f4" style="background: #4285f4;"></div>
+            <div class="color-option" data-color="#34a853" style="background: #34a853;"></div>
+            <div class="color-option" data-color="#fbbc04" style="background: #fbbc04;"></div>
+            <div class="color-option" data-color="#ea4335" style="background: #ea4335;"></div>
+            <div class="color-option" data-color="#a855f7" style="background: #a855f7;"></div>
+            <div class="color-option" data-color="#0ea5e9" style="background: #0ea5e9;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('projectModal')">Cancel</button>
+        <button class="btn-primary" id="saveProjectBtn">Create Project</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Workspace Modal -->
+  <div class="modal-overlay" id="workspaceModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">New Workspace</h3>
+        <button class="btn-icon" onclick="closeModal('workspaceModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Workspace Name</label>
+          <input type="text" class="input-field" id="workspaceNameInput" placeholder="My Workspace">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color</label>
+          <div class="color-options">
+            <div class="color-option selected" data-color="#4285f4" style="background: #4285f4;"></div>
+            <div class="color-option" data-color="#34a853" style="background: #34a853;"></div>
+            <div class="color-option" data-color="#fbbc04" style="background: #fbbc04;"></div>
+            <div class="color-option" data-color="#ea4335" style="background: #ea4335;"></div>
+            <div class="color-option" data-color="#a855f7" style="background: #a855f7;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('workspaceModal')">Cancel</button>
+        <button class="btn-primary" id="saveWorkspaceBtn">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bookmark Modal -->
+  <div class="modal-overlay" id="bookmarkModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Bookmark</h3>
+        <button class="btn-icon" onclick="closeModal('bookmarkModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input type="text" class="input-field" id="bookmarkTitleInput" placeholder="Bookmark name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL</label>
+          <input type="url" class="input-field" id="bookmarkUrlInput" placeholder="https://...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('bookmarkModal')">Cancel</button>
+        <button class="btn-primary" id="saveBookmarkBtn">Add Bookmark</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Folder Modal -->
+  <div class="modal-overlay" id="folderModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Create Folder</h3>
+        <button class="btn-icon" onclick="closeModal('folderModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Folder Name</label>
+          <input type="text" class="input-field" id="folderNameInput" placeholder="New Folder">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('folderModal')">Cancel</button>
+        <button class="btn-primary" id="createFolderConfirmBtn">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layout Item Modal -->
+  <div class="modal-overlay" id="layoutItemModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Zone</h3>
+        <button class="btn-icon" onclick="closeModal('layoutItemModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Zone Label</label>
+          <input type="text" class="input-field" id="layoutItemLabel" placeholder="e.g., Work Area, Notes, Browser">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color</label>
+          <div class="color-options">
+            <div class="color-option selected" data-color="#4285f4" style="background: #4285f4;"></div>
+            <div class="color-option" data-color="#34a853" style="background: #34a853;"></div>
+            <div class="color-option" data-color="#fbbc04" style="background: #fbbc04;"></div>
+            <div class="color-option" data-color="#ea4335" style="background: #ea4335;"></div>
+            <div class="color-option" data-color="#a855f7" style="background: #a855f7;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('layoutItemModal')">Cancel</button>
+        <button class="btn-primary" id="addLayoutItemConfirm">Add Zone</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="confirmTitle">Confirm</h3>
+        <button class="btn-icon" onclick="closeModal('confirmModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmMessage">Are you sure?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('confirmModal')">Cancel</button>
+        <button class="btn-primary" id="confirmActionBtn" style="background: var(--accent-danger);">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
 
   <!-- App Module Entry Point -->
   <script type="module" src="./js/main.js"></script>
 </body>
+
 </html>

@@ -29,8 +29,10 @@ foreach ($Dir in $ExpectedDirs) {
 # 2. Check Core Files
 $ExpectedFiles = @(
     "$PSScriptRoot\..\src\core\Orchestrator.ps1",
-    "$PSScriptRoot\..\src\core\LMStudio-Client.ps1",
-    "$PSScriptRoot\..\src\core\Logger.ps1",
+    "$PSScriptRoot\..\src\core\LMStudio-Client.psm1",
+    "$PSScriptRoot\..\src\core\Logger.psm1",
+    "$PSScriptRoot\..\src\core\ContentTracker.psm1",
+    "$PSScriptRoot\..\src\core\ContentQualityTester.psm1",
     "$PSScriptRoot\..\src\core\Config.json"
 )
 
