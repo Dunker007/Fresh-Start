@@ -135,6 +135,9 @@ function setupEventListeners() {
 // AI Chat functions
 const GEMINI_API_KEY = 'AIzaSyCV65hbezqKd3wxzakujlYtFIAeDlm9KjI';
 
+// Import intent parsing
+import { parseIntent, executeIntent } from './ai/service.js';
+
 async function sendAIMessage() {
   const input = document.getElementById('aiInput');
   const message = input.value.trim();
@@ -152,7 +155,31 @@ async function sendAIMessage() {
   messagesContainer.appendChild(loadingEl);
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-  // Try Local LLM first
+  // Try Natural Language Actions first (if LLM connected)
+  if (getState().llm.connected) {
+    try {
+      const intent = await parseIntent(message);
+      if (intent && intent.isAction) {
+        const result = executeIntent(intent, {
+          addTask: (data) => {
+            import('./tasks.js').then(m => m.addTask(data));
+          },
+          addNote: (data) => {
+            import('./notes.js').then(m => m.addNote(data));
+          },
+          switchView: switchView
+        });
+        if (result.success) {
+          updateAssistantMessage(loadingId, result.message);
+          return;
+        }
+      }
+    } catch (e) {
+      console.log('Intent parsing skipped:', e.message);
+    }
+  }
+
+  // Regular chat flow
   if (getState().llm.connected) {
     try {
       const response = await sendToLocalLLM(message);

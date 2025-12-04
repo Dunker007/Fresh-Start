@@ -174,3 +174,119 @@ function parseJSON(text) {
         return null;
     }
 }
+
+/**
+ * Parse natural language into actionable intent
+ * @param {string} userMessage - Natural language command
+ * @returns {Promise<Object|null>} Intent object or null if no action detected
+ */
+export async function parseIntent(userMessage) {
+    const prompt = `You are a task parser. Analyze this message and determine if it's an actionable command or just a question.
+
+User message: "${userMessage}"
+
+If it's an ACTION (create task, add note, set reminder, etc), return JSON:
+{
+  "isAction": true,
+  "action": "createTask|createNote|setReminder|switchView",
+  "params": {
+    "title": "extracted title",
+    "due": "tomorrow|today|YYYY-MM-DD or null",
+    "priority": "high|medium|low or null",
+    "content": "note content if applicable"
+  },
+  "confidence": 0.0-1.0
+}
+
+If it's a QUESTION or CHAT, return:
+{ "isAction": false }
+
+Common patterns:
+- "create task X" / "add task X" / "remind me to X" → createTask
+- "make a note about X" / "write down X" → createNote
+- "go to dashboard" / "show files" → switchView
+
+Return ONLY valid JSON, no explanation.`;
+
+    try {
+        const response = await sendToLocalLLM(prompt);
+        const intent = parseJSON(response);
+
+        if (intent && intent.isAction && intent.confidence >= 0.7) {
+            return intent;
+        }
+        return null;
+    } catch (e) {
+        console.error('Intent parsing failed:', e);
+        return null;
+    }
+}
+
+/**
+ * Execute a parsed intent
+ * @param {Object} intent - Parsed intent from parseIntent
+ * @returns {Object} Result with success and message
+ */
+export function executeIntent(intent, actions) {
+    if (!intent || !intent.isAction) return { success: false };
+
+    const { action, params } = intent;
+
+    switch (action) {
+        case 'createTask':
+            if (actions.addTask && params.title) {
+                actions.addTask({
+                    title: params.title,
+                    due: parseDueDate(params.due),
+                    priority: params.priority || 'medium',
+                    tags: ['🤖 ai-created']
+                });
+                return { success: true, message: `✅ Created task: "${params.title}"` };
+            }
+            break;
+
+        case 'createNote':
+            if (actions.addNote && params.title) {
+                actions.addNote({
+                    title: params.title,
+                    content: params.content || '',
+                    color: 'yellow'
+                });
+                return { success: true, message: `📝 Created note: "${params.title}"` };
+            }
+            break;
+
+        case 'switchView':
+            if (actions.switchView && params.view) {
+                actions.switchView(params.view);
+                return { success: true, message: `🔀 Switched to ${params.view}` };
+            }
+            break;
+    }
+
+    return { success: false, message: 'Could not execute action' };
+}
+
+function parseDueDate(dueString) {
+    if (!dueString) return null;
+
+    const today = new Date();
+    const lowerDue = dueString.toLowerCase();
+
+    if (lowerDue === 'today') {
+        return today.toISOString().split('T')[0];
+    }
+    if (lowerDue === 'tomorrow') {
+        today.setDate(today.getDate() + 1);
+        return today.toISOString().split('T')[0];
+    }
+    if (lowerDue.includes('next week')) {
+        today.setDate(today.getDate() + 7);
+        return today.toISOString().split('T')[0];
+    }
+    // If it looks like a date, use it directly
+    if (/\d{4}-\d{2}-\d{2}/.test(dueString)) {
+        return dueString;
+    }
+    return null;
+}
