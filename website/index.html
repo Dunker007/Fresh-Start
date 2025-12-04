@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DXL Studio | AI-Powered Creative Command Center</title>
+    <meta name="description"
+        content="DXL Studio - DeAI Creator Ecosystem. AI-powered tools for music, video, and content creation.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-deep: #050508;
+            --bg-dark: #0a0a12;
+            --cyan: #00f5d4;
+            --cyan-dim: rgba(0, 245, 212, 0.3);
+            --magenta: #c77dff;
+            --magenta-dim: rgba(199, 125, 255, 0.3);
+            --purple: #7b2cbf;
+            --text: #e0e0e0;
+            --text-dim: #8892a0;
+            --glow-cyan: 0 0 30px rgba(0, 245, 212, 0.4);
+            --glow-magenta: 0 0 30px rgba(199, 125, 255, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Neural Network Background */
+        .bg-neural {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 80%, rgba(0, 245, 212, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(199, 125, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(123, 44, 191, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            padding: 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--cyan), var(--magenta));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: var(--glow-cyan);
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--cyan), var(--magenta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        nav {
+            display: flex;
+            gap: 32px;
+        }
+
+        nav a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--cyan);
+            text-shadow: var(--glow-cyan);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 120px 0 80px;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(0, 245, 212, 0.1);
+            border: 1px solid var(--cyan-dim);
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--cyan);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 32px;
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(48px, 8vw, 80px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(90deg, var(--cyan), var(--magenta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto 48px;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cyan), var(--magenta));
+            color: #000;
+            box-shadow: var(--glow-cyan);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 50px rgba(0, 245, 212, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--magenta-dim);
+            color: var(--magenta);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(199, 125, 255, 0.1);
+            box-shadow: var(--glow-magenta);
+        }
+
+        /* Sections */
+        section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--cyan);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 16px;
+        }
+
+        .section-heading {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 48px;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background: rgba(10, 10, 18, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .card:hover {
+            border-color: var(--cyan-dim);
+            transform: translateY(-4px);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: var(--text-dim);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Studio Icons Colors */
+        .icon-poe {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
+            color: #a855f7;
+        }
+
+        .icon-suno {
+            background: rgba(236, 72, 153, 0.15);
+            color: #ec4899;
+        }
+
+        .icon-youtube {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+
+        .icon-tiktok {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .icon-landr {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+        }
+
+        .icon-download {
+            background: linear-gradient(135deg, var(--cyan-dim), var(--magenta-dim));
+            color: var(--cyan);
+        }
+
+        /* Features */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 48px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--cyan-dim), var(--magenta-dim));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--cyan);
+        }
+
+        .feature h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        .feature p {
+            color: var(--text-dim);
+            font-size: 14px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 48px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+        }
+
+        footer p {
+            color: var(--text-dim);
+            font-size: 14px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dim);
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            background: var(--cyan-dim);
+            color: var(--cyan);
+        }
+
+        /* Hexagon decoration */
+        .hex-decoration {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border: 1px solid rgba(0, 245, 212, 0.1);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            pointer-events: none;
+        }
+
+        .hex-1 {
+            top: 10%;
+            right: -10%;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .hex-2 {
+            bottom: 20%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            border-color: rgba(199, 125, 255, 0.1);
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-30px) rotate(5deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-neural"></div>
+    <div class="hex-decoration hex-1"></div>
+    <div class="hex-decoration hex-2"></div>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-command"></i></div>
+                <span class="logo-text">DXL STUDIO</span>
+            </div>
+            <nav>
+                <a href="#apps">Apps</a>
+                <a href="#studios">Studios</a>
+                <a href="#download">Download</a>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <div class="hero-badge">DeAI Creator Ecosystem</div>
+            <h1>AI-Powered<br><span>Command Center</span></h1>
+            <p>Your central hub for AI-assisted music, video, and content creation. One interface to rule them all.</p>
+            <div class="hero-buttons">
+                <a href="https://poe.com" class="btn btn-primary" target="_blank">
+                    <i class="fas fa-bolt"></i> Launch POE
+                </a>
+                <a href="#download" class="btn btn-secondary">
+                    <i class="fas fa-download"></i> Get Desktop App
+                </a>
+            </div>
+        </section>
+
+        <section id="apps">
+            <div class="section-title">POE Bots</div>
+            <h2 class="section-heading">AI-Powered Tools</h2>
+            <div class="cards-grid">
+                <a href="https://poe.com/SmartStitchAI" class="card" target="_blank">
+                    <div class="card-icon icon-poe"><i class="fas fa-wand-magic-sparkles"></i></div>
+                    <h3>SmartStitchAI</h3>
+                    <p>Intelligent image stitching and composition powered by AI. Create seamless panoramas and
+                        collages.</p>
+                </a>
+                <a href="https://poe.com" class="card" target="_blank">
+                    <div class="card-icon icon-poe"><i class="fas fa-brain"></i></div>
+                    <h3>PatternAI</h3>
+                    <p>Coming soon. Analyzes your creative patterns and suggests optimal workflows.</p>
+                </a>
+                <a href="https://creator.poe.com" class="card" target="_blank">
+                    <div class="card-icon icon-poe"><i class="fas fa-hammer"></i></div>
+                    <h3>Bot Builder</h3>
+                    <p>Create your own AI bots on the POE platform. Monetize your creations.</p>
+                </a>
+            </div>
+        </section>
+
+        <section id="studios">
+            <div class="section-title">Creative Studios</div>
+            <h2 class="section-heading">Your Creative Arsenal</h2>
+            <div class="cards-grid">
+                <a href="https://suno.com" class="card" target="_blank">
+                    <div class="card-icon icon-suno"><i class="fas fa-music"></i></div>
+                    <h3>Suno AI</h3>
+                    <p>AI-powered music generation. Create original songs from text prompts.</p>
+                </a>
+                <a href="https://studio.youtube.com" class="card" target="_blank">
+                    <div class="card-icon icon-youtube"><i class="fab fa-youtube"></i></div>
+                    <h3>YouTube Studio</h3>
+                    <p>Manage your video content, analytics, and audience engagement.</p>
+                </a>
+                <a href="https://www.tiktok.com/creator-center" class="card" target="_blank">
+                    <div class="card-icon icon-tiktok"><i class="fab fa-tiktok"></i></div>
+                    <h3>TikTok Creator</h3>
+                    <p>Short-form video creation and distribution to millions.</p>
+                </a>
+                <a href="https://www.landr.com" class="card" target="_blank">
+                    <div class="card-icon icon-landr"><i class="fas fa-compact-disc"></i></div>
+                    <h3>LANDR</h3>
+                    <p>Professional AI mastering and music distribution platform.</p>
+                </a>
+            </div>
+        </section>
+
+        <section id="download">
+            <div class="section-title">Desktop App</div>
+            <h2 class="section-heading">Command Center</h2>
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon"><i class="fas fa-layer-group"></i></div>
+                    <h3>Unified Dashboard</h3>
+                    <p>All your tools in one place. Tasks, notes, projects, and AI chat.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon"><i class="fas fa-robot"></i></div>
+                    <h3>AI Assistant</h3>
+                    <p>Natural language commands. Create tasks, switch views, get help instantly.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon"><i class="fas fa-link"></i></div>
+                    <h3>Studio Links</h3>
+                    <p>Quick access to all your creative studios from one sidebar.</p>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 48px;">
+                <a href="#" class="btn btn-primary">
+                    <i class="fab fa-windows"></i> Download for Windows
+                </a>
+            </div>
+        </section>
+
+        <footer>
+            <div class="social-links">
+                <a href="https://poe.com" target="_blank"><i class="fas fa-bolt"></i></a>
+                <a href="https://youtube.com" target="_blank"><i class="fab fa-youtube"></i></a>
+                <a href="https://tiktok.com" target="_blank"><i class="fab fa-tiktok"></i></a>
+                <a href="https://github.com/Dunker007" target="_blank"><i class="fab fa-github"></i></a>
+            </div>
+            <p>&copy; 2025 DXL Studio. DeAI Creator Ecosystem.</p>
+        </footer>
+    </div>
+</body>
+
+</html>
