@@ -1,8 +1,18 @@
 # AI Agent Protocol
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Last Updated:** 2025-12-03  
 **Maintainer:** Claude Desktop (Opus 4.5)
+
+---
+
+## ⚠️ FIRST: Read SCOPE.md
+
+Before doing ANY work, read [SCOPE.md](./SCOPE.md) to understand what's in bounds.
+
+**TL;DR:** 
+- ✅ Work in `poe-canvas/` (Nexus Workspace)
+- 🚫 Don't touch `src/` (Content Pipeline - frozen)
 
 ---
 

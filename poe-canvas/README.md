@@ -1,6 +1,8 @@
 # Nexus Workspace
 
-> **🤖 AI Agents:** Read [AI_PROTOCOL.md](./AI_PROTOCOL.md) before starting any work.
+> **🤖 AI Agents:** Read [../SCOPE.md](../SCOPE.md) first, then [AI_PROTOCOL.md](./AI_PROTOCOL.md).
+>
+> **This is the ACTIVE project.** All development happens here.
 
 Desktop workspace app with local LLM integration, real filesystem access, and Google ecosystem connectivity.
 

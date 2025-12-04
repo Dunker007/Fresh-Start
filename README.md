@@ -1,6 +1,46 @@
-# Nexus Workspace - Desktop Integration Project
+# Fresh-Start Repository
 
-> **🤖 AI Agents:** Read [AI_PROTOCOL.md](./AI_PROTOCOL.md) before starting any work.
+> **🤖 AI Agents:** Read [SCOPE.md](./SCOPE.md) first, then [AI_PROTOCOL.md](./AI_PROTOCOL.md).
+
+---
+
+## Active Project: Nexus Workspace
+
+**Location:** `poe-canvas/`
+
+Desktop productivity app with local LLM integration, Google ecosystem connectivity, and keyboard-driven workflow.
+
+[→ Go to Nexus Workspace README](./poe-canvas/README.md)
+
+---
+
+## Frozen: Content Pipeline
+
+**Location:** `src/`
+
+PowerShell-based content generation system. **Frozen until Foundation Phase completes.**
+
+See [SCOPE.md](./SCOPE.md) for details.
+
+---
+
+## Quick Links
+
+| Resource | Purpose |
+|----------|---------|
+| [SCOPE.md](./SCOPE.md) | What's active vs frozen |
+| [AI_PROTOCOL.md](./AI_PROTOCOL.md) | Agent handoff rules |
+| [poe-canvas/](./poe-canvas/) | Nexus Workspace (active) |
+
+---
+
+## Legacy Documentation
+
+The sections below are preserved for reference but may be outdated.
+
+---
+
+# Nexus Workspace - Desktop Integration Project
 
 ## Project Overview
 Nexus Workspace is a comprehensive desktop workspace organization system built as a Canvas App for Poe. This handoff prepares the project for Claude Desktop to add deeper filesystem integration, local LLM support (LM Studio/Ollama), and advanced features.
