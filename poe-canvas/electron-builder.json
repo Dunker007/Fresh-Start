@@ -8,18 +8,21 @@
   "files": [
     "electron/**/*",
     "src/**/*",
-    "!**/*.md",
-    "!**/node_modules/**"
+    "!**/*.md"
   ],
   "win": {
     "target": [
       {
         "target": "nsis",
-        "arch": ["x64"]
+        "arch": [
+          "x64"
+        ]
       },
       {
         "target": "portable",
-        "arch": ["x64"]
+        "arch": [
+          "x64"
+        ]
       }
     ],
     "artifactName": "${productName}-${version}-${arch}.${ext}"
@@ -32,11 +35,16 @@
     "shortcutName": "Nexus Workspace"
   },
   "mac": {
-    "target": ["dmg", "zip"],
+    "target": [
+      "dmg",
+      "zip"
+    ],
     "category": "public.app-category.productivity"
   },
   "linux": {
-    "target": ["AppImage"],
+    "target": [
+      "AppImage"
+    ],
     "icon": "assets/icon.svg",
     "category": "Utility",
     "maintainer": "DLX Studios <contact@dlxstudios.com>"

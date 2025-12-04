@@ -32,6 +32,6 @@
   "homepage": "https://github.com/dlxstudios/nexus-workspace",
   "license": "MIT",
   "dependencies": {
-    "chokidar": "^5.0.0"
+    "chokidar": "^3.6.0"
   }
 }
