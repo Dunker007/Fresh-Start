@@ -75,6 +75,10 @@ ipcMain.handle('fs:getStatus', () => {
 ipcMain.handle('fs:listDirectory', async (event, dirPath) => {
   try {
     const targetPath = dirPath || PATHS.desktop;
+
+    // Start watching this directory
+    startWatching(targetPath);
+
     const entries = fs.readdirSync(targetPath, { withFileTypes: true });
 
     const files = entries.map(entry => {
@@ -104,6 +108,39 @@ ipcMain.handle('fs:listDirectory', async (event, dirPath) => {
     throw new Error(`Cannot read directory: ${err.message}`);
   }
 });
+
+// Filesystem Watcher
+const chokidar = require('chokidar');
+let watcher = null;
+
+function startWatching(dirPath) {
+  if (watcher) {
+    watcher.close();
+  }
+
+  // Watch the directory (ignore dotfiles, depth 1 to avoid performance issues)
+  watcher = chokidar.watch(dirPath, {
+    ignored: /(^|[\/\\])\../,
+    persistent: true,
+    depth: 0, // Only watch current directory, not recursive
+    ignoreInitial: true
+  });
+
+  watcher
+    .on('add', path => notifyFsChange('add', path))
+    .on('change', path => notifyFsChange('change', path))
+    .on('unlink', path => notifyFsChange('unlink', path))
+    .on('addDir', path => notifyFsChange('addDir', path))
+    .on('unlinkDir', path => notifyFsChange('unlinkDir', path));
+
+  console.log(`Started watching: ${dirPath}`);
+}
+
+function notifyFsChange(event, filePath) {
+  if (mainWindow) {
+    mainWindow.webContents.send('fs:change', { event, path: filePath });
+  }
+}
 
 // Open file with system default application
 ipcMain.handle('fs:openFile', async (event, filePath) => {

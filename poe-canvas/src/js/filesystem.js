@@ -9,6 +9,20 @@ function isElectron() {
   return window.electronAPI?.isElectron === true;
 }
 
+export function initFilesystem() {
+  if (isElectron()) {
+    window.electronAPI.onFsChange((data) => {
+      const state = getState();
+      // If the change happened in the current directory, reload it
+      // Simple check: if the file path starts with the current path
+      if (state?.fs.currentPath && data.path.startsWith(state.fs.currentPath)) {
+        console.log('FS Change detected, reloading:', data);
+        loadDirectory(state.fs.currentPath);
+      }
+    });
+  }
+}
+
 export async function checkFilesystemBridge() {
   const statusEl = document.getElementById('bridgeStatus');
   const statusText = document.getElementById('bridgeStatusText');
@@ -228,4 +242,4 @@ export async function handleFileUpload(event) {
   event.target.value = '';
 }
 
-export default { checkFilesystemBridge, loadDirectory, openFile, goUpDirectory, createFolder, handleFileUpload };
+export default { initFilesystem, checkFilesystemBridge, loadDirectory, openFile, goUpDirectory, createFolder, handleFileUpload };

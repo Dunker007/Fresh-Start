@@ -44,5 +44,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     saveItem: (table, item) => ipcRenderer.invoke('db:saveItem', table, item),
     deleteItem: (table, id) => ipcRenderer.invoke('db:deleteItem', table, id),
     setKV: (key, value) => ipcRenderer.invoke('db:setKV', key, value)
-  }
+  },
+
+  // Filesystem Events
+  onFsChange: (callback) => ipcRenderer.on('fs:change', (event, data) => callback(data))
 });

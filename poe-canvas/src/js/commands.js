@@ -1,8 +1,8 @@
-// commands.js - Command palette module
 import { getState } from './state.js';
-import { openModal, debounce } from './ui.js';
+import { openModal, debounce, switchView } from './ui.js';
 import { registerCommandPalette } from './shortcuts.js';
 import { toggleTimer } from './timer.js';
+import { detectLocalLLM } from './llm.js';
 
 // ============================================
 // Command Definitions
@@ -20,6 +20,10 @@ const commands = [
   { id: 'new-note', label: 'New Note', keywords: ['add', 'create', 'write'], icon: 'fa-sticky-note', shortcut: 'Ctrl+Shift+N', section: 'Create', action: () => openModal('noteModal') },
   { id: 'new-project', label: 'New Project', keywords: ['add', 'create'], icon: 'fa-project-diagram', section: 'Create', action: () => openModal('projectModal') },
   { id: 'new-bookmark', label: 'New Bookmark', keywords: ['add', 'create', 'link', 'url'], icon: 'fa-bookmark', section: 'Create', action: () => openModal('bookmarkModal') },
+
+  // AI
+  { id: 'ai-ask', label: 'AI: Ask Question', keywords: ['chat', 'gpt', 'llm'], icon: 'fa-comment-alt', section: 'AI', action: () => { switchView('ai'); setTimeout(() => document.getElementById('aiInput')?.focus(), 100); } },
+  { id: 'ai-refresh', label: 'AI: Refresh Models', keywords: ['reload', 'connect'], icon: 'fa-sync', section: 'AI', action: detectLocalLLM },
 
   // Actions
   { id: 'toggle-theme', label: 'Toggle Theme', keywords: ['dark', 'light', 'mode', 'color'], icon: 'fa-moon', shortcut: 'Ctrl+D', section: 'Actions', action: () => document.documentElement.classList.toggle('dark') },
@@ -344,11 +348,6 @@ function executeCommand(command) {
 // ============================================
 // Navigation Helper
 // ============================================
-
-function switchView(viewName) {
-  const navItem = document.querySelector(`.nav-item[data-view="${viewName}"]`);
-  if (navItem) navItem.click();
-}
 
 function navigateToItem(type, id) {
   // Switch to dashboard

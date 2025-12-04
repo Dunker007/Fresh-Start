@@ -30,5 +30,8 @@
     "email": "contact@dlxstudios.com"
   },
   "homepage": "https://github.com/dlxstudios/nexus-workspace",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "chokidar": "^5.0.0"
+  }
 }

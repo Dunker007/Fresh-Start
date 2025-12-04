@@ -1,7 +1,7 @@
 // main.js - App initialization and event binding
 import { initAppState, getState } from './state.js';
 import { detectLocalLLM, sendToLocalLLM } from './llm.js';
-import { checkFilesystemBridge, loadDirectory, goUpDirectory, createFolder, handleFileUpload } from './filesystem.js';
+import { checkFilesystemBridge, loadDirectory, goUpDirectory, createFolder, handleFileUpload, initFilesystem } from './filesystem.js';
 import { initUI, showToast, openModal, closeModal, debounce, switchView, toggleTheme } from './ui.js';
 import { initTasks, renderTasks, addTask } from './tasks.js';
 import { initNotes, renderNotes, addNote } from './notes.js';
@@ -34,6 +34,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   initLayout();
   initShortcuts();
   initCommands();
+  initFilesystem();
 
   // Setup event listeners
   setupEventListeners();
