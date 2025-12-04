@@ -2,20 +2,33 @@
   "name": "nexus-workspace",
   "version": "0.1.0",
   "description": "Desktop workspace with local LLM, filesystem integration, and Google ecosystem",
-  "main": "src/index.html",
+  "main": "electron/main.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron": "electron . --no-sandbox",
+    "electron:dev": "electron . --no-sandbox",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win"
   },
   "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3",
     "vite": "^5.4.21"
+  },
+  "build": {
+    "extends": "electron-builder.json"
   },
   "keywords": [
     "workspace",
     "productivity",
     "local-llm"
   ],
-  "author": "DLX Studios",
+  "author": {
+    "name": "DLX Studios",
+    "email": "contact@dlxstudios.com"
+  },
+  "homepage": "https://github.com/dlxstudios/nexus-workspace",
   "license": "MIT"
 }

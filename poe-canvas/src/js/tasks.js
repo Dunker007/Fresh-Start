@@ -1,24 +1,18 @@
 // tasks.js - Task CRUD + rendering
-import { updateState, generateId, getTodayStr } from './state.js';
+import { getState, updateState, generateId, getTodayStr } from './state.js';
 import { escapeHtml } from './ui.js';
 
-let appState = null;
-
-export function setAppState(state) {
-  appState = state;
-}
-
-export function initTasks(state) {
-  appState = state;
+export function initTasks() {
   renderTasks();
 }
 
 export function renderTasks() {
   const container = document.getElementById('tasksList');
-  if (!container || !appState) return;
+  const state = getState();
+  if (!container || !state) return;
 
-  const workspaceTasks = appState.tasks.filter(t =>
-    t.workspace === appState.currentWorkspace || !t.workspace
+  const workspaceTasks = state.tasks.filter(t =>
+    t.workspace === state.currentWorkspace || !t.workspace
   );
 
   if (workspaceTasks.length === 0) {
@@ -38,10 +32,10 @@ export function renderTasks() {
   });
 
   container.innerHTML = sorted.map(task => `
-    <div class="task-item ${task.completed ? 'completed' : ''}" 
+    <div class="task-item ${task.completed ? 'completed' : ''}"
          data-id="${task.id}"
          oncontextmenu="window.showTaskAIMenu(event, '${task.id}'); return false;">
-      <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} 
+      <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}
         onchange="window.toggleTask('${task.id}')">
       <div class="task-content">
         <div class="task-title">${escapeHtml(task.title)}</div>
@@ -59,11 +53,6 @@ export function renderTasks() {
       </button>
     </div>
   `).join('');
-
-  // Enable AI context menu if available
-  if (window.initTaskAIMenu) {
-    window.initTaskAIMenu();
-  }
 }
 
 function isOverdue(dateStr) {
@@ -71,7 +60,8 @@ function isOverdue(dateStr) {
 }
 
 export function addTask(task) {
-  if (!appState) return;
+  const state = getState();
+  if (!state) return;
   const newTask = {
     id: generateId(),
     title: task.title,
@@ -79,16 +69,15 @@ export function addTask(task) {
     due: task.due || null,
     priority: task.priority || 'medium',
     tags: task.tags || [],
-    workspace: appState.currentWorkspace,
+    workspace: state.currentWorkspace,
     createdAt: new Date().toISOString()
   };
-  updateState(appState, s => s.tasks.push(newTask));
+  updateState(s => s.tasks.push(newTask));
   renderTasks();
 }
 
 export function toggleTask(id) {
-  if (!appState) return;
-  updateState(appState, s => {
+  updateState(s => {
     const task = s.tasks.find(t => t.id === id);
     if (task) task.completed = !task.completed;
   });
@@ -96,19 +85,18 @@ export function toggleTask(id) {
 }
 
 export function deleteTask(id) {
-  if (!appState) return;
-  updateState(appState, s => {
+  updateState(s => {
     s.tasks = s.tasks.filter(t => t.id !== id);
   });
   renderTasks();
 }
 
 export function editTask(id) {
-  if (!appState) return;
-  const task = appState.tasks.find(t => t.id === id);
+  const state = getState();
+  if (!state) return;
+  const task = state.tasks.find(t => t.id === id);
   if (task) {
-    appState.editingTask = id;
-    // Populate modal fields - implement based on your modal structure
+    state.editingTask = id;
     window.openModal?.('taskModal');
   }
 }
@@ -118,4 +106,4 @@ window.toggleTask = toggleTask;
 window.deleteTask = deleteTask;
 window.editTask = editTask;
 
-export default { initTasks, renderTasks, addTask, toggleTask, deleteTask, editTask, setAppState };
+export default { initTasks, renderTasks, addTask, toggleTask, deleteTask, editTask };

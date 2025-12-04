@@ -1,56 +1,41 @@
 // main.js - App initialization and event binding
-import { loadState, saveState } from './state.js';
-import { detectLocalLLM, sendToLocalLLM, setAppState as setLLMState } from './llm.js';
-import { checkFilesystemBridge, loadDirectory, loadDriveFiles, goUpDirectory, setAppState as setFSState } from './filesystem.js';
-import { initUI, showToast, openModal, closeModal } from './ui.js';
-import { initTasks, renderTasks, addTask, setAppState as setTasksState } from './tasks.js';
-import { initNotes, renderNotes, addNote, setAppState as setNotesState } from './notes.js';
-import { initProjects, renderProjects, addProject, setAppState as setProjectsState } from './projects.js';
-import { initTimer, renderTimer, setAppState as setTimerState } from './timer.js';
-import { initCalendar, renderCalendar, setAppState as setCalendarState } from './calendar.js';
-import { initLayout, renderLayout, addLayoutItem, clearLayout, setAppState as setLayoutState } from './layout.js';
-import { setAppState as setAIState, showAIContextMenu, setupAITemplates } from './ai-assistant.js';
-import * as google from './google/index.js';
-
-let appState = null;
+import { initAppState, getState } from './state.js';
+import { detectLocalLLM, sendToLocalLLM } from './llm.js';
+import { checkFilesystemBridge, loadDirectory, goUpDirectory } from './filesystem.js';
+import { initUI, showToast, openModal, closeModal, debounce } from './ui.js';
+import { initTasks, renderTasks, addTask } from './tasks.js';
+import { initNotes, renderNotes, addNote } from './notes.js';
+import { initProjects, renderProjects, addProject } from './projects.js';
+import { initTimer, renderTimer } from './timer.js';
+import { initCalendar, renderCalendar } from './calendar.js';
+import { initLayout, renderLayout, addLayoutItem, clearLayout } from './layout.js';
+import { showAIContextMenu } from './ai-assistant.js';
+import { initShortcuts } from './shortcuts.js';
+import { initCommands } from './commands.js';
 
 // Initialize app
 window.addEventListener('DOMContentLoaded', async () => {
-  appState = loadState();
-  window.appState = appState;
-
-  // Pass state to all modules
-  setLLMState(appState);
-  setFSState(appState);
-  setTasksState(appState);
-  setNotesState(appState);
-  setProjectsState(appState);
-  setTimerState(appState);
-  setCalendarState(appState);
-  setLayoutState(appState);
-  setAIState(appState);
+  // Initialize state once - all modules use getState()
+  const appState = initAppState();
+  window.appState = appState; // Keep for debugging
 
   // Setup theme
   setupTheme();
 
   // Initialize UI components
-  initUI(appState);
-  initTasks(appState);
-  initNotes(appState);
-  initProjects(appState);
-  initTimer(appState);
-  initCalendar(appState);
-  initLayout(appState);
+  initUI();
+  initTasks();
+  initNotes();
+  initProjects();
+  initTimer();
+  initCalendar();
+  initLayout();
+  initShortcuts();
+  initCommands();
 
   // Setup event listeners
   setupEventListeners();
-  setupAITemplates();
-
-  // Initialize Google Auth
-  const googleClientId = localStorage.getItem('google_client_id');
-  if (googleClientId) {
-    google.auth.initAuth(googleClientId);
-  }
+  setupGlobalSearch();
 
   // Detect external services
   try { await detectLocalLLM(); } catch (e) { console.log('LLM detection failed:', e); }
@@ -87,62 +72,14 @@ function setupEventListeners() {
   document.getElementById('clearChatBtn')?.addEventListener('click', clearAIChat);
   document.getElementById('refreshModelsBtn')?.addEventListener('click', detectLocalLLM);
 
-  // Gemini Settings handlers
-  document.getElementById('geminiSettingsBtn')?.addEventListener('click', () => {
-    const key = localStorage.getItem('gemini_api_key');
-    if (key) {
-      document.getElementById('geminiKeyInput').value = key;
-    }
-    openModal('geminiSettingsModal');
-  });
-
-  document.getElementById('saveGeminiKeyBtn')?.addEventListener('click', async () => {
-    const keyInput = document.getElementById('geminiKeyInput');
-    const apiKey = keyInput.value.trim();
-
-    if (!apiKey) {
-      localStorage.removeItem('gemini_api_key');
-      showToast('Gemini key removed', 'info');
-      closeModal('geminiSettingsModal');
-      detectLocalLLM();
-      return;
-    }
-
-    // Validate key
-    const btn = document.getElementById('saveGeminiKeyBtn');
-    const originalText = btn.textContent;
-    btn.textContent = 'Validating...';
-    btn.disabled = true;
-
-    try {
-      const { validateKey } = await import('./gemini-client.js');
-      const isValid = await validateKey(apiKey);
-
-      if (isValid) {
-        localStorage.setItem('gemini_api_key', apiKey);
-        showToast('Gemini API Key saved!', 'success');
-        closeModal('geminiSettingsModal');
-        detectLocalLLM(); // Refresh connection status
-      } else {
-        showToast('Invalid API Key', 'error');
-      }
-    } catch (e) {
-      console.error(e);
-      showToast('Validation failed', 'error');
-    } finally {
-      btn.textContent = originalText;
-      btn.disabled = false;
-    }
-  });
-
   // Filesystem handlers
-  document.getElementById('goDesktop')?.addEventListener('click', () => loadDirectory(appState.fs.paths.desktop || ''));
-  document.getElementById('goDocuments')?.addEventListener('click', () => loadDirectory(appState.fs.paths.documents || ''));
-  document.getElementById('goDownloads')?.addEventListener('click', () => loadDirectory(appState.fs.paths.downloads || ''));
-  document.getElementById('goDrive')?.addEventListener('click', () => loadDriveFiles('root'));
+  document.getElementById('goDesktop')?.addEventListener('click', () => loadDirectory(getState().fs.paths.desktop || ''));
+  document.getElementById('goDocuments')?.addEventListener('click', () => loadDirectory(getState().fs.paths.documents || ''));
+  document.getElementById('goDownloads')?.addEventListener('click', () => loadDirectory(getState().fs.paths.downloads || ''));
   document.getElementById('goUp')?.addEventListener('click', goUpDirectory);
   document.getElementById('refreshFiles')?.addEventListener('click', () => {
-    if (appState.fs.currentPath) loadDirectory(appState.fs.currentPath);
+    const state = getState();
+    if (state.fs.currentPath) loadDirectory(state.fs.currentPath);
     else checkFilesystemBridge();
   });
 
@@ -153,66 +90,11 @@ function setupEventListeners() {
 
   // Theme toggle
   document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
-
-  // Google Settings handlers
-  document.getElementById('openGoogleSettings')?.addEventListener('click', () => {
-    const clientId = localStorage.getItem('google_client_id');
-    if (clientId) {
-      document.getElementById('googleClientIdInput').value = clientId;
-    }
-    updateGoogleStatusUI();
-    openModal('googleSettingsModal');
-  });
-
-  document.getElementById('saveGoogleSettingsBtn')?.addEventListener('click', () => {
-    const clientId = document.getElementById('googleClientIdInput').value.trim();
-    if (clientId) {
-      localStorage.setItem('google_client_id', clientId);
-      google.auth.initAuth(clientId);
-      showToast('Google Client ID saved', 'success');
-      updateGoogleStatusUI();
-    }
-  });
-
-  document.getElementById('googleSignInBtn')?.addEventListener('click', () => {
-    google.auth.signIn();
-  });
-
-  document.getElementById('googleSignOutBtn')?.addEventListener('click', () => {
-    google.auth.signOut();
-    updateGoogleStatusUI();
-  });
-
-  // Listen for auth events
-  window.addEventListener('google-auth-success', () => {
-    showToast('Signed in to Google', 'success');
-    updateGoogleStatusUI();
-    // closeModal('googleSettingsModal'); // Optional: keep open to see status
-  });
-
-  window.addEventListener('google-auth-signout', () => {
-    showToast('Signed out of Google', 'info');
-    updateGoogleStatusUI();
-  });
-}
-
-function updateGoogleStatusUI() {
-  const isAuth = google.auth.isAuthenticated();
-  const statusEl = document.getElementById('googleAuthStatus');
-  const signInBtn = document.getElementById('googleSignInBtn');
-  const signOutBtn = document.getElementById('googleSignOutBtn');
-
-  if (statusEl) {
-    statusEl.textContent = isAuth ? 'Connected' : 'Not connected';
-    statusEl.style.color = isAuth ? 'var(--accent-success)' : 'var(--text-muted)';
-  }
-
-  if (signInBtn) signInBtn.style.display = isAuth ? 'none' : 'block';
-  if (signOutBtn) signOutBtn.style.display = isAuth ? 'block' : 'none';
 }
 
 function switchView(view) {
-  appState.currentView = view;
+  const state = getState();
+  state.currentView = view;
 
   document.querySelectorAll('.nav-item[data-view]').forEach(item => {
     item.classList.toggle('active', item.dataset.view === view);
@@ -226,8 +108,8 @@ function switchView(view) {
   if (view === 'canvas') renderLayout();
   if (view === 'files') {
     checkFilesystemBridge().then(connected => {
-      if (connected && !appState.fs.currentPath) {
-        loadDirectory(appState.fs.paths.desktop);
+      if (connected && !state.fs.currentPath) {
+        loadDirectory(state.fs.paths.desktop);
       }
     });
   }
@@ -256,7 +138,7 @@ async function sendAIMessage() {
   messagesContainer.appendChild(loadingEl);
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-  if (appState.llm.connected) {
+  if (getState().llm.connected) {
     try {
       const response = await sendToLocalLLM(message);
       const loadingElement = document.getElementById(loadingId);
@@ -309,6 +191,206 @@ function clearAIChat() {
       </div>
     </div>
   `;
+}
+
+// ============================================
+// Global Search
+// ============================================
+
+function setupGlobalSearch() {
+  const searchInput = document.getElementById('globalSearch');
+  if (!searchInput) return;
+
+  // Create search results dropdown
+  const resultsDropdown = document.createElement('div');
+  resultsDropdown.id = 'searchResults';
+  resultsDropdown.className = 'search-results-dropdown';
+  searchInput.parentElement.appendChild(resultsDropdown);
+
+  // Debounced search handler
+  const handleSearch = debounce((query) => {
+    if (!query.trim()) {
+      resultsDropdown.classList.remove('active');
+      return;
+    }
+
+    const results = performSearch(query.toLowerCase());
+    renderSearchResults(results, resultsDropdown, query);
+  }, 250);
+
+  searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
+
+  // Close on blur (with delay to allow clicking results)
+  searchInput.addEventListener('blur', () => {
+    setTimeout(() => resultsDropdown.classList.remove('active'), 200);
+  });
+
+  // Handle keyboard navigation
+  searchInput.addEventListener('keydown', (e) => {
+    const items = resultsDropdown.querySelectorAll('.search-result-item');
+    const activeItem = resultsDropdown.querySelector('.search-result-item.active');
+    let activeIndex = Array.from(items).indexOf(activeItem);
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (activeIndex < items.length - 1) {
+        items[activeIndex]?.classList.remove('active');
+        items[activeIndex + 1]?.classList.add('active');
+      } else if (activeIndex === -1 && items.length > 0) {
+        items[0].classList.add('active');
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (activeIndex > 0) {
+        items[activeIndex]?.classList.remove('active');
+        items[activeIndex - 1]?.classList.add('active');
+      }
+    } else if (e.key === 'Enter') {
+      if (activeItem) {
+        e.preventDefault();
+        activeItem.click();
+      }
+    }
+  });
+}
+
+function performSearch(query) {
+  const state = getState();
+  const results = [];
+
+  // Search tasks
+  state.tasks.forEach(task => {
+    if (task.title.toLowerCase().includes(query) ||
+        (task.tags && task.tags.some(t => t.toLowerCase().includes(query)))) {
+      results.push({
+        type: 'task',
+        icon: 'fa-check-circle',
+        title: task.title,
+        subtitle: task.completed ? 'Completed' : (task.dueDate || 'No due date'),
+        data: task
+      });
+    }
+  });
+
+  // Search notes
+  state.notes.forEach(note => {
+    if (note.title.toLowerCase().includes(query) ||
+        (note.content && note.content.toLowerCase().includes(query))) {
+      results.push({
+        type: 'note',
+        icon: 'fa-sticky-note',
+        title: note.title,
+        subtitle: note.content ? note.content.substring(0, 50) + '...' : 'Empty note',
+        data: note
+      });
+    }
+  });
+
+  // Search projects
+  state.projects.forEach(project => {
+    if (project.name.toLowerCase().includes(query) ||
+        (project.description && project.description.toLowerCase().includes(query))) {
+      results.push({
+        type: 'project',
+        icon: 'fa-project-diagram',
+        title: project.name,
+        subtitle: project.description || 'No description',
+        data: project
+      });
+    }
+  });
+
+  // Search bookmarks
+  if (state.bookmarks) {
+    state.bookmarks.forEach(bookmark => {
+      if (bookmark.title.toLowerCase().includes(query) ||
+          bookmark.url.toLowerCase().includes(query)) {
+        results.push({
+          type: 'bookmark',
+          icon: 'fa-bookmark',
+          title: bookmark.title,
+          subtitle: bookmark.url,
+          data: bookmark
+        });
+      }
+    });
+  }
+
+  return results.slice(0, 10); // Limit to 10 results
+}
+
+function renderSearchResults(results, container, query) {
+  if (results.length === 0) {
+    container.innerHTML = `
+      <div class="search-no-results">
+        <i class="fas fa-search"></i>
+        <span>No results for "${query}"</span>
+      </div>
+    `;
+    container.classList.add('active');
+    return;
+  }
+
+  container.innerHTML = results.map((result, index) => `
+    <div class="search-result-item${index === 0 ? ' active' : ''}" data-type="${result.type}" data-id="${result.data.id}">
+      <i class="fas ${result.icon}"></i>
+      <div class="search-result-content">
+        <div class="search-result-title">${highlightMatch(result.title, query)}</div>
+        <div class="search-result-subtitle">${result.subtitle}</div>
+      </div>
+      <span class="search-result-type">${result.type}</span>
+    </div>
+  `).join('');
+
+  // Add click handlers
+  container.querySelectorAll('.search-result-item').forEach(item => {
+    item.addEventListener('click', () => {
+      handleSearchResultClick(item.dataset.type, item.dataset.id);
+      container.classList.remove('active');
+      document.getElementById('globalSearch').value = '';
+    });
+  });
+
+  container.classList.add('active');
+}
+
+function highlightMatch(text, query) {
+  const regex = new RegExp(`(${query})`, 'gi');
+  return text.replace(regex, '<mark>$1</mark>');
+}
+
+function handleSearchResultClick(type, id) {
+  // Switch to dashboard view for most items
+  if (type !== 'bookmark') {
+    switchView('dashboard');
+  }
+
+  // Scroll to or highlight the item
+  setTimeout(() => {
+    let element;
+    switch (type) {
+      case 'task':
+        element = document.querySelector(`[data-task-id="${id}"]`);
+        break;
+      case 'note':
+        element = document.querySelector(`[data-note-id="${id}"]`);
+        break;
+      case 'project':
+        element = document.querySelector(`[data-project-id="${id}"]`);
+        break;
+      case 'bookmark':
+        const state = getState();
+        const bookmark = state.bookmarks?.find(b => b.id === id);
+        if (bookmark) window.open(bookmark.url, '_blank');
+        return;
+    }
+
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element.classList.add('highlight-flash');
+      setTimeout(() => element.classList.remove('highlight-flash'), 1500);
+    }
+  }, 100);
 }
 
 // Export for potential external use

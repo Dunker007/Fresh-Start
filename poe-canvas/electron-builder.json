@@ -1,0 +1,44 @@
+{
+  "appId": "com.dlxstudios.nexus-workspace",
+  "productName": "Nexus Workspace",
+  "directories": {
+    "output": "dist",
+    "buildResources": "assets"
+  },
+  "files": [
+    "electron/**/*",
+    "src/**/*",
+    "!**/*.md",
+    "!**/node_modules/**"
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      },
+      {
+        "target": "portable",
+        "arch": ["x64"]
+      }
+    ],
+    "artifactName": "${productName}-${version}-${arch}.${ext}"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Nexus Workspace"
+  },
+  "mac": {
+    "target": ["dmg", "zip"],
+    "category": "public.app-category.productivity"
+  },
+  "linux": {
+    "target": ["AppImage"],
+    "icon": "assets/icon.svg",
+    "category": "Utility",
+    "maintainer": "DLX Studios <contact@dlxstudios.com>"
+  }
+}

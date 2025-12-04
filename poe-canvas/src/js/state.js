@@ -1,5 +1,25 @@
 // state.js - Central app state + persistence
 
+// Single source of truth for app state
+let _appState = null;
+
+/**
+ * Get the current app state
+ * @returns {Object} The app state object
+ */
+export function getState() {
+  return _appState;
+}
+
+/**
+ * Initialize app state (call once at startup)
+ * @returns {Object} The initialized state
+ */
+export function initAppState() {
+  _appState = loadState();
+  return _appState;
+}
+
 export function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
@@ -67,10 +87,13 @@ export function saveState(state) {
   } catch {}
 }
 
-export function updateState(state, fn) {
-  fn(state);
+export function updateState(stateOrFn, fn) {
+  // Support both updateState(fn) and updateState(state, fn) for backwards compatibility
+  const state = typeof stateOrFn === 'function' ? _appState : stateOrFn;
+  const updateFn = typeof stateOrFn === 'function' ? stateOrFn : fn;
+  updateFn(state);
   saveState(state);
   return state;
 }
 
-export default { createInitialState, loadState, saveState, updateState, generateId, getTodayStr, getTomorrowStr };
+export default { getState, initAppState, createInitialState, loadState, saveState, updateState, generateId, getTodayStr, getTomorrowStr };

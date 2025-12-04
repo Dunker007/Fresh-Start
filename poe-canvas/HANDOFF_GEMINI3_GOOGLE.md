@@ -1,71 +1,291 @@
-# Google Integration Complete
+# HANDOFF: Google Integration Implementation
 
-**Status:** ✅ Complete & Wired
-**Date:** Dec 3, 2025
+**Version:** 1.0  
+**Date:** 2025-12-03  
+**From:** Claude Desktop (Opus 4.5)  
+**To:** Gemini 3 Pro (Antigravity IDE)
 
-## Accomplishments
+---
 
-### 1. Google Auth & Settings
-- **Implemented:** `src/js/google/auth.js` using Google Identity Services (GIS).
-- **UI:** Added "Google Integration" to Settings Dropdown.
-- **UI:** Created `googleSettingsModal` for Client ID entry and Sign In/Out.
-- **State:** Client ID persisted in `localStorage`.
+> **🤖 READ FIRST:** [AI_PROTOCOL.md](./AI_PROTOCOL.md)
 
-### 2. Calendar Integration
-- **Implemented:** `src/js/google/calendar.js` wrapper.
-- **Integration:** `src/js/calendar.js` now fetches Google Events if authenticated.
-- **UI:** Events displayed as green dots in the calendar grid.
-- **UI:** Tooltip shows event count.
+---
 
-### 3. Google Drive Integration
-- **Implemented:** `src/js/google/drive.js` wrapper.
-- **Integration:** `src/js/filesystem.js` supports `loadDriveFiles`.
-- **UI:** Added "Google Drive" button to File Manager toolbar.
-- **Feature:** Browsing Drive folders and opening files (in new tab) works.
+## Repo & Branch
 
-## How to Test
+**Repo:** `github.com/Dunker007/Fresh-Start`  
+**Branch:** `main` (fully synced)  
+**Target OS:** Windows 11 (LuxRig)
 
-1.  **Configure Client ID:**
-    - Go to Google Cloud Console -> APIs & Services -> Credentials.
-    - Create OAuth 2.0 Client ID (Web Application).
-    - Add `http://localhost:5000` (or your port) to "Authorized JavaScript origins".
-    - Copy Client ID.
-    - In App: Settings -> Google Integration -> Enter Client ID -> Save.
+**Clone/Pull:**
+```bash
+git clone https://github.com/Dunker007/Fresh-Start.git
+cd Fresh-Start/poe-canvas
+```
 
-2.  **Sign In:**
-    - Click "Sign In" in the Google Settings modal.
-    - Complete the Google popup flow.
-    - Verify status changes to "Connected".
+---
 
-3.  **Test Calendar:**
-    - Go to Dashboard.
-    - Verify dots appear on days with Google Calendar events.
-    - Hover over a day to see event count.
+## Current State
 
-4.  **Test Drive:**
-    - Go to File Manager.
-    - Click the Google Drive icon (next to Downloads).
-    - Verify file list loads from your Drive.
-    - Click a folder to navigate.
-    - Click a file to open in a new tab.
+### What Exists
+- ✅ Electron desktop app (working, 76MB exe)
+- ✅ Keyboard shortcuts (`Ctrl+K` command palette, etc.)
+- ✅ Local LLM integration (LM Studio @ localhost:1234)
+- ✅ Modular JS architecture (`src/js/*.js`)
+- ✅ IPC bridge stubbed (`electron/preload.js`, `src/js/filesystem.js`)
 
-## Architecture
+### What's Missing
+- ❌ Google OAuth2 flow
+- ❌ Google Drive integration
+- ❌ Google Calendar integration
+- ❌ Gmail integration
+- ❌ Secure token storage
 
-### Module Structure (`src/js/google/`)
-- `auth.js`: GIS Auth logic.
-- `client.js`: Authenticated fetch wrapper.
-- `drive.js`: Drive API.
-- `calendar.js`: Calendar API.
-- `index.js`: Exports.
+---
 
-### Key Modifications
-- `src/index-modular.html`: Added GIS script, Settings Modal, Drive button.
-- `src/js/main.js`: Wired up Auth listeners and Drive button.
-- `src/js/calendar.js`: Added async event fetching.
-- `src/js/filesystem.js`: Added `loadDriveFiles` and `handleFileClick` logic.
-- `src/styles/main.css`: Added `.task-dot` style.
+## Task
 
-## Next Steps
-- **Event Details:** Clicking a calendar day could show a modal with event details (currently just logs to console).
-- **Drive Upload:** Add ability to upload files to Drive.
-- **Calendar Add:** Add ability to create Google Calendar events from the app.
+Design and implement Google ecosystem integration for the Electron app.
+
+### Scope
+
+**In Scope:**
+1. OAuth2 authentication flow (desktop app callback)
+2. Google Drive - recent files, search, open in browser
+3. Google Calendar - today's events, sync task due dates
+4. Gmail - unread count, inbox preview
+
+**Out of Scope (for now):**
+- Google Cloud project setup (user will do this)
+- File upload/sync to Drive
+- Creating calendar events programmatically
+- Sending emails
+
+---
+
+## Requirements
+
+### Authentication
+- OAuth2 with PKCE (desktop apps)
+- Redirect to `http://localhost:<port>/callback`
+- Secure token storage (electron-store or keytar)
+- Token refresh handling
+- Graceful logout/re-auth
+
+### Google Drive
+```javascript
+// Required capabilities
+- listRecentFiles(limit = 10)     // Last modified files
+- searchFiles(query)               // Full-text search
+- getFileMetadata(fileId)          // Name, type, size, modified
+- openInBrowser(fileId)            // Open web view
+```
+
+### Google Calendar
+```javascript
+// Required capabilities
+- getTodaysEvents()                // Events for today
+- getUpcomingEvents(days = 7)      // Next week
+- getEventDetails(eventId)         // Full event info
+```
+
+### Gmail
+```javascript
+// Required capabilities
+- getUnreadCount()                 // Inbox unread badge
+- getRecentEmails(limit = 5)       // Subject, from, date
+- openInBrowser(messageId)         // Open in Gmail
+```
+
+---
+
+## Proposed Architecture
+
+```
+poe-canvas/
+├── src/js/
+│   ├── google/
+│   │   ├── auth.js           # OAuth2 flow, token management
+│   │   ├── drive.js          # Drive API client
+│   │   ├── calendar.js       # Calendar API client
+│   │   ├── gmail.js          # Gmail API client
+│   │   └── index.js          # Unified export
+│   └── main.js               # Import and init google module
+├── electron/
+│   ├── main.js               # Add auth callback server
+│   └── preload.js            # Expose google IPC channels
+└── config/
+    └── google.example.json   # Template for credentials
+```
+
+---
+
+## Reference Code
+
+From `docs/ENHANCEMENT_ROADMAP.md`:
+
+```javascript
+const { google } = require('googleapis');
+
+class GoogleIntegration {
+  constructor() {
+    this.auth = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+    this.drive = google.drive({ version: 'v3', auth: this.auth });
+    this.calendar = google.calendar({ version: 'v3', auth: this.auth });
+    this.gmail = google.gmail({ version: 'v1', auth: this.auth });
+  }
+
+  async getRecentDriveFiles() {
+    const res = await this.drive.files.list({
+      pageSize: 10,
+      orderBy: 'modifiedByMeTime desc',
+      fields: 'files(id, name, mimeType, modifiedTime, webViewLink)'
+    });
+    return res.data.files;
+  }
+
+  async getTodaysEvents() {
+    const now = new Date();
+    const endOfDay = new Date(now);
+    endOfDay.setHours(23, 59, 59);
+
+    const res = await this.calendar.events.list({
+      calendarId: 'primary',
+      timeMin: now.toISOString(),
+      timeMax: endOfDay.toISOString(),
+      singleEvents: true,
+      orderBy: 'startTime'
+    });
+    return res.data.items;
+  }
+
+  async getUnreadCount() {
+    const res = await this.gmail.users.labels.get({
+      userId: 'me',
+      id: 'INBOX'
+    });
+    return res.data.messagesUnread;
+  }
+}
+```
+
+---
+
+## UI Integration Points
+
+The dashboard already has widget areas. Google data should populate:
+
+1. **Google Widget** (new) - Add to dashboard
+   - Drive: 3-5 recent files with icons
+   - Calendar: Today's events timeline
+   - Gmail: Unread badge + last 3 subjects
+
+2. **Settings Panel** - Add Google section
+   - "Connect Google Account" button
+   - Connection status indicator
+   - "Disconnect" option
+
+3. **Command Palette** - Add commands
+   - "Google: Search Drive"
+   - "Google: Today's Calendar"
+   - "Google: Open Gmail"
+
+---
+
+## Dependencies to Add
+
+```json
+{
+  "dependencies": {
+    "googleapis": "^118.0.0",
+    "electron-store": "^8.1.0"
+  }
+}
+```
+
+Or for more secure token storage:
+```json
+{
+  "dependencies": {
+    "keytar": "^7.9.0"
+  }
+}
+```
+
+---
+
+## Environment Notes
+
+### Windows (LuxRig)
+- PowerShell uses `;` not `&&`
+- Always set `$env:NODE_ENV = "development"` before `npm install`
+- Electron exe at: `dist/Nexus Workspace-0.1.0-x64.exe`
+
+### Testing
+```powershell
+cd "C:\Repos GIT\Fresh-Start\poe-canvas"
+$env:NODE_ENV = "development"
+npm install
+npm run electron
+```
+
+---
+
+## Success Criteria
+
+- [ ] OAuth2 flow works (opens browser, handles callback)
+- [ ] Tokens stored securely, persist across app restarts
+- [ ] Drive recent files display in UI
+- [ ] Calendar events display for today
+- [ ] Gmail unread count shows
+- [ ] Graceful handling when not authenticated
+- [ ] No credentials in code (use config file)
+
+---
+
+## Completion Handoff Required
+
+When done, provide per AI_PROTOCOL.md:
+
+```markdown
+## COMPLETION: Google Integration
+
+**Branch Created:** [branch name]
+**Based On:** main
+**Merge Required:** [Yes/No]
+
+**What Was Done:**
+- [list changes]
+
+**Files Changed:**
+- [list files]
+
+**Testing Performed:**
+- [ ] OAuth flow - [Linux/Windows]
+- [ ] Drive API - [Linux/Windows]
+- [ ] Calendar API - [Linux/Windows]
+- [ ] Gmail API - [Linux/Windows]
+
+**Windows Notes:**
+- [any Windows-specific findings]
+
+**Known Issues:**
+- [any bugs or incomplete items]
+
+**Next Steps:**
+- [what should follow]
+```
+
+---
+
+## Questions to Resolve
+
+1. **Token storage:** `electron-store` (simple) vs `keytar` (system keychain)?
+2. **Scopes:** Read-only for all, or include write for calendar?
+3. **Offline access:** Request refresh tokens for persistent auth?
+
+Make decisions and document rationale.
+
+---
+
+*Ready for implementation. Google's your turf - have at it.* 🚀

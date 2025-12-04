@@ -1,15 +1,7 @@
 // calendar.js - Calendar view rendering
-import { updateState } from './state.js';
-import * as google from './google/index.js';
+import { getState, updateState } from './state.js';
 
-let appState = null;
-
-export function setAppState(state) {
-  appState = state;
-}
-
-export function initCalendar(state) {
-  appState = state;
+export function initCalendar() {
   renderCalendar();
 
   const prevBtn = document.getElementById('calendarPrev');
@@ -19,17 +11,16 @@ export function initCalendar(state) {
   if (nextBtn) nextBtn.addEventListener('click', () => navigateMonth(1));
 }
 
-
-
-export async function renderCalendar() {
-  if (!appState) return;
+export function renderCalendar() {
+  const state = getState();
+  if (!state) return;
 
   const container = document.getElementById('calendarGrid');
   const monthLabel = document.getElementById('calendarMonth');
 
   if (!container) return;
 
-  const { month, year } = appState.calendar;
+  const { month, year } = state.calendar;
   const today = new Date();
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
@@ -41,19 +32,6 @@ export async function renderCalendar() {
 
   if (monthLabel) {
     monthLabel.textContent = `${monthNames[month]} ${year}`;
-  }
-
-  // Fetch Google Events
-  let googleEvents = [];
-  if (google.auth.isAuthenticated()) {
-    try {
-      const timeMin = firstDay.toISOString();
-      const timeMax = lastDay.toISOString();
-      const response = await google.calendar.listEvents({ timeMin, timeMax, maxResults: 100 });
-      if (response.items) googleEvents = response.items;
-    } catch (e) {
-      console.error('Google Calendar fetch error:', e);
-    }
   }
 
   // Day headers
@@ -69,23 +47,13 @@ export async function renderCalendar() {
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
-
-    const hasTasks = appState.tasks.some(t => t.due === dateStr);
-    const dayEvents = googleEvents.filter(e => {
-      const start = e.start.dateTime || e.start.date;
-      return start.startsWith(dateStr);
-    });
-    const hasGoogleEvents = dayEvents.length > 0;
+    const hasTasks = state.tasks.some(t => t.due === dateStr);
 
     html += `
-      <div class="calendar-day ${isToday ? 'today' : ''} ${hasTasks ? 'has-tasks' : ''}" 
-           data-date="${dateStr}" onclick="window.selectCalendarDate('${dateStr}')"
-           title="${dayEvents.length} Google Events">
+      <div class="calendar-day ${isToday ? 'today' : ''} ${hasTasks ? 'has-tasks' : ''}"
+           data-date="${dateStr}" onclick="window.selectCalendarDate('${dateStr}')">
         ${day}
-        <div class="dots-container" style="display: flex; gap: 2px; justify-content: center; margin-top: 2px;">
-            ${hasTasks ? '<div class="task-dot"></div>' : ''}
-            ${hasGoogleEvents ? '<div class="task-dot" style="background: var(--accent-success);"></div>' : ''}
-        </div>
+        ${hasTasks ? '<div class="task-dot"></div>' : ''}
       </div>
     `;
   }
@@ -94,9 +62,7 @@ export async function renderCalendar() {
 }
 
 export function navigateMonth(delta) {
-  if (!appState) return;
-
-  updateState(appState, s => {
+  updateState(s => {
     s.calendar.month += delta;
     if (s.calendar.month > 11) {
       s.calendar.month = 0;
@@ -110,10 +76,9 @@ export function navigateMonth(delta) {
 }
 
 export function selectCalendarDate(dateStr) {
-  // Could open a modal to add task for this date
   console.log('Selected date:', dateStr);
 }
 
 window.selectCalendarDate = selectCalendarDate;
 
-export default { initCalendar, renderCalendar, navigateMonth, selectCalendarDate, setAppState };
+export default { initCalendar, renderCalendar, navigateMonth, selectCalendarDate };
