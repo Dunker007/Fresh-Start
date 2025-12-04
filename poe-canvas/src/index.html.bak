@@ -22,99 +22,76 @@
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <div class="logo">
-          <div class="logo-icon"><i class="fas fa-command"></i></div>
-          <span>Command Center</span>
+          <div class="logo-icon"><i class="fas fa-cube"></i></div>
+          <span>Nexus</span>
         </div>
       </div>
 
       <nav class="sidebar-nav">
         <div class="nav-section">
-          <div class="nav-section-title">Hub</div>
+          <div class="nav-section-title">Main</div>
           <div class="nav-item active" data-view="dashboard">
-            <i class="fas fa-home"></i>
+            <i class="fas fa-th-large"></i>
             <span>Dashboard</span>
           </div>
+          <div class="nav-item" data-view="files">
+            <i class="fas fa-folder"></i>
+            <span>File Manager</span>
+          </div>
           <div class="nav-item" data-view="canvas">
-            <i class="fas fa-layer-group"></i>
-            <span>Canvas</span>
+            <i class="fas fa-object-group"></i>
+            <span>Layout Planner</span>
           </div>
           <div class="nav-item" data-view="ai">
-            <i class="fas fa-sparkles"></i>
-            <span>AI Chat</span>
+            <i class="fas fa-robot"></i>
+            <span>AI Assistant</span>
+            <span class="badge">New</span>
           </div>
         </div>
 
         <div class="nav-section">
-          <div class="nav-section-title">POE</div>
-          <a class="quick-link" href="https://poe.com" target="_blank" rel="noopener">
-            <div class="quick-link-icon"
-              style="background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.2)); color: #a855f7;">
-              <i class="fas fa-bolt"></i>
-            </div>
-            <span>POE Chat</span>
-          </a>
-          <a class="quick-link" href="https://poe.com/SmartStitchAI" target="_blank" rel="noopener">
-            <div class="quick-link-icon" style="background: rgba(16,185,129,0.15); color: #10b981;">
-              <i class="fas fa-wand-magic-sparkles"></i>
-            </div>
-            <span>SmartStitchAI</span>
-          </a>
-          <a class="quick-link" href="https://creator.poe.com" target="_blank" rel="noopener">
-            <div class="quick-link-icon" style="background: rgba(249,115,22,0.15); color: #f97316;">
-              <i class="fas fa-hammer"></i>
-            </div>
-            <span>Bot Builder</span>
-          </a>
+          <div class="nav-section-title">Workspaces</div>
+          <div class="workspace-list" id="workspaceList">
+            <!-- Workspaces populated by JS -->
+          </div>
+          <div class="nav-item" id="addWorkspaceBtn" style="color: var(--accent-primary);">
+            <i class="fas fa-plus"></i>
+            <span>New Workspace</span>
+          </div>
         </div>
 
         <div class="nav-section">
-          <div class="nav-section-title">Studios</div>
-          <a class="quick-link" href="https://suno.com" target="_blank" rel="noopener">
-            <div class="quick-link-icon" style="background: rgba(236,72,153,0.15); color: #ec4899;">
-              <i class="fas fa-music"></i>
-            </div>
-            <span>Suno AI</span>
-          </a>
-          <a class="quick-link" href="https://studio.youtube.com" target="_blank" rel="noopener">
-            <div class="quick-link-icon" style="background: rgba(239,68,68,0.15); color: #ef4444;">
-              <i class="fab fa-youtube"></i>
-            </div>
-            <span>YouTube Studio</span>
-          </a>
-          <a class="quick-link" href="https://www.tiktok.com/creator-center" target="_blank" rel="noopener">
-            <div class="quick-link-icon" style="background: rgba(0,0,0,0.1); color: #64748b;">
-              <i class="fab fa-tiktok"></i>
-            </div>
-            <span>TikTok</span>
-          </a>
-          <a class="quick-link" href="https://www.landr.com" target="_blank" rel="noopener">
-            <div class="quick-link-icon" style="background: rgba(59,130,246,0.15); color: #3b82f6;">
-              <i class="fas fa-compact-disc"></i>
-            </div>
-            <span>LANDR</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Google</div>
+          <div class="nav-section-title">Quick Access</div>
           <a class="quick-link" href="https://drive.google.com" target="_blank" rel="noopener">
             <div class="quick-link-icon" style="background: rgba(251,188,4,0.15); color: #fbbc04;">
               <i class="fab fa-google-drive"></i>
             </div>
-            <span>Drive</span>
+            <span style="font-size: 14px;">Google Drive</span>
           </a>
-          <a class="quick-link" href="https://notebooklm.google.com" target="_blank" rel="noopener">
-            <div class="quick-link-icon" style="background: rgba(138,43,226,0.15); color: #8a2be2;">
-              <i class="fas fa-brain"></i>
+          <a class="quick-link" href="https://calendar.google.com" target="_blank" rel="noopener">
+            <div class="quick-link-icon" style="background: rgba(66,133,244,0.15); color: #4285f4;">
+              <i class="fas fa-calendar"></i>
             </div>
-            <span>NotebookLM</span>
+            <span style="font-size: 14px;">Calendar</span>
+          </a>
+          <a class="quick-link" href="https://docs.google.com" target="_blank" rel="noopener">
+            <div class="quick-link-icon" style="background: rgba(66,133,244,0.15); color: #4285f4;">
+              <i class="fas fa-file-alt"></i>
+            </div>
+            <span style="font-size: 14px;">Docs</span>
+          </a>
+          <a class="quick-link" href="https://mail.google.com" target="_blank" rel="noopener">
+            <div class="quick-link-icon" style="background: rgba(234,67,53,0.15); color: #ea4335;">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <span style="font-size: 14px;">Gmail</span>
           </a>
         </div>
       </nav>
 
       <div class="sidebar-footer">
-        <button class="btn-secondary" style="width: 100%;" id="settingsBtn">
-          <i class="fas fa-cog"></i> Settings
+        <button class="btn-secondary" style="width: 100%;" id="exportBtn">
+          <i class="fas fa-download"></i> Export Data
         </button>
       </div>
     </aside>
