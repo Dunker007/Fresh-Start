@@ -109,7 +109,7 @@ export function initWorkspaces() {
 }
 
 function renderWorkspaceSwitcher() {
-    const container = document.getElementById('workspaceSwitcher');
+    const container = document.getElementById('workspaceList');
     if (!container) return;
 
     const state = getState();

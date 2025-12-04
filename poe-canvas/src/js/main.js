@@ -12,6 +12,7 @@ import { initLayout, renderLayout, addLayoutItem, clearLayout } from './layout.j
 import { showAIContextMenu } from './ai/ui.js';
 import { initShortcuts } from './shortcuts.js';
 import { initCommands } from './commands.js';
+import { initWorkspaces } from './workspaces.js';
 import * as google from './google/index.js';
 import { callGemini } from './gemini-client.js';
 
@@ -35,6 +36,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   initShortcuts();
   initCommands();
   initFilesystem();
+  initWorkspaces();
 
   // Setup event listeners
   setupEventListeners();
@@ -114,6 +116,13 @@ function setupEventListeners() {
   // Google Auth
   document.getElementById('googleConnectBtn')?.addEventListener('click', handleGoogleConnect);
   document.getElementById('googleDisconnectBtn')?.addEventListener('click', handleGoogleDisconnect);
+
+  // Export / Import / Reset
+  document.getElementById('exportBtn')?.addEventListener('click', exportData);
+  document.getElementById('importBtn')?.addEventListener('click', () => document.getElementById('importInput')?.click());
+  document.getElementById('importInput')?.addEventListener('change', importData);
+  document.getElementById('resetBtn')?.addEventListener('click', resetAllData);
+  document.getElementById('addWorkspaceBtn')?.addEventListener('click', () => openModal('workspaceModal'));
 
   // Listen for view changes to trigger specific renders
   window.addEventListener('view-changed', (e) => {
@@ -251,6 +260,68 @@ function clearAIChat() {
       </div>
     </div>
   `;
+}
+
+// ============================================
+// Data Management
+// ============================================
+
+function exportData() {
+  const state = getState();
+  const exportObj = {
+    tasks: state.tasks,
+    notes: state.notes,
+    projects: state.projects,
+    workspaces: state.workspaces,
+    bookmarks: state.bookmarks || [],
+    exportedAt: new Date().toISOString()
+  };
+
+  const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `nexus-backup-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Data exported!', 'success');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      const state = getState();
+
+      if (data.tasks) state.tasks = data.tasks;
+      if (data.notes) state.notes = data.notes;
+      if (data.projects) state.projects = data.projects;
+      if (data.workspaces) state.workspaces = data.workspaces;
+      if (data.bookmarks) state.bookmarks = data.bookmarks;
+
+      // Re-render all
+      renderTasks();
+      renderNotes();
+      renderProjects();
+      showToast('Data imported!', 'success');
+    } catch (err) {
+      showToast('Invalid backup file', 'error');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function resetAllData() {
+  if (!confirm('Are you sure you want to delete ALL data? This cannot be undone.')) return;
+
+  localStorage.clear();
+  showToast('All data cleared. Refreshing...', 'info');
+  setTimeout(() => location.reload(), 1000);
 }
 
 // ============================================
