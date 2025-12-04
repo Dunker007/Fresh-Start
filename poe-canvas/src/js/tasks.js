@@ -1,13 +1,19 @@
 // tasks.js - Task CRUD + rendering
-import { getState, updateState, generateId, getTodayStr } from './state.js';
+import { getState, updateState, generateId, getTodayStr, subscribe } from './state.js';
 import { escapeHtml } from './ui.js';
 
 export function initTasks() {
   renderTasks();
+  // Subscribe to state changes to auto-render
+  subscribe((state, event, data) => {
+    if (event === 'stateUpdated' || event === 'stateChanged') {
+      renderTasks();
+    }
+  });
 }
 
 export function renderTasks() {
-  const container = document.getElementById('tasksList');
+  const container = document.getElementById('taskList'); // Fixed ID from tasksList to taskList based on index.html
   const state = getState();
   if (!container || !state) return;
 
@@ -35,12 +41,16 @@ export function renderTasks() {
   container.innerHTML = sorted.map(task => `
     <div class="task-item ${task.completed ? 'completed' : ''}"
          data-id="${task.id}"
+         data-task-id="${task.id}"
          oncontextmenu="window.showTaskAIMenu(event, '${task.id}'); return false;">
       <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}
         onchange="window.toggleTask('${task.id}')">
       <div class="task-content">
-        <div class="task-title">${escapeHtml(task.title)}</div>
-        ${task.due ? `<div class="task-due ${isOverdue(task.due) ? 'overdue' : ''}">${task.due}</div>` : ''}
+        <div class="task-text ${task.completed ? 'completed' : ''}">${escapeHtml(task.title)}</div>
+        <div class="task-meta">
+          ${task.due ? `<span class="tag ${isOverdue(task.due) ? 'tag-red' : 'tag-blue'}">${task.due}</span>` : ''}
+          ${task.tags ? task.tags.map(tag => `<span class="tag tag-purple">${tag}</span>`).join('') : ''}
+        </div>
       </div>
       <div class="task-priority priority-${task.priority || 'medium'}"></div>
       <button class="ai-action-btn" onclick="window.showTaskAIMenu(event, '${task.id}')" title="AI Actions">
@@ -74,7 +84,6 @@ export function addTask(task) {
     createdAt: new Date().toISOString()
   };
   updateState(s => s.tasks.push(newTask));
-  renderTasks();
 }
 
 export function toggleTask(id) {
@@ -82,14 +91,12 @@ export function toggleTask(id) {
     const task = s.tasks.find(t => t.id === id);
     if (task) task.completed = !task.completed;
   });
-  renderTasks();
 }
 
 export function deleteTask(id) {
   updateState(s => {
     s.tasks = s.tasks.filter(t => t.id !== id);
   });
-  renderTasks();
 }
 
 export function editTask(id) {
@@ -99,6 +106,14 @@ export function editTask(id) {
   if (task) {
     state.editingTask = id;
     window.openModal?.('taskModal');
+    // Populate modal
+    document.getElementById('taskTitleInput').value = task.title;
+    document.getElementById('taskDueInput').value = task.due || '';
+    document.getElementById('taskTagsInput').value = task.tags ? task.tags.join(', ') : '';
+    // Reset priority selection
+    document.querySelectorAll('.priority-option').forEach(opt => {
+      opt.classList.toggle('selected', opt.dataset.priority === task.priority);
+    });
   }
 }
 

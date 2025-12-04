@@ -1,15 +1,15 @@
 // main.js - App initialization and event binding
 import { initAppState, getState } from './state.js';
 import { detectLocalLLM, sendToLocalLLM } from './llm.js';
-import { checkFilesystemBridge, loadDirectory, goUpDirectory } from './filesystem.js';
-import { initUI, showToast, openModal, closeModal, debounce } from './ui.js';
+import { checkFilesystemBridge, loadDirectory, goUpDirectory, createFolder, handleFileUpload } from './filesystem.js';
+import { initUI, showToast, openModal, closeModal, debounce, switchView, toggleTheme } from './ui.js';
 import { initTasks, renderTasks, addTask } from './tasks.js';
 import { initNotes, renderNotes, addNote } from './notes.js';
 import { initProjects, renderProjects, addProject } from './projects.js';
 import { initTimer, renderTimer } from './timer.js';
 import { initCalendar, renderCalendar } from './calendar.js';
 import { initLayout, renderLayout, addLayoutItem, clearLayout } from './layout.js';
-import { showAIContextMenu } from './ai-assistant.js';
+import { showAIContextMenu } from './ai/ui.js';
 import { initShortcuts } from './shortcuts.js';
 import { initCommands } from './commands.js';
 import * as google from './google/index.js';
@@ -18,7 +18,7 @@ import { callGemini } from './gemini-client.js';
 // Initialize app
 window.addEventListener('DOMContentLoaded', async () => {
   // Initialize state once - all modules use getState()
-  const appState = initAppState();
+  const appState = await initAppState();
   window.appState = appState; // Keep for debugging
 
   // Setup theme
@@ -103,29 +103,30 @@ function setupEventListeners() {
 
   // Theme toggle
   document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
-}
 
-function switchView(view) {
-  const state = getState();
-  state.currentView = view;
-
-  document.querySelectorAll('.nav-item[data-view]').forEach(item => {
-    item.classList.toggle('active', item.dataset.view === view);
+  // Settings
+  document.getElementById('openSettingsBtn')?.addEventListener('click', () => {
+    openModal('settingsModal');
+    updateGoogleAuthUI();
   });
 
-  document.getElementById('dashboardView').style.display = view === 'dashboard' ? '' : 'none';
-  document.getElementById('filesView').style.display = view === 'files' ? '' : 'none';
-  document.getElementById('canvasView').style.display = view === 'canvas' ? '' : 'none';
-  document.getElementById('aiView').style.display = view === 'ai' ? '' : 'none';
+  // Google Auth
+  document.getElementById('googleConnectBtn')?.addEventListener('click', handleGoogleConnect);
+  document.getElementById('googleDisconnectBtn')?.addEventListener('click', handleGoogleDisconnect);
 
-  if (view === 'canvas') renderLayout();
-  if (view === 'files') {
-    checkFilesystemBridge().then(connected => {
-      if (connected && !state.fs.currentPath) {
-        loadDirectory(state.fs.paths.desktop);
-      }
-    });
-  }
+  // Listen for view changes to trigger specific renders
+  window.addEventListener('view-changed', (e) => {
+    const view = e.detail.view;
+    if (view === 'canvas') renderLayout();
+    if (view === 'files') {
+      checkFilesystemBridge().then(connected => {
+        const state = getState();
+        if (connected && !state.fs.currentPath) {
+          loadDirectory(state.fs.paths.desktop);
+        }
+      });
+    }
+  });
 }
 
 
@@ -426,3 +427,68 @@ function handleSearchResultClick(type, id) {
 
 // Export for potential external use
 export { switchView, toggleTheme, sendAIMessage, clearAIChat };
+
+// ============================================
+// Google Auth Handlers
+// ============================================
+
+function updateGoogleAuthUI() {
+  const clientIdInput = document.getElementById('googleClientIdInput');
+  const statusDot = document.querySelector('#googleAuthStatus .status-dot');
+  const statusText = document.querySelector('#googleAuthStatus .status-text');
+  const connectBtn = document.getElementById('googleConnectBtn');
+  const disconnectBtn = document.getElementById('googleDisconnectBtn');
+
+  // Load saved Client ID
+  if (clientIdInput && !clientIdInput.value) {
+    clientIdInput.value = localStorage.getItem('google_client_id') || '';
+  }
+
+  if (google.auth.isAuthenticated()) {
+    statusDot.style.background = 'var(--accent-success)';
+    statusText.textContent = 'Connected';
+    connectBtn.style.display = 'none';
+    disconnectBtn.style.display = 'block';
+    if (clientIdInput) clientIdInput.disabled = true;
+  } else {
+    statusDot.style.background = 'var(--text-muted)';
+    statusText.textContent = 'Not Connected';
+    connectBtn.style.display = 'block';
+    disconnectBtn.style.display = 'none';
+    if (clientIdInput) clientIdInput.disabled = false;
+  }
+}
+
+function handleGoogleConnect() {
+  const clientId = document.getElementById('googleClientIdInput').value.trim();
+  if (!clientId) {
+    showToast('Please enter a Client ID', 'error');
+    return;
+  }
+
+  localStorage.setItem('google_client_id', clientId);
+
+  try {
+    google.auth.initAuth(clientId);
+    google.auth.signIn();
+  } catch (e) {
+    console.error('Auth error:', e);
+    showToast('Failed to initialize Google Auth', 'error');
+  }
+}
+
+function handleGoogleDisconnect() {
+  google.auth.signOut();
+  updateGoogleAuthUI();
+  showToast('Disconnected from Google', 'info');
+}
+
+// Listen for auth success event
+window.addEventListener('google-auth-success', () => {
+  updateGoogleAuthUI();
+  showToast('Successfully connected to Google!', 'success');
+});
+
+window.addEventListener('google-auth-signout', () => {
+  updateGoogleAuthUI();
+});

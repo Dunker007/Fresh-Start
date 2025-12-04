@@ -96,7 +96,7 @@ export async function loadDirectory(dirPath) {
 export function renderRealFiles(files) {
   const container = document.getElementById('fileGrid');
   if (!container) return;
-  
+
   if (!files || files.length === 0) {
     container.innerHTML = `
       <div class="empty-state" style="grid-column: 1 / -1;">
@@ -106,7 +106,7 @@ export function renderRealFiles(files) {
     `;
     return;
   }
-  
+
   container.innerHTML = files.map(file => `
     <div class="file-item" data-path="${escapeHtml(file.path)}" data-isdir="${file.isDirectory}" onclick="handleFileClick(this)">
       <div class="file-icon ${file.type}">
@@ -129,10 +129,10 @@ function getFileIcon(type) {
 }
 
 // Make handleFileClick available globally
-window.handleFileClick = function(el) {
+window.handleFileClick = function (el) {
   const filePath = el.dataset.path;
   const isDir = el.dataset.isdir === 'true';
-  
+
   if (isDir) {
     loadDirectory(filePath);
   } else {
@@ -161,4 +161,71 @@ export function goUpDirectory() {
   if (parentPath) loadDirectory(parentPath);
 }
 
-export default { checkFilesystemBridge, loadDirectory, openFile, goUpDirectory };
+export async function createFolder() {
+  const nameInput = document.getElementById('folderNameInput');
+  const name = nameInput.value.trim();
+  if (!name) return;
+
+  const state = getState();
+  if (!state.fs.currentPath) {
+    if (window.showToast) window.showToast('No active directory', 'error');
+    return;
+  }
+
+  const newPath = state.fs.isElectron
+    ? `${state.fs.currentPath}\\${name}` // Windows path
+    : `${state.fs.currentPath}/${name}`;
+
+  try {
+    if (isElectron()) {
+      await window.electronAPI.createDirectory(newPath);
+    } else {
+      await fetch(`${BRIDGE_URL}/mkdir`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: newPath })
+      });
+    }
+
+    if (window.closeModal) window.closeModal('folderModal');
+    nameInput.value = '';
+    loadDirectory(state.fs.currentPath); // Refresh
+    if (window.showToast) window.showToast('Folder created', 'success');
+  } catch (e) {
+    console.error(e);
+    if (window.showToast) window.showToast('Failed to create folder', 'error');
+  }
+}
+
+export async function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const state = getState();
+  if (!state.fs.currentPath) return;
+
+  // In Electron, we can copy the file using its path
+  if (isElectron() && file.path) {
+    const sourcePath = file.path;
+    const destPath = `${state.fs.currentPath}\\${file.name}`;
+
+    try {
+      // Use copyFile API
+      await window.electronAPI.copyFile(sourcePath, destPath);
+
+      loadDirectory(state.fs.currentPath);
+      if (window.showToast) window.showToast('File uploaded', 'success');
+    } catch (e) {
+      console.error(e);
+      if (window.showToast) window.showToast('Failed to upload file', 'error');
+    }
+  } else {
+    // Web fallback - not fully implemented for real FS without bridge upload endpoint
+    if (window.showToast) window.showToast('File upload only supported in Electron mode', 'warning');
+  }
+
+  // Reset input
+  event.target.value = '';
+}
+
+export default { checkFilesystemBridge, loadDirectory, openFile, goUpDirectory, createFolder, handleFileUpload };

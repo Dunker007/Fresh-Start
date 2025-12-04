@@ -1,6 +1,6 @@
 {
   "name": "nexus-workspace",
-  "version": "0.1.0",
+  "version": "0.2.4",
   "description": "Desktop workspace with local LLM, filesystem integration, and Google ecosystem",
   "main": "electron/main.js",
   "scripts": {

@@ -29,9 +29,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Create directory
   createDirectory: (dirPath) => ipcRenderer.invoke('fs:createDirectory', dirPath),
 
+  // Copy file
+  copyFile: (sourcePath, destPath) => ipcRenderer.invoke('fs:copyFile', sourcePath, destPath),
+
   // Delete file or directory
   delete: (targetPath) => ipcRenderer.invoke('fs:delete', targetPath),
 
   // Platform info
-  platform: process.platform
+  platform: process.platform,
+
+  // Database API
+  db: {
+    loadState: () => ipcRenderer.invoke('db:loadState'),
+    saveItem: (table, item) => ipcRenderer.invoke('db:saveItem', table, item),
+    deleteItem: (table, id) => ipcRenderer.invoke('db:deleteItem', table, id),
+    setKV: (key, value) => ipcRenderer.invoke('db:setKV', key, value)
+  }
 });

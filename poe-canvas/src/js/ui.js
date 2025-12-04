@@ -1,4 +1,5 @@
 // ui.js - Modal handling, toasts, dropdowns, common UI
+import { updateState } from './state.js';
 
 // ============================================
 // Utility Functions: Debounce & Throttle
@@ -123,4 +124,23 @@ export function toggleTheme() {
   document.documentElement.classList.toggle('dark');
 }
 
-export default { initUI, openModal, closeModal, toggleDropdown, closeDropdown, showToast, escapeHtml, debounce, throttle, toggleTheme };
+export function switchView(view) {
+  updateState(s => {
+    s.currentView = view;
+  });
+
+  document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+    item.classList.toggle('active', item.dataset.view === view);
+  });
+
+  const views = ['dashboard', 'files', 'canvas', 'ai'];
+  views.forEach(v => {
+    const el = document.getElementById(`${v}View`);
+    if (el) el.style.display = v === view ? '' : 'none';
+  });
+
+  // Trigger specific view renders via event for things not using state subscription yet (like files)
+  window.dispatchEvent(new CustomEvent('view-changed', { detail: { view } }));
+}
+
+export default { initUI, openModal, closeModal, toggleDropdown, closeDropdown, showToast, escapeHtml, debounce, throttle, toggleTheme, switchView };

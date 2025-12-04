@@ -1,19 +1,10 @@
-// ai-assistant.js - AI-powered productivity features
-import { sendToLocalLLM } from './llm.js';
-import { getState, updateState } from './state.js';
-import { showToast } from './ui.js';
-import { renderTasks } from './tasks.js';
-import { renderNotes } from './notes.js';
-import { renderProjects } from './projects.js';
+// ai/ui.js - AI UI handlers and context menus
+import * as AIService from './service.js';
+import { updateState } from '../state.js';
+import { showToast } from '../ui.js';
 
 // ==================== AI Loading State Helpers ====================
 
-/**
- * Set loading state on an AI action button
- * @param {HTMLElement} buttonEl - The button element
- * @param {boolean} loading - Whether to show loading state
- * @param {string} originalIcon - Original icon class (default: fa-magic)
- */
 export function setAILoading(buttonEl, loading, originalIcon = 'fa-magic') {
   if (!buttonEl) return;
 
@@ -34,27 +25,6 @@ export function setAILoading(buttonEl, loading, originalIcon = 'fa-magic') {
   }
 }
 
-/**
- * Create a loading indicator element
- * @param {string} message - Loading message to display
- * @returns {HTMLElement} Loading element
- */
-export function createLoadingIndicator(message = 'AI is thinking...') {
-  const loader = document.createElement('div');
-  loader.className = 'ai-loading-indicator';
-  loader.innerHTML = `
-    <div class="loading-spinner"></div>
-    <span>${message}</span>
-  `;
-  return loader;
-}
-
-/**
- * Wrap an AI operation with loading state
- * @param {HTMLElement} buttonEl - Button that triggered the action
- * @param {Function} operation - Async operation to perform
- * @param {string} originalIcon - Original icon class
- */
 export async function withAILoading(buttonEl, operation, originalIcon = 'fa-magic') {
   setAILoading(buttonEl, true, originalIcon);
   try {
@@ -64,46 +34,23 @@ export async function withAILoading(buttonEl, operation, originalIcon = 'fa-magi
   }
 }
 
-// ==================== AI Task Breakdown ====================
+// ==================== Task Handlers ====================
 
-/**
- * Break down a large task into smaller, actionable subtasks using AI
- * @param {string} taskId - ID of the task to break down
- */
-export async function aiBreakdownTask(taskId) {
-  const state = getState();
-  const task = state.tasks.find(t => t.id === taskId);
-  if (!task) return;
-
+export async function handleBreakdownTask(taskId) {
   showToast('🤖 AI is breaking down your task...', 'info');
-
   try {
-    const prompt = `Break down this task into 3-5 specific, actionable subtasks:
+    const subtasks = await AIService.breakdownTask(taskId);
 
-Task: "${task.title}"
-${task.tags?.length ? `Context tags: ${task.tags.join(', ')}` : ''}
-
-Return ONLY a JSON array of subtask titles (strings), no explanation:
-["First subtask", "Second subtask", "Third subtask"]`;
-
-    const response = await sendToLocalLLM(prompt);
-
-    // Parse AI response
-    let subtasks;
-    try {
-      const jsonMatch = response.match(/\[[\s\S]*\]/);
-      subtasks = JSON.parse(jsonMatch ? jsonMatch[0] : response);
-    } catch (e) {
-      subtasks = response.split('\n')
-        .map(line => line.trim().replace(/^[-*•]\s*/, '').replace(/^"\s*|\s*"$/g, ''))
-        .filter(line => line.length > 0)
-        .slice(0, 5);
+    if (!subtasks || subtasks.length === 0) {
+      throw new Error('No subtasks generated');
     }
 
-    // Create subtasks
     updateState(s => {
+      const task = s.tasks.find(t => t.id === taskId);
+      if (!task) return;
+
       subtasks.forEach((subtaskTitle, index) => {
-        const subtask = {
+        s.tasks.push({
           id: `task-${Date.now()}-${index}`,
           title: subtaskTitle,
           completed: false,
@@ -112,72 +59,102 @@ Return ONLY a JSON array of subtask titles (strings), no explanation:
           due: task.due,
           parentId: task.id,
           createdAt: new Date().toISOString()
-        };
-        s.tasks.push(subtask);
+        });
       });
 
-      // Add metadata to parent task
       task.hasSubtasks = true;
       task.subtaskCount = subtasks.length;
     });
 
-    renderTasks();
     showToast(`✨ Created ${subtasks.length} subtasks!`, 'success');
-
   } catch (error) {
-    console.error('AI task breakdown failed:', error);
-    showToast('❌ AI breakdown failed. Is your LLM running?', 'error');
+    console.error('AI breakdown failed:', error);
+    showToast('❌ AI breakdown failed.', 'error');
   }
 }
 
-// ==================== AI Note Enhancement ====================
-
-/**
- * Enhance a note with AI: summarize, extract actions, suggest tags
- * @param {string} noteId - ID of the note to enhance
- */
-export async function aiEnhanceNote(noteId) {
-  const state = getState();
-  const note = state.notes.find(n => n.id === noteId);
-  if (!note) return;
-
-  showToast('🤖 AI is analyzing your note...', 'info');
-
+export async function handleEstimateTime(taskId) {
+  showToast('🤖 AI is estimating time...', 'info');
   try {
-    const prompt = `Analyze this note and provide enhancements:
-
-Title: "${note.title}"
-Content: "${note.content}"
-
-Return a JSON object with:
-{
-  "summary": "One sentence summary",
-  "actionItems": ["action 1", "action 2"],
-  "suggestedTags": ["tag1", "tag2", "tag3"],
-  "relatedTopics": ["topic1", "topic2"]
-}`;
-
-    const response = await sendToLocalLLM(prompt);
-
-    let enhancements;
-    try {
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      enhancements = JSON.parse(jsonMatch ? jsonMatch[0] : response);
-    } catch (e) {
-      throw new Error('Failed to parse AI response');
-    }
-
-    showEnhancementModal(note, enhancements);
-
+    const estimate = await AIService.estimateTime(taskId);
+    showToast(`⏱️ AI estimates: ${estimate}`, 'success');
   } catch (error) {
-    console.error('AI note enhancement failed:', error);
-    showToast('❌ AI enhancement failed. Is your LLM running?', 'error');
+    showToast('❌ Estimation failed', 'error');
   }
 }
 
-/**
- * Show modal with AI enhancement suggestions
- */
+export async function handleGenerateChecklist(taskId) {
+  showToast('🤖 AI is generating checklist...', 'info');
+  try {
+    const items = await AIService.generateChecklist(taskId);
+    showToast(`✅ Generated ${items.length} checklist items! (Feature coming soon)`, 'info');
+  } catch (error) {
+    showToast('❌ Checklist generation failed', 'error');
+  }
+}
+
+// ==================== Note Handlers ====================
+
+export async function handleEnhanceNote(noteId) {
+  showToast('🤖 AI is analyzing your note...', 'info');
+  try {
+    const enhancements = await AIService.enhanceNote(noteId);
+    if (!enhancements) throw new Error('No enhancements generated');
+
+    const { getState } = await import('../state.js');
+    const note = getState().notes.find(n => n.id === noteId);
+
+    if (note) {
+      showEnhancementModal(note, enhancements);
+    }
+  } catch (error) {
+    console.error('AI enhancement failed:', error);
+    showToast('❌ AI enhancement failed.', 'error');
+  }
+}
+
+export async function handleSummarizeNote(noteId) {
+  showToast('🤖 AI is summarizing...', 'info');
+  try {
+    const summary = await AIService.summarizeNote(noteId);
+    showToast(`📝 Summary: ${summary}`, 'success');
+  } catch (error) {
+    showToast('❌ Summarization failed', 'error');
+  }
+}
+
+export async function handleExpandOutline(noteId) {
+  showToast('🤖 AI is expanding outline...', 'info');
+  try {
+    const outline = await AIService.expandOutline(noteId);
+    showToast('📋 Outline expanded! (Preview coming soon)', 'info');
+  } catch (error) {
+    showToast('❌ Outline expansion failed', 'error');
+  }
+}
+
+// ==================== Project Handlers ====================
+
+export async function handleProjectInsights(projectId) {
+  showToast('🤖 AI is analyzing your project...', 'info');
+  try {
+    const insights = await AIService.analyzeProject(projectId);
+    if (!insights) throw new Error('No insights generated');
+
+    const { getState } = await import('../state.js');
+    const project = getState().projects.find(p => p.id === projectId);
+
+    if (project) {
+      showProjectInsightsModal(project, insights);
+    }
+  } catch (error) {
+    console.error('AI insights failed:', error);
+    showToast('❌ AI analysis failed.', 'error');
+  }
+}
+
+// ==================== Modals ====================
+
 function showEnhancementModal(note, enhancements) {
   const modal = document.createElement('div');
   modal.className = 'modal-overlay';
@@ -248,9 +225,6 @@ function showEnhancementModal(note, enhancements) {
   document.body.appendChild(modal);
 }
 
-/**
- * Apply AI enhancements to a note
- */
 export function applyEnhancements(noteId, enhancements) {
   const modal = document.querySelector('.modal-overlay');
 
@@ -269,10 +243,8 @@ export function applyEnhancements(noteId, enhancements) {
       note.aiTags = selectedTags;
       note.aiRelated = enhancements.relatedTopics;
     }
-  });
 
-  if (selectedActions.length > 0) {
-    updateState(s => {
+    if (selectedActions.length > 0) {
       selectedActions.forEach((action, i) => {
         s.tasks.push({
           id: `task-${Date.now()}-${i}`,
@@ -284,74 +256,13 @@ export function applyEnhancements(noteId, enhancements) {
           createdAt: new Date().toISOString()
         });
       });
-    });
-    renderTasks();
-  }
+    }
+  });
 
-  renderNotes();
   modal.remove();
   showToast(`✨ Applied AI enhancements! Created ${selectedActions.length} tasks.`, 'success');
 }
 
-window.applyEnhancements = applyEnhancements;
-
-// ==================== AI Project Insights ====================
-
-/**
- * Get AI insights and recommendations for a project
- * @param {string} projectId - ID of the project to analyze
- */
-export async function aiProjectInsights(projectId) {
-  const state = getState();
-  const project = state.projects.find(p => p.id === projectId);
-  if (!project) return;
-
-  const projectTasks = state.tasks.filter(t => t.projectId === projectId);
-
-  showToast('🤖 AI is analyzing your project...', 'info');
-
-  try {
-    const prompt = `Analyze this project and provide insights:
-
-Project: "${project.name}"
-Description: "${project.description || 'No description'}"
-Total Tasks: ${projectTasks.length}
-Completed: ${projectTasks.filter(t => t.completed).length}
-High Priority: ${projectTasks.filter(t => t.priority === 'high').length}
-
-Recent Tasks:
-${projectTasks.slice(0, 5).map(t => `- ${t.title} [${t.completed ? 'Done' : 'Todo'}]`).join('\n')}
-
-Provide a JSON object with:
-{
-  "status": "on-track|at-risk|blocked",
-  "nextSteps": ["step 1", "step 2", "step 3"],
-  "blockers": ["potential blocker 1"],
-  "recommendations": ["recommendation 1", "recommendation 2"],
-  "estimatedCompletion": "1-2 weeks|2-4 weeks|etc"
-}`;
-
-    const response = await sendToLocalLLM(prompt);
-
-    let insights;
-    try {
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      insights = JSON.parse(jsonMatch ? jsonMatch[0] : response);
-    } catch (e) {
-      throw new Error('Failed to parse AI response');
-    }
-
-    showProjectInsightsModal(project, insights);
-
-  } catch (error) {
-    console.error('AI project insights failed:', error);
-    showToast('❌ AI analysis failed. Is your LLM running?', 'error');
-  }
-}
-
-/**
- * Show modal with AI project insights
- */
 function showProjectInsightsModal(project, insights) {
   const statusColors = {
     'on-track': 'var(--accent-secondary)',
@@ -418,9 +329,6 @@ function showProjectInsightsModal(project, insights) {
   document.body.appendChild(modal);
 }
 
-/**
- * Create tasks from AI project insights
- */
 export function createTasksFromInsights(projectId, insights) {
   if (!insights.nextSteps?.length) return;
 
@@ -438,21 +346,12 @@ export function createTasksFromInsights(projectId, insights) {
     });
   });
 
-  renderTasks();
   document.querySelector('.modal-overlay').remove();
   showToast(`✨ Created ${insights.nextSteps.length} next-step tasks!`, 'success');
 }
 
-window.createTasksFromInsights = createTasksFromInsights;
+// ==================== Context Menu ====================
 
-// ==================== AI Context Menu ====================
-
-/**
- * Show AI-powered context menu for any item
- * @param {Event} e - Mouse event
- * @param {string} itemType - 'task'|'note'|'project'
- * @param {string} itemId - ID of the item
- */
 export function showAIContextMenu(e, itemType, itemId) {
   e.preventDefault();
 
@@ -480,21 +379,18 @@ export function showAIContextMenu(e, itemType, itemId) {
   }, 100);
 }
 
-/**
- * Get appropriate context menu items based on item type
- */
 function getContextMenuItems(itemType, itemId) {
   const baseItems = {
     task: [
+      { icon: 'fas fa-thumbtack', label: 'Pin to Canvas', action: 'pin-canvas' },
       { icon: 'fas fa-magic', label: 'AI: Break into Subtasks', action: 'breakdown' },
       { icon: 'fas fa-clock', label: 'AI: Estimate Time', action: 'estimate' },
-      { icon: 'fas fa-link', label: 'AI: Find Related Tasks', action: 'related' },
       { icon: 'fas fa-list', label: 'AI: Generate Checklist', action: 'checklist' }
     ],
     note: [
+      { icon: 'fas fa-thumbtack', label: 'Pin to Canvas', action: 'pin-canvas' },
       { icon: 'fas fa-magic', label: 'AI: Enhance Note', action: 'enhance' },
       { icon: 'fas fa-compress', label: 'AI: Summarize', action: 'summarize' },
-      { icon: 'fas fa-tasks', label: 'AI: Extract Actions', action: 'extract-actions' },
       { icon: 'fas fa-tags', label: 'AI: Suggest Tags', action: 'suggest-tags' },
       { icon: 'fas fa-expand', label: 'AI: Expand Outline', action: 'expand' }
     ],
@@ -508,24 +404,26 @@ function getContextMenuItems(itemType, itemId) {
   return baseItems[itemType] || [];
 }
 
-/**
- * Handle AI context menu action
- */
 export async function aiContextAction(event, action, itemType, itemId) {
   const buttonEl = event.target.closest('.ai-action-btn');
+
+  if (action === 'pin-canvas') {
+    if (itemType === 'note') window.addNoteToCanvas(itemId);
+    if (itemType === 'task') window.addTaskToCanvas(itemId);
+    return;
+  }
+
   const actionMap = {
-    'breakdown': () => withAILoading(buttonEl, () => aiBreakdownTask(itemId)),
-    'estimate': () => withAILoading(buttonEl, () => aiEstimateTime(itemId)),
-    'related': () => aiFindRelated(itemId),
-    'checklist': () => withAILoading(buttonEl, () => aiGenerateChecklist(itemId)),
-    'enhance': () => withAILoading(buttonEl, () => aiEnhanceNote(itemId)),
-    'summarize': () => withAILoading(buttonEl, () => aiSummarizeNote(itemId)),
-    'extract-actions': () => withAILoading(buttonEl, () => aiExtractActions(itemId)),
-    'suggest-tags': () => withAILoading(buttonEl, () => aiSuggestTags(itemId)),
-    'expand': () => withAILoading(buttonEl, () => aiExpandOutline(itemId)),
-    'insights': () => withAILoading(buttonEl, () => aiProjectInsights(itemId)),
-    'next-steps': () => withAILoading(buttonEl, () => aiSuggestNextSteps(itemId)),
-    'blockers': () => withAILoading(buttonEl, () => aiIdentifyBlockers(itemId))
+    'breakdown': () => withAILoading(buttonEl, () => handleBreakdownTask(itemId)),
+    'estimate': () => withAILoading(buttonEl, () => handleEstimateTime(itemId)),
+    'checklist': () => withAILoading(buttonEl, () => handleGenerateChecklist(itemId)),
+    'enhance': () => withAILoading(buttonEl, () => handleEnhanceNote(itemId)),
+    'summarize': () => withAILoading(buttonEl, () => handleSummarizeNote(itemId)),
+    'suggest-tags': () => withAILoading(buttonEl, () => handleEnhanceNote(itemId)), // Re-use enhance for now
+    'expand': () => withAILoading(buttonEl, () => handleExpandOutline(itemId)),
+    'insights': () => withAILoading(buttonEl, () => handleProjectInsights(itemId)),
+    'next-steps': () => withAILoading(buttonEl, () => handleProjectInsights(itemId)), // Re-use insights
+    'blockers': () => withAILoading(buttonEl, () => handleProjectInsights(itemId)) // Re-use insights
   };
 
   const handler = actionMap[action];
@@ -536,136 +434,10 @@ export async function aiContextAction(event, action, itemType, itemId) {
   }
 }
 
+// Global exports for inline event handlers
+window.showTaskAIMenu = (e, id) => showAIContextMenu(e, 'task', id);
+window.showNoteAIMenu = (e, id) => showAIContextMenu(e, 'note', id);
+window.showProjectAIMenu = (e, id) => showAIContextMenu(e, 'project', id);
 window.aiContextAction = aiContextAction;
-
-// ==================== Additional AI Functions ====================
-
-async function aiEstimateTime(taskId) {
-  const state = getState();
-  const task = state.tasks.find(t => t.id === taskId);
-  showToast('🤖 AI is estimating time...', 'info');
-
-  try {
-    const prompt = `Estimate how long this task will take. Return ONLY a simple time estimate like "30 minutes", "2 hours", "1 day", etc.
-
-Task: "${task.title}"`;
-
-    const estimate = await sendToLocalLLM(prompt);
-    showToast(`⏱️ AI estimates: ${estimate.trim()}`, 'success');
-  } catch (error) {
-    showToast('❌ Estimation failed', 'error');
-  }
-}
-
-async function aiFindRelated(taskId) {
-  showToast('🔍 AI is finding related tasks...', 'info');
-  showToast('🚧 Coming soon: AI-powered task relationships', 'info');
-}
-
-async function aiGenerateChecklist(taskId) {
-  const state = getState();
-  const task = state.tasks.find(t => t.id === taskId);
-  showToast('🤖 AI is generating checklist...', 'info');
-
-  try {
-    const prompt = `Create a checklist for this task. Return ONLY a JSON array of checkbox items.
-
-Task: "${task.title}"
-
-Return format: ["Step 1", "Step 2", "Step 3"]`;
-
-    const response = await sendToLocalLLM(prompt);
-    showToast('✅ Checklist generated! (Feature coming soon)', 'info');
-  } catch (error) {
-    showToast('❌ Checklist generation failed', 'error');
-  }
-}
-
-async function aiSummarizeNote(noteId) {
-  const state = getState();
-  const note = state.notes.find(n => n.id === noteId);
-  showToast('🤖 AI is summarizing...', 'info');
-
-  try {
-    const prompt = `Summarize this note in one concise sentence:
-
-Title: "${note.title}"
-Content: "${note.content}"`;
-
-    const summary = await sendToLocalLLM(prompt);
-    showToast(`📝 Summary: ${summary.trim()}`, 'success');
-  } catch (error) {
-    showToast('❌ Summarization failed', 'error');
-  }
-}
-
-async function aiExtractActions(noteId) {
-  await aiEnhanceNote(noteId);
-}
-
-async function aiSuggestTags(noteId) {
-  showToast('🏷️ AI is suggesting tags...', 'info');
-  await aiEnhanceNote(noteId);
-}
-
-async function aiExpandOutline(noteId) {
-  const state = getState();
-  const note = state.notes.find(n => n.id === noteId);
-  showToast('🤖 AI is expanding outline...', 'info');
-
-  try {
-    const prompt = `Expand this note into a detailed outline with subpoints:
-
-Title: "${note.title}"
-Content: "${note.content}"
-
-Return a markdown outline with headers and bullet points.`;
-
-    const expanded = await sendToLocalLLM(prompt);
-    showToast('📋 Outline expanded! (Preview coming soon)', 'info');
-  } catch (error) {
-    showToast('❌ Outline expansion failed', 'error');
-  }
-}
-
-async function aiSuggestNextSteps(projectId) {
-  await aiProjectInsights(projectId);
-}
-
-async function aiIdentifyBlockers(projectId) {
-  await aiProjectInsights(projectId);
-}
-
-// Export all functions
-export default {
-  aiBreakdownTask,
-  aiEnhanceNote,
-  aiProjectInsights,
-  showAIContextMenu,
-  aiContextAction,
-  applyEnhancements,
-  createTasksFromInsights,
-  setAILoading,
-  withAILoading,
-  createLoadingIndicator
-};
-
-// ==================== Global Wrapper Functions ====================
-
-window.showTaskAIMenu = function (event, taskId) {
-  event.preventDefault();
-  event.stopPropagation();
-  showAIContextMenu(event, 'task', taskId);
-};
-
-window.showNoteAIMenu = function (event, noteId) {
-  event.preventDefault();
-  event.stopPropagation();
-  showAIContextMenu(event, 'note', noteId);
-};
-
-window.showProjectAIMenu = function (event, projectId) {
-  event.preventDefault();
-  event.stopPropagation();
-  showAIContextMenu(event, 'project', projectId);
-};
+window.applyEnhancements = applyEnhancements;
+window.createTasksFromInsights = createTasksFromInsights;

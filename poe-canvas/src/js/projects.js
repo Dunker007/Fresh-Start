@@ -1,9 +1,14 @@
 // projects.js - Projects CRUD + rendering
-import { getState, updateState, generateId } from './state.js';
+import { getState, updateState, generateId, subscribe } from './state.js';
 import { escapeHtml } from './ui.js';
 
 export function initProjects() {
   renderProjects();
+  subscribe((state, event, data) => {
+    if (event === 'stateUpdated' || event === 'stateChanged') {
+      renderProjects();
+    }
+  });
 }
 
 export function renderProjects() {
@@ -32,29 +37,29 @@ export function renderProjects() {
     const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
     return `
-      <div class="project-card" data-id="${project.id}"
+      <div class="project-card" data-id="${project.id}" data-project-id="${project.id}"
            style="border-left: 4px solid ${project.color || '#4285f4'}"
            oncontextmenu="window.showProjectAIMenu(event, '${project.id}'); return false;">
-        <div class="project-header">
+        <div class="project-header" style="justify-content: space-between;">
           <div class="project-name">${escapeHtml(project.name)}</div>
-          <div class="project-actions">
+          <div class="project-actions" style="display: flex; gap: 4px;">
             <button class="ai-action-btn" onclick="window.showProjectAIMenu(event, '${project.id}')" title="AI Actions">
               <i class="fas fa-magic"></i>
             </button>
-            <button class="btn-icon" onclick="window.editProject('${project.id}')">
-              <i class="fas fa-edit"></i>
+            <button class="btn-icon" onclick="window.editProject('${project.id}')" style="width: 28px; height: 28px;">
+              <i class="fas fa-edit" style="font-size: 12px;"></i>
             </button>
-            <button class="btn-icon" onclick="window.deleteProject('${project.id}')">
-              <i class="fas fa-trash"></i>
+            <button class="btn-icon" onclick="window.deleteProject('${project.id}')" style="width: 28px; height: 28px;">
+              <i class="fas fa-trash" style="font-size: 12px;"></i>
             </button>
           </div>
         </div>
-        ${project.description ? `<div class="project-description">${escapeHtml(project.description)}</div>` : ''}
-        <div class="project-progress">
-          <div class="progress-bar">
-            <div class="progress-fill" style="width: ${progress}%"></div>
+        ${project.description ? `<div class="project-description" style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">${escapeHtml(project.description)}</div>` : ''}
+        <div class="project-progress" style="display: flex; align-items: center; gap: 8px;">
+          <div class="progress-bar" style="flex: 1; height: 6px; background: var(--bg-primary); border-radius: 3px; overflow: hidden;">
+            <div class="progress-fill" style="width: ${progress}%; height: 100%; background: ${project.color || '#4285f4'};"></div>
           </div>
-          <span class="progress-text">${completedTasks}/${totalTasks} tasks</span>
+          <span class="progress-text" style="font-size: 11px; color: var(--text-muted);">${completedTasks}/${totalTasks}</span>
         </div>
       </div>
     `;
@@ -74,18 +79,27 @@ export function addProject(project) {
     createdAt: new Date().toISOString()
   };
   updateState(s => s.projects.push(newProject));
-  renderProjects();
 }
 
 export function deleteProject(id) {
   updateState(s => {
     s.projects = s.projects.filter(p => p.id !== id);
   });
-  renderProjects();
 }
 
 export function editProject(id) {
-  window.openModal?.('projectModal');
+  const state = getState();
+  if (!state) return;
+  const project = state.projects.find(p => p.id === id);
+  if (project) {
+    window.openModal?.('projectModal');
+    document.getElementById('projectNameInput').value = project.name;
+    document.getElementById('projectDescInput').value = project.description || '';
+    // Reset color selection
+    document.querySelectorAll('.color-option').forEach(opt => {
+      opt.classList.remove('selected');
+    });
+  }
 }
 
 window.deleteProject = deleteProject;

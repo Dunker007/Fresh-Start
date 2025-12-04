@@ -36,7 +36,7 @@ function createWindow() {
   });
 
   // Load the app
-  const indexPath = path.join(__dirname, '../src/index-modular.html');
+  const indexPath = path.join(__dirname, '../src/index.html');
   mainWindow.loadFile(indexPath);
 
   // Show window when ready to avoid flash
@@ -82,7 +82,7 @@ ipcMain.handle('fs:listDirectory', async (event, dirPath) => {
       let stats = null;
       try {
         stats = fs.statSync(fullPath);
-      } catch (e) {}
+      } catch (e) { }
 
       return {
         name: entry.name,
@@ -145,6 +145,16 @@ ipcMain.handle('fs:createDirectory', async (event, dirPath) => {
   }
 });
 
+// Copy file
+ipcMain.handle('fs:copyFile', async (event, sourcePath, destPath) => {
+  try {
+    fs.copyFileSync(sourcePath, destPath);
+    return { success: true };
+  } catch (err) {
+    throw new Error(`Cannot copy file: ${err.message}`);
+  }
+});
+
 // Delete file or directory
 ipcMain.handle('fs:delete', async (event, targetPath) => {
   try {
@@ -158,6 +168,33 @@ ipcMain.handle('fs:delete', async (event, targetPath) => {
   } catch (err) {
     throw new Error(`Cannot delete: ${err.message}`);
   }
+});
+
+// Database Module
+const db = require('./db');
+
+// Initialize DB
+try {
+  db.initDatabase();
+} catch (e) {
+  console.error('Failed to initialize database:', e);
+}
+
+// IPC Handlers for Database
+ipcMain.handle('db:loadState', () => {
+  return db.loadFullState();
+});
+
+ipcMain.handle('db:saveItem', (event, table, item) => {
+  return db.saveItem(table, item);
+});
+
+ipcMain.handle('db:deleteItem', (event, table, id) => {
+  return db.deleteItem(table, id);
+});
+
+ipcMain.handle('db:setKV', (event, key, value) => {
+  return db.setKV(key, value);
 });
 
 // Helper function to determine file type

@@ -1,0 +1,119 @@
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+.animate-pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Highlight Flash Animation */
+@keyframes highlightFlash {
+    0% {
+        background: rgba(66, 133, 244, 0.3);
+    }
+
+    100% {
+        background: transparent;
+    }
+}
+
+.highlight-flash {
+    animation: highlightFlash 1.5s ease-out;
+}
+
+/* Drag and Drop */
+.sortable-ghost {
+    opacity: 0.4;
+}
+
+.sortable-chosen {
+    box-shadow: var(--shadow-lg);
+}
+
+/* Loading States */
+.loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--accent-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--border-color) 50%, var(--bg-tertiary) 75%);
+    background-size: 200% 100%;
+    animation: skeleton 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Calendar Overrides (Deep Integration) */
+.calendar-day {
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    padding-top: 6px !important;
+}
+
+.calendar-day.has-event::after {
+    display: none !important;
+}
+
+.day-indicators {
+    display: flex;
+    gap: 3px;
+    margin-top: 2px;
+}
+
+.indicator {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+}
+
+.task-indicator {
+    background-color: var(--accent-secondary);
+}
+
+.google-indicator {
+    background-color: #4285f4;
+}

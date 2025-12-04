@@ -1,5 +1,4 @@
-import { openModal, closeModal } from './ui.js';
-import { switchView, toggleTheme } from './main.js';
+import { openModal, closeModal, switchView, toggleTheme } from './ui.js';
 import { toggleTimer } from './timer.js';
 
 let commandPaletteCallback = () => console.warn('Command palette not registered');
