@@ -74,7 +74,8 @@ function Publish-WordPressPost {
         [string]$Status = $null,
         [string[]]$Categories = @(),
         [string[]]$Tags = @(),
-        [string]$FeaturedImageUrl = $null
+        [string]$FeaturedImageUrl = $null,
+        [object]$Config = @{} # Added for revenue integration
     )
     
     if ([string]::IsNullOrEmpty($script:WordPressConfig.SiteUrl)) {
@@ -82,9 +83,35 @@ function Publish-WordPressPost {
     }
     
     $status = if ($Status) { $Status } else { $script:WordPressConfig.DefaultStatus }
+
+    # Import AdManager if available (suppress warnings)
+    $AdManagerPath = Join-Path $PSScriptRoot "..\revenue\AdManager.psm1"
+    if (Test-Path $AdManagerPath) {
+        Import-Module $AdManagerPath -Force -WarningAction SilentlyContinue | Out-Null
+    }
+
+    $ProcessedContent = $Content
+    
+    # Add affiliate links (if AdManager loaded)
+    if (Get-Command "Add-AffiliateLinks" -ErrorAction SilentlyContinue) {
+        $ProcessedContent = Add-AffiliateLinks -Content $ProcessedContent -Config $Config
+    }
+
+    # Inject AdSense In-Content Ad (if AdManager loaded)
+    if (Get-Command "Get-AdCode" -ErrorAction SilentlyContinue) {
+        $AdContent = Get-AdCode -Position "Content" -Config $Config
+        # Insert ad after the first paragraph
+        if ($ProcessedContent -match '<\/p>') {
+            $ProcessedContent = $ProcessedContent -replace '<\/p>', "$&`n$AdContent", 1
+        }
+        else {
+            # If no paragraphs, prepend the ad
+            $ProcessedContent = "$AdContent`n$ProcessedContent"
+        }
+    }
     
     # Create excerpt (first 160 chars)
-    $excerpt = ($Content -replace '<[^>]+>', '' -replace '\s+', ' ').Trim()
+    $excerpt = ($ProcessedContent -replace '<[^>]+>', '' -replace '\s+', ' ').Trim()
     if ($excerpt.Length -gt 160) {
         $excerpt = $excerpt.Substring(0, 160) + "..."
     }
@@ -92,7 +119,7 @@ function Publish-WordPressPost {
     # Prepare post data
     $postData = @{
         title   = $Title
-        content = $Content
+        content = $ProcessedContent
         status  = $status
         excerpt = $excerpt
     }

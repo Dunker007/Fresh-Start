@@ -81,16 +81,16 @@ export function closeDropdown(dropdownId) {
 
 export function showToast(message, type = 'info') {
   const container = document.getElementById('toastContainer') || createToastContainer();
-  
+
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
   toast.innerHTML = `
     <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
     <span>${message}</span>
   `;
-  
+
   container.appendChild(toast);
-  
+
   setTimeout(() => toast.classList.add('show'), 10);
   setTimeout(() => {
     toast.classList.remove('show');
@@ -119,4 +119,8 @@ window.closeModal = closeModal;
 window.debounce = debounce;
 window.throttle = throttle;
 
-export default { initUI, openModal, closeModal, toggleDropdown, closeDropdown, showToast, escapeHtml, debounce, throttle };
+export function toggleTheme() {
+  document.documentElement.classList.toggle('dark');
+}
+
+export default { initUI, openModal, closeModal, toggleDropdown, closeDropdown, showToast, escapeHtml, debounce, throttle, toggleTheme };

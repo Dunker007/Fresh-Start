@@ -111,7 +111,8 @@ if ($Result.Success) {
                     -Title $Topic `
                     -Content $Result.Content `
                     -Categories $Config.WordPress.Categories `
-                    -Tags $Config.WordPress.Tags
+                    -Tags $Config.WordPress.Tags `
+                    -Config $Config # Pass config for AdManager integration
                     
                 if ($wpResult.Success) {
                     Log -Message "Published to WordPress! Post ID: $($wpResult.PostId), URL: $($wpResult.Url)" -Level "SUCCESS"
@@ -136,10 +137,6 @@ if ($Result.Success) {
     else {
         Log -Message "WordPress publishing disabled in config." -Level "INFO"
     }
-}
-else {
-    Log -Message "Content failed quality check. Skipping publication." -Level "WARNING"
-}
 }
 else {
     Log -Message "Generation failed: $($Result.Error)" -Level "ERROR"

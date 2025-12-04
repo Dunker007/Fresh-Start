@@ -18,8 +18,9 @@ export function renderNotes() {
   if (workspaceNotes.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
-        <i class="fas fa-sticky-note"></i>
-        <p>No notes yet. Add one!</p>
+        <div class="empty-state-icon"><i class="fas fa-sticky-note"></i></div>
+        <h3 class="empty-state-title">No Notes Yet</h3>
+        <p class="empty-state-description">Click the "+" button to jot down your first note.</p>
       </div>
     `;
     return;

@@ -18,8 +18,9 @@ export function renderTasks() {
   if (workspaceTasks.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
-        <i class="fas fa-tasks"></i>
-        <p>No tasks yet. Add one!</p>
+        <div class="empty-state-icon"><i class="fas fa-tasks"></i></div>
+        <h3 class="empty-state-title">No Tasks Yet</h3>
+        <p class="empty-state-description">Click the "+" button to add your first task and get organized.</p>
       </div>
     `;
     return;

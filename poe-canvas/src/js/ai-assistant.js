@@ -467,7 +467,7 @@ export function showAIContextMenu(e, itemType, itemId) {
   const menuItems = getContextMenuItems(itemType, itemId);
 
   menu.innerHTML = menuItems.map(item => `
-    <div class="dropdown-item" onclick="window.aiContextAction('${item.action}', '${itemType}', '${itemId}')">
+    <div class="dropdown-item" onclick="window.aiContextAction(event, '${item.action}', '${itemType}', '${itemId}')">
       <i class="${item.icon}"></i>
       <span>${item.label}</span>
     </div>
@@ -511,20 +511,21 @@ function getContextMenuItems(itemType, itemId) {
 /**
  * Handle AI context menu action
  */
-export async function aiContextAction(action, itemType, itemId) {
+export async function aiContextAction(event, action, itemType, itemId) {
+  const buttonEl = event.target.closest('.ai-action-btn');
   const actionMap = {
-    'breakdown': () => aiBreakdownTask(itemId),
-    'estimate': () => aiEstimateTime(itemId),
+    'breakdown': () => withAILoading(buttonEl, () => aiBreakdownTask(itemId)),
+    'estimate': () => withAILoading(buttonEl, () => aiEstimateTime(itemId)),
     'related': () => aiFindRelated(itemId),
-    'checklist': () => aiGenerateChecklist(itemId),
-    'enhance': () => aiEnhanceNote(itemId),
-    'summarize': () => aiSummarizeNote(itemId),
-    'extract-actions': () => aiExtractActions(itemId),
-    'suggest-tags': () => aiSuggestTags(itemId),
-    'expand': () => aiExpandOutline(itemId),
-    'insights': () => aiProjectInsights(itemId),
-    'next-steps': () => aiSuggestNextSteps(itemId),
-    'blockers': () => aiIdentifyBlockers(itemId)
+    'checklist': () => withAILoading(buttonEl, () => aiGenerateChecklist(itemId)),
+    'enhance': () => withAILoading(buttonEl, () => aiEnhanceNote(itemId)),
+    'summarize': () => withAILoading(buttonEl, () => aiSummarizeNote(itemId)),
+    'extract-actions': () => withAILoading(buttonEl, () => aiExtractActions(itemId)),
+    'suggest-tags': () => withAILoading(buttonEl, () => aiSuggestTags(itemId)),
+    'expand': () => withAILoading(buttonEl, () => aiExpandOutline(itemId)),
+    'insights': () => withAILoading(buttonEl, () => aiProjectInsights(itemId)),
+    'next-steps': () => withAILoading(buttonEl, () => aiSuggestNextSteps(itemId)),
+    'blockers': () => withAILoading(buttonEl, () => aiIdentifyBlockers(itemId))
   };
 
   const handler = actionMap[action];

@@ -18,8 +18,9 @@ export function renderProjects() {
   if (workspaceProjects.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
-        <i class="fas fa-project-diagram"></i>
-        <p>No projects yet. Add one!</p>
+        <div class="empty-state-icon"><i class="fas fa-project-diagram"></i></div>
+        <h3 class="empty-state-title">No Projects Yet</h3>
+        <p class="empty-state-description">Click the "+" button to create your first project.</p>
       </div>
     `;
     return;

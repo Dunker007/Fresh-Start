@@ -105,6 +105,32 @@ function Get-PromptTemplate {
     }
 }
 
+function Select-PromptVariant {
+    param(
+        [Parameter(Mandatory = $true)]
+        $TemplateContent,
+        [string]$SelectionMethod = "Random" # Future: "Performance"
+    )
+
+    if ($TemplateContent.prompts -is [array] -and $TemplateContent.prompts.Count -gt 0) {
+        # A/B testing structure detected
+        
+        # For Phase 6, we implement simple random selection
+        if ($SelectionMethod -eq "Random") {
+            $index = Get-Random -Maximum $TemplateContent.prompts.Count
+            $selectedPrompt = $TemplateContent.prompts[$index]
+            return $selectedPrompt
+        }
+        # Future: Implement performance-based selection here
+        
+        # Default to the first one if selection method is unknown
+        return $TemplateContent.prompts[0]
+    }
+    
+    # Standard structure (single prompt)
+    return $TemplateContent
+}
+
 function Use-PromptTemplate {
     param(
         [Parameter(Mandatory = $true)]
@@ -112,14 +138,21 @@ function Use-PromptTemplate {
         [hashtable]$Variables = @{}
     )
 
-    $template = Get-PromptTemplate -TemplateName $TemplateName
-    $userPrompt = $template.userTemplate
+    $templateContent = Get-PromptTemplate -TemplateName $TemplateName
+    $selectedVariant = Select-PromptVariant -TemplateContent $templateContent
+    
+    $systemPrompt = $selectedVariant.systemPrompt
+    $userPrompt = $selectedVariant.userTemplate
+    $variantName = $selectedVariant.name
+    
     foreach ($key in $Variables.Keys) {
         $userPrompt = $userPrompt -replace "{{$key}}", $Variables[$key]
     }
+    
     return @{
-        SystemPrompt = $template.systemPrompt
+        SystemPrompt = $systemPrompt
         UserPrompt   = $userPrompt
+        VariantName  = $variantName # Track which variant was used
     }
 }
 
@@ -141,6 +174,7 @@ function New-BlogPost {
     }
 
     $result = Invoke-LMStudioGeneration -ApiUrl $ApiUrl -SystemPrompt $prompts.SystemPrompt -UserPrompt $prompts.UserPrompt -Model $Model
+    $result.VariantName = $prompts.VariantName # Pass variant name through for tracking
     if ($result.Success) {
         $content = $result.Content
         if ([string]::IsNullOrWhiteSpace($content)) {
@@ -157,4 +191,4 @@ function New-BlogPost {
     }
 }
 
-Export-ModuleMember -Function Test-LMStudioConnection, Get-LMStudioModels, Invoke-LMStudioGeneration, Get-PromptTemplate, Use-PromptTemplate, New-BlogPost
+Export-ModuleMember -Function Test-LMStudioConnection, Get-LMStudioModels, Invoke-LMStudioGeneration, Get-PromptTemplate, Select-PromptVariant, Use-PromptTemplate, New-BlogPost

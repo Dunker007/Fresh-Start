@@ -13,6 +13,7 @@ import { showAIContextMenu } from './ai-assistant.js';
 import { initShortcuts } from './shortcuts.js';
 import { initCommands } from './commands.js';
 import * as google from './google/index.js';
+import { callGemini } from './gemini-client.js';
 
 // Initialize app
 window.addEventListener('DOMContentLoaded', async () => {
@@ -44,11 +45,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Initialize Google Auth if client ID is configured
   const googleClientId = localStorage.getItem('google_client_id');
   if (googleClientId) {
-    try { 
-      google.auth.initAuth(googleClientId); 
+    try {
+      google.auth.initAuth(googleClientId);
       console.log('Google Auth initialized');
-    } catch (e) { 
-      console.log('Google Auth init failed:', e); 
+    } catch (e) {
+      console.log('Google Auth init failed:', e);
     }
   }
 
@@ -127,12 +128,11 @@ function switchView(view) {
   }
 }
 
-function toggleTheme() {
-  document.documentElement.classList.toggle('dark');
-}
 
 
 // AI Chat functions
+const GEMINI_API_KEY = 'AIzaSyCV65hbezqKd3wxzakujlYtFIAeDlm9KjI';
+
 async function sendAIMessage() {
   const input = document.getElementById('aiInput');
   const message = input.value.trim();
@@ -150,32 +150,51 @@ async function sendAIMessage() {
   messagesContainer.appendChild(loadingEl);
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
+  // Try Local LLM first
   if (getState().llm.connected) {
     try {
       const response = await sendToLocalLLM(message);
-      const loadingElement = document.getElementById(loadingId);
-      if (loadingElement) {
-        loadingElement.innerHTML = `<div class="markdown-content">${marked.parse(response)}</div>`;
-      }
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      updateAssistantMessage(loadingId, response);
       return;
     } catch (err) {
-      console.error('Local LLM error:', err);
-      const loadingElement = document.getElementById(loadingId);
-      if (loadingElement) {
-        loadingElement.innerHTML = `<div class="markdown-content"><p style="color: var(--accent-danger);">Error: ${err.message}</p></div>`;
-      }
+      console.error('Local LLM error, falling back to Gemini:', err);
+      updateAssistantMessage(loadingId, `Local LLM failed. Retrying with Gemini...`, true);
+    }
+  }
+
+  // Fallback to Gemini API
+  if (GEMINI_API_KEY) {
+    try {
+      const statusText = document.getElementById('llmStatusText');
+      if (statusText) statusText.textContent = 'Gemini';
+      const response = await callGemini(message, GEMINI_API_KEY);
+      updateAssistantMessage(loadingId, response);
+      if (statusText && !getState().llm.connected) statusText.textContent = 'No local LLM';
+      return;
+    } catch (err) {
+      console.error('Gemini API error:', err);
+      updateAssistantMessage(loadingId, `Gemini API Error: ${err.message}`, true);
       return;
     }
   }
 
-  // Demo mode
+  // Fallback to Demo mode
   setTimeout(() => {
-    const loadingElement = document.getElementById(loadingId);
-    if (loadingElement) {
-      loadingElement.innerHTML = `<div class="markdown-content"><p>No LLM connected. Start <strong>LM Studio</strong> (localhost:1234) or <strong>Ollama</strong> (localhost:11434) and click refresh.</p></div>`;
-    }
+    const demoMessage = `No LLM connected and no Gemini API key provided. Start <strong>LM Studio</strong> (localhost:1234) or <strong>Ollama</strong> (localhost:11434) and click refresh.`;
+    updateAssistantMessage(loadingId, demoMessage, true);
   }, 500);
+}
+
+function updateAssistantMessage(elementId, content, isError = false) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    if (isError) {
+      element.innerHTML = `<div class="markdown-content"><p style="color: var(--accent-danger);">${content}</p></div>`;
+    } else {
+      element.innerHTML = `<div class="markdown-content">${marked.parse(content)}</div>`;
+    }
+    element.parentElement.scrollTop = element.parentElement.scrollHeight;
+  }
 }
 
 function addChatMessage(content, role) {
@@ -246,17 +265,17 @@ function setupGlobalSearch() {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       if (activeIndex < items.length - 1) {
-        items[activeIndex]?.classList.remove('active');
-        items[activeIndex + 1]?.classList.add('active');
-      } else if (activeIndex === -1 && items.length > 0) {
-        items[0].classList.add('active');
+        activeIndex++;
       }
+      if (activeItem) activeItem.classList.remove('active');
+      items[activeIndex]?.classList.add('active');
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       if (activeIndex > 0) {
-        items[activeIndex]?.classList.remove('active');
-        items[activeIndex - 1]?.classList.add('active');
+        activeIndex--;
       }
+      if (activeItem) activeItem.classList.remove('active');
+      items[activeIndex]?.classList.add('active');
     } else if (e.key === 'Enter') {
       if (activeItem) {
         e.preventDefault();
@@ -273,7 +292,7 @@ function performSearch(query) {
   // Search tasks
   state.tasks.forEach(task => {
     if (task.title.toLowerCase().includes(query) ||
-        (task.tags && task.tags.some(t => t.toLowerCase().includes(query)))) {
+      (task.tags && task.tags.some(t => t.toLowerCase().includes(query)))) {
       results.push({
         type: 'task',
         icon: 'fa-check-circle',
@@ -287,7 +306,7 @@ function performSearch(query) {
   // Search notes
   state.notes.forEach(note => {
     if (note.title.toLowerCase().includes(query) ||
-        (note.content && note.content.toLowerCase().includes(query))) {
+      (note.content && note.content.toLowerCase().includes(query))) {
       results.push({
         type: 'note',
         icon: 'fa-sticky-note',
@@ -301,7 +320,7 @@ function performSearch(query) {
   // Search projects
   state.projects.forEach(project => {
     if (project.name.toLowerCase().includes(query) ||
-        (project.description && project.description.toLowerCase().includes(query))) {
+      (project.description && project.description.toLowerCase().includes(query))) {
       results.push({
         type: 'project',
         icon: 'fa-project-diagram',
@@ -316,7 +335,7 @@ function performSearch(query) {
   if (state.bookmarks) {
     state.bookmarks.forEach(bookmark => {
       if (bookmark.title.toLowerCase().includes(query) ||
-          bookmark.url.toLowerCase().includes(query)) {
+        bookmark.url.toLowerCase().includes(query)) {
         results.push({
           type: 'bookmark',
           icon: 'fa-bookmark',

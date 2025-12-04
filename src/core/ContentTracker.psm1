@@ -2,10 +2,14 @@
 # Module for tracking published content using JSON database
 
 $ContentDbPath = "$PSScriptRoot\..\..\data\content-tracker.json"
+$CalendarDbPath = "$PSScriptRoot\..\..\data\content-calendar.json"
 
 function Initialize-ContentTracker {
     if (-not (Test-Path $ContentDbPath)) {
         @() | ConvertTo-Json | Set-Content -Path $ContentDbPath
+    }
+    if (-not (Test-Path $CalendarDbPath)) {
+        @() | ConvertTo-Json | Set-Content -Path $CalendarDbPath
     }
 }
 
@@ -28,6 +32,18 @@ function Add-ContentEntry {
 
     Initialize-ContentTracker
     $db = Get-Content -Raw $ContentDbPath | ConvertFrom-Json
+
+    # Add revenue tracking fields to metadata if not present
+    if (-not $Metadata.ContainsKey('PageViews')) {
+        $Metadata.PageViews = 0
+    }
+    if (-not $Metadata.ContainsKey('Revenue')) {
+        $Metadata.Revenue = 0.0
+    }
+    # Add prompt variant tracking
+    if (-not $Metadata.ContainsKey('PromptVariant')) {
+        $Metadata.PromptVariant = "N/A"
+    }
 
     $entry = @{
         Title       = $Title
@@ -70,4 +86,67 @@ function Get-ContentEntryByHash {
     return $db | Where-Object { $_.ContentHash -eq $Hash }
 }
 
-Export-ModuleMember -Function Add-ContentEntry, Get-ContentEntries, Get-ContentEntryByHash
+function Add-CalendarEntry {
+    param(
+        [Parameter(Mandatory = $true)][string]$Topic,
+        [Parameter(Mandatory = $true)][datetime]$ScheduleDate,
+        [string]$Status = "Scheduled", # Scheduled, InProgress, Completed, Skipped
+        [hashtable]$Metadata = @{}
+    )
+
+    Initialize-ContentTracker
+    $db = Get-Content -Raw $CalendarDbPath | ConvertFrom-Json
+    
+    $entry = @{
+        Topic        = $Topic
+        ScheduleDate = $ScheduleDate.ToString("yyyy-MM-dd")
+        Status       = $Status
+        Metadata     = $Metadata
+        CreatedAt    = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
+    }
+
+    $db += $entry
+    $db | ConvertTo-Json -Depth 5 | Set-Content -Path $CalendarDbPath
+}
+
+function Get-NextScheduledTopic {
+    Initialize-ContentTracker
+    $db = Get-Content -Raw $CalendarDbPath | ConvertFrom-Json
+    
+    # Find the next scheduled topic that is 'Scheduled' and whose date is today or earlier
+    $Today = (Get-Date).ToString("yyyy-MM-dd")
+    
+    $nextTopic = $db | Where-Object {
+        $_.Status -eq "Scheduled" -and $_.ScheduleDate -le $Today
+    } | Sort-Object ScheduleDate | Select-Object -First 1
+    
+    return $nextTopic
+}
+
+function Update-CalendarEntryStatus {
+    param(
+        [Parameter(Mandatory = $true)][string]$Topic,
+        [Parameter(Mandatory = $true)][string]$ScheduleDate,
+        [Parameter(Mandatory = $true)][string]$NewStatus
+    )
+
+    Initialize-ContentTracker
+    $db = Get-Content -Raw $CalendarDbPath | ConvertFrom-Json
+    
+    $index = -1
+    for ($i = 0; $i -lt $db.Count; $i++) {
+        if ($db[$i].Topic -eq $Topic -and $db[$i].ScheduleDate -eq $ScheduleDate) {
+            $index = $i
+            break
+        }
+    }
+
+    if ($index -ne -1) {
+        $db[$index].Status = $NewStatus
+        $db | ConvertTo-Json -Depth 5 | Set-Content -Path $CalendarDbPath
+        return $true
+    }
+    return $false
+}
+
+Export-ModuleMember -Function Add-ContentEntry, Get-ContentEntries, Get-ContentEntryByHash, Add-CalendarEntry, Get-NextScheduledTopic, Update-CalendarEntryStatus

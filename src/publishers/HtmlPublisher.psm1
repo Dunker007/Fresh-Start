@@ -114,10 +114,16 @@ function Get-DefaultHtmlTemplate {
 <head>
     <meta charset="UTF-8">
     <title>{{TITLE}}</title>
+    <!-- AdSense Header Code -->
+    {{AD_HEADER}}
 </head>
 <body>
     <h1>{{TITLE}}</h1>
+    <!-- AdSense Content Top -->
+    {{AD_CONTENT}}
     {{CONTENT}}
+    <!-- AdSense Sidebar (Placeholder, might not render well without proper layout) -->
+    {{AD_SIDEBAR}}
 </body>
 </html>
 "@

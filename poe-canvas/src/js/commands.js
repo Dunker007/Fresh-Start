@@ -51,7 +51,7 @@ export function initCommands() {
   // Create command palette DOM
   createCommandPaletteDOM();
 
-  // Register with shortcuts module
+  // Register the open function with the shortcuts module
   registerCommandPalette(openCommandPalette);
 
   console.log('Command palette initialized');
