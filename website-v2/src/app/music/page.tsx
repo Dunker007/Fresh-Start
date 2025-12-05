@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { LUXRIG_BRIDGE_URL } from '@/lib/utils';
 
 interface Agent {
   id: string;
@@ -74,7 +75,7 @@ export default function MusicStudioPage() {
 
   // Fetch agents on mount
   useState(() => {
-    fetch('http://localhost:3458/music/agents')
+    fetch(`${LUXRIG_BRIDGE_URL}/music/agents`)
       .then(res => res.json())
       .then(data => setAgents(data.agents || []))
       .catch(err => console.error('Failed to fetch agents:', err));
@@ -93,14 +94,14 @@ export default function MusicStudioPage() {
 
     try {
       // Choose endpoint based on mode
-      let endpoint = 'http://localhost:3458/music/create';
+      let endpoint = `${LUXRIG_BRIDGE_URL}/music/create`;
       let payload: any = { theme, genre, mood };
 
       if (mode === 'political') {
-        endpoint = 'http://localhost:3458/music/political';
+        endpoint = `${LUXRIG_BRIDGE_URL}/music/political`;
         payload = { focusArea, headlines: [] };
       } else if (mode === 'sentinel') {
-        endpoint = 'http://localhost:3458/music/sentinel';
+        endpoint = `${LUXRIG_BRIDGE_URL}/music/sentinel`;
         payload = { focusArea, headlines: [] };
       }
 

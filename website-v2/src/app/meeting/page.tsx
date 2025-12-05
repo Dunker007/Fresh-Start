@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { LUXRIG_BRIDGE_URL } from '@/lib/utils';
 
 // Agent persona definitions with avatars and colors
 const AGENT_PERSONAS = {
@@ -86,7 +87,7 @@ export default function StaffMeetingPage() {
         setCurrentRound(0);
 
         try {
-            const response = await fetch('http://localhost:3456/agents/meeting', {
+            const response = await fetch(`${LUXRIG_BRIDGE_URL}/agents/meeting`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

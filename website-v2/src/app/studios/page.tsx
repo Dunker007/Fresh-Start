@@ -180,7 +180,10 @@ export default function StudiosPage() {
           transition: all 0.4s ease;
           cursor: pointer;
           text-decoration: none;
-          display: block;
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          height: 100%;
         }
 
         .studio-card::before {
@@ -230,6 +233,9 @@ export default function StudiosPage() {
         .card-content {
           position: relative;
           z-index: 1;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
         }
 
         .card-header {
@@ -382,7 +388,25 @@ export default function StudiosPage() {
                 <div className="studios-grid">
                     {studios.map((studio, index) => {
                         const isDisabled = studio.status === 'coming-soon';
-                        const CardWrapper = isDisabled ? 'div' : Link;
+
+                        const cardContent = (
+                            <>
+                                <div className="card-content">
+                                    <div className="card-header">
+                                        <span className="studio-icon">{studio.icon}</span>
+                                        {statusBadge(studio.status)}
+                                    </div>
+                                    <h2 className="studio-name">{studio.name}</h2>
+                                    <p className="studio-description">{studio.description}</p>
+                                    <div className="features-list">
+                                        {studio.features.map(feature => (
+                                            <span key={feature} className="feature-tag">{feature}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                                {!isDisabled && <span className="enter-arrow">→</span>}
+                            </>
+                        );
 
                         return (
                             <motion.div
@@ -391,30 +415,30 @@ export default function StudiosPage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: index * 0.1 }}
                             >
-                                <CardWrapper
-                                    href={isDisabled ? undefined : studio.href}
-                                    className={`studio-card ${isDisabled ? 'disabled' : ''}`}
-                                    style={{
-                                        '--card-color': studio.color,
-                                        '--card-gradient': `linear-gradient(135deg, ${studio.color}, transparent)`,
-                                        '--card-glow': `${studio.color}33`
-                                    } as React.CSSProperties}
-                                >
-                                    <div className="card-content">
-                                        <div className="card-header">
-                                            <span className="studio-icon">{studio.icon}</span>
-                                            {statusBadge(studio.status)}
-                                        </div>
-                                        <h2 className="studio-name">{studio.name}</h2>
-                                        <p className="studio-description">{studio.description}</p>
-                                        <div className="features-list">
-                                            {studio.features.map(feature => (
-                                                <span key={feature} className="feature-tag">{feature}</span>
-                                            ))}
-                                        </div>
+                                {isDisabled ? (
+                                    <div
+                                        className={`studio-card disabled`}
+                                        style={{
+                                            '--card-color': studio.color,
+                                            '--card-gradient': `linear-gradient(135deg, ${studio.color}, transparent)`,
+                                            '--card-glow': `${studio.color}33`
+                                        } as React.CSSProperties}
+                                    >
+                                        {cardContent}
                                     </div>
-                                    {!isDisabled && <span className="enter-arrow">→</span>}
-                                </CardWrapper>
+                                ) : (
+                                    <Link
+                                        href={studio.href}
+                                        className="studio-card"
+                                        style={{
+                                            '--card-color': studio.color,
+                                            '--card-gradient': `linear-gradient(135deg, ${studio.color}, transparent)`,
+                                            '--card-glow': `${studio.color}33`
+                                        } as React.CSSProperties}
+                                    >
+                                        {cardContent}
+                                    </Link>
+                                )}
                             </motion.div>
                         );
                     })}

@@ -4,6 +4,8 @@
  * Includes fact-checking integration
  */
 
+import { LUXRIG_BRIDGE_URL } from './utils';
+
 // RSS Feed Sources
 export const NEWS_SOURCES = {
     // National Conservative Sources
@@ -369,7 +371,7 @@ Respond with:
 4. Recommendation (verified/disputed/needs-context/unverified)`;
 
     try {
-        const response = await fetch('http://localhost:3458/chat/simple', {
+        const response = await fetch(`${LUXRIG_BRIDGE_URL}/chat/simple`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt })

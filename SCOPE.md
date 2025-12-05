@@ -6,24 +6,26 @@
 
 ---
 
-## ⚠️ ACTIVE PROJECT: Nexus Workspace
+## ⚠️ ACTIVE PROJECT: DLX Studio
 
-**Location:** `poe-canvas/`
+**Locations:** `website-v2/` (Next.js frontend) + `luxrig-bridge/` (Express backend)
 
 This is the ONLY active development target. All work should focus here.
 
-### What Nexus Workspace Is
-- Desktop productivity app (Electron)
-- Task/note/project management
-- Local LLM integration (LM Studio)
-- Google ecosystem connectivity (Drive, Calendar, Gmail)
-- Keyboard-driven workflow (shortcuts, command palette)
+### What DLX Studio Is
+- Next.js 14 web application with 56+ pages
+- AI command center with local LLM integration (LM Studio/Ollama)
+- News Hub (conservative & MN sources), Music Studio (songwriter agents)
+- Google OAuth integration (Drive, Calendar, Gmail)
+- Real-time system monitoring (GPU, CPU, RAM via nvidia-smi)
+- Express backend (LuxRig Bridge) on port 3456
 
 ### Current Priorities
-1. Wire Google modules to UI
-2. Real filesystem integration via Electron IPC
-3. SQLite persistence
-4. Polish and stability
+1. Complete main navigation tabs (Chat, Labs, Income, Settings)
+2. Connect Dashboard widgets to live data
+3. Wire Google API integration to UI
+4. Test and polish existing features
+5. Mobile responsive improvements
 
 ---
 
@@ -56,16 +58,23 @@ The pipeline code is **done and working**. It stays in the repo for when we're r
 
 ```
 Fresh-Start/
-├── poe-canvas/          ← ACTIVE: Nexus Workspace
-│   ├── electron/        ← Desktop app framework
-│   ├── src/             ← Frontend code
-│   │   ├── js/          ← Modules (work here)
-│   │   └── styles/      ← CSS
-│   └── dist/            ← Built executables
+├── website-v2/          ← ACTIVE: DLX Studio Frontend (Next.js 14)
+│   ├── src/app/         ← 56+ page routes (work here)
+│   ├── src/components/  ← React components
+│   ├── src/lib/         ← Utilities and services
+│   └── public/          ← Static assets
+│
+├── luxrig-bridge/       ← ACTIVE: DLX Studio Backend (Express)
+│   ├── services/        ← Agent services, LLM proxies (work here)
+│   ├── config/          ← Swagger, security config
+│   ├── prisma/          ← Database schema (SQLite)
+│   └── server.js        ← Main server (port 3456)
 │
 ├── src/                 ← FROZEN: Content Pipeline
 │   ├── core/            ← PowerShell modules (don't touch)
 │   └── publishers/      ← Publishing modules (don't touch)
+│
+├── poe-canvas/          ← LEGACY: Original Nexus Workspace (archived)
 │
 ├── docs/                ← Project documentation
 ├── AI_PROTOCOL.md       ← Agent handoff rules
@@ -78,18 +87,20 @@ Fresh-Start/
 
 **READ THIS BEFORE STARTING WORK:**
 
-1. Your work is in `poe-canvas/` only
+1. Your work is in `website-v2/` and `luxrig-bridge/` only
 2. Ignore `src/`, `setup-scheduled-tasks.ps1`, `master-orchestrator-minimal.ps1`
-3. If a task mentions "content generation", "blog posts", "AdSense", or "publishing" → STOP and clarify with the user
-4. The README mentions both projects for historical context - follow THIS file for current scope
+3. `poe-canvas/` is archived legacy code - DO NOT modify
+4. If a task mentions "content generation", "blog posts", "AdSense", or "publishing" → STOP and clarify with the user
+5. The README mentions historical projects for context - follow THIS file for current scope
 
 ---
 
 ## When Will Content Pipeline Unfreeze?
 
 When these conditions are met:
-- [ ] Nexus Workspace has stable daily-driver features
-- [ ] SQLite persistence working
+- [ ] DLX Studio has stable daily-driver features
+- [ ] All main navigation tabs complete (Chat, Labs, Income, Settings)
+- [ ] Google API integration working
 - [ ] Foundation Phase complete
 - [ ] User explicitly says "unfreeze content pipeline"
 

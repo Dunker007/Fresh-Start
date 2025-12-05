@@ -3,8 +3,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useState } from 'react';
-
-const LUXRIG_BRIDGE_URL = process.env.NEXT_PUBLIC_BRIDGE_URL || 'http://localhost:3456';
+import { LUXRIG_BRIDGE_URL } from '@/lib/utils';
 
 const endpoints = [
     {
@@ -111,7 +110,8 @@ const sdks = [
         lang: 'JavaScript',
         icon: '🟨',
         code: `// Using fetch
-const response = await fetch('http://localhost:3456/llm/chat', {
+const BRIDGE_URL = '${LUXRIG_BRIDGE_URL}';
+const response = await fetch(\`\${BRIDGE_URL}/llm/chat\`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -128,7 +128,8 @@ console.log(data.content);`
         icon: '🐍',
         code: `import requests
 
-response = requests.post('http://localhost:3456/llm/chat', json={
+BRIDGE_URL = '${LUXRIG_BRIDGE_URL}'
+response = requests.post(f'{BRIDGE_URL}/llm/chat', json={
     'provider': 'lmstudio',
     'model': 'gemma-3n-E4B-it-QAT',
     'messages': [{'role': 'user', 'content': 'Hello!'}]
@@ -138,20 +139,21 @@ print(response.json()['content'])`
     {
         lang: 'cURL',
         icon: '🔧',
-        code: `curl -X POST http://localhost:3456/llm/chat \\
+        code: `curl -X POST ${LUXRIG_BRIDGE_URL}/llm/chat \\
   -H "Content-Type: application/json" \\
   -d '{"provider":"lmstudio","model":"gemma-3n-E4B-it-QAT","messages":[{"role":"user","content":"Hello!"}]}'`
     },
     {
         lang: 'PowerShell',
         icon: '💠',
-        code: `$body = @{
+        code: `$bridgeUrl = "${LUXRIG_BRIDGE_URL}"
+$body = @{
     provider = "lmstudio"
     model = "gemma-3n-E4B-it-QAT"
     messages = @(@{ role = "user"; content = "Hello!" })
 } | ConvertTo-Json
 
-Invoke-RestMethod -Uri "http://localhost:3456/llm/chat" -Method Post -Body $body -ContentType "application/json"`
+Invoke-RestMethod -Uri "$bridgeUrl/llm/chat" -Method Post -Body $body -ContentType "application/json"`
     },
 ];
 
