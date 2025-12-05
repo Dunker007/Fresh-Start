@@ -26,9 +26,9 @@ const quickActions = [
     { icon: '💬', label: 'New Chat', href: '/chat', color: 'cyan' },
     { icon: '🚀', label: 'Launch Lab', href: '/labs', color: 'purple' },
     { icon: '🤖', label: 'Agents', href: '/agents', color: 'green' },
-    { icon: '💰', label: 'Free AI', href: '/deals', color: 'yellow' },
-    { icon: '📊', label: 'Analytics', href: '#', color: 'pink' },
-    { icon: '⚙️', label: 'Settings', href: '#', color: 'gray' },
+    { icon: '💸', label: 'Income', href: '/income', color: 'yellow' },
+    { icon: '📊', label: 'Analytics', href: '/analytics', color: 'pink' },
+    { icon: '⚙️', label: 'Settings', href: '/settings', color: 'gray' },
 ];
 
 export default function DashboardPage() {

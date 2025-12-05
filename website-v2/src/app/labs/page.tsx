@@ -4,17 +4,18 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 
 const labs = [
-    { id: 'aura', icon: '✨', name: 'AURA Interface', desc: 'Advanced user response architecture for natural AI interactions.', status: 'active', color: 'cyan' },
-    { id: 'forge', icon: '🔨', name: 'Agent Forge', desc: 'Build and customize AI agents with visual tools.', status: 'preview', color: 'purple' },
-    { id: 'dataweave', icon: '🌐', name: 'Data Weave', desc: 'Connect and transform data from multiple sources.', status: 'active', color: 'green' },
-    { id: 'mindmap', icon: '🧠', name: 'Mind Map Lab', desc: 'WebGL-powered visual brainstorming with AI assistance.', status: 'active', color: 'pink' },
-    { id: 'codegen', icon: '💻', name: 'Code Generator', desc: 'AI-powered code generation and refactoring.', status: 'active', color: 'blue' },
-    { id: 'analytics', icon: '📊', name: 'Analytics Hub', desc: 'Real-time analytics and performance dashboards.', status: 'active', color: 'yellow' },
-    { id: 'automation', icon: '⚡', name: 'Automation Lab', desc: 'Build and run automated workflows.', status: 'preview', color: 'orange' },
-    { id: 'vision', icon: '👁️', name: 'Vision Lab', desc: 'Image analysis and computer vision tools.', status: 'coming', color: 'red' },
-    { id: 'audio', icon: '🎵', name: 'Audio Lab', desc: 'Transcription, music analysis, and audio processing.', status: 'coming', color: 'violet' },
-    { id: 'crypto', icon: '💎', name: 'Crypto Lab', desc: 'Cryptocurrency analysis and portfolio tracking.', status: 'coming', color: 'teal' },
-    { id: 'knowledge', icon: '📚', name: 'Knowledge Base', desc: 'AI-powered documentation and search.', status: 'preview', color: 'indigo' },
+    { id: 'aura', icon: '✨', name: 'AURA Interface', desc: 'Advanced user response architecture for natural AI interactions.', status: 'active', color: 'cyan', href: null },
+    { id: 'forge', icon: '🔨', name: 'Agent Forge', desc: 'Build and customize AI agents with visual tools.', status: 'preview', color: 'purple', href: '/agents' },
+    { id: 'dataweave', icon: '🌐', name: 'Data Weave', desc: 'Connect and transform data from multiple sources.', status: 'active', color: 'green', href: null },
+    { id: 'mindmap', icon: '🧠', name: 'Mind Map Lab', desc: 'WebGL-powered visual brainstorming with AI assistance.', status: 'active', color: 'pink', href: null },
+    { id: 'codegen', icon: '💻', name: 'Code Generator', desc: 'AI-powered code generation and refactoring.', status: 'active', color: 'blue', href: '/playground' },
+    { id: 'analytics', icon: '📊', name: 'Analytics Hub', desc: 'Real-time analytics and performance dashboards.', status: 'active', color: 'yellow', href: '/analytics' },
+    { id: 'automation', icon: '⚡', name: 'Automation Lab', desc: 'Build and run automated workflows.', status: 'active', color: 'orange', href: '/workflows' },
+    { id: 'vision', icon: '👁️', name: 'Vision Lab', desc: 'Image analysis and computer vision tools.', status: 'coming', color: 'red', href: null },
+    { id: 'audio', icon: '🎵', name: 'Audio Lab', desc: 'Transcription, music analysis, and audio processing.', status: 'active', color: 'violet', href: '/voice' },
+    { id: 'crypto', icon: '💎', name: 'Crypto Lab', desc: 'Solana Seeker, DeFi, and portfolio tracking.', status: 'active', color: 'teal', href: '/crypto' },
+    { id: 'income', icon: '💸', name: 'Passive Income', desc: 'AI-powered income opportunities and tracking.', status: 'active', color: 'green', href: '/income' },
+    { id: 'knowledge', icon: '📚', name: 'Knowledge Base', desc: 'AI-powered documentation and search.', status: 'preview', color: 'indigo', href: '/learn' },
 ];
 
 const statusColors = {
@@ -71,10 +72,10 @@ export default function LabsPage() {
                     >
                         {labs.map((lab) => {
                             const status = statusColors[lab.status as keyof typeof statusColors];
-                            return (
+                            const CardContent = (
                                 <motion.div
                                     key={lab.id}
-                                    className="glass-card relative overflow-hidden cursor-pointer group"
+                                    className="glass-card relative overflow-hidden cursor-pointer group h-full"
                                     variants={{
                                         initial: { opacity: 0, y: 20 },
                                         animate: { opacity: 1, y: 0 }
@@ -100,7 +101,11 @@ export default function LabsPage() {
                                         {lab.desc}
                                     </p>
 
-                                    {lab.status === 'active' ? (
+                                    {lab.href ? (
+                                        <span className="w-full btn-primary py-2 text-sm block text-center">
+                                            Launch Lab →
+                                        </span>
+                                    ) : lab.status === 'active' ? (
                                         <button className="w-full btn-primary py-2 text-sm">
                                             Launch Lab
                                         </button>
@@ -117,6 +122,14 @@ export default function LabsPage() {
                                     {/* Hover glow */}
                                     <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                                 </motion.div>
+                            );
+
+                            return lab.href ? (
+                                <Link key={lab.id} href={lab.href}>
+                                    {CardContent}
+                                </Link>
+                            ) : (
+                                <div key={lab.id}>{CardContent}</div>
                             );
                         })}
                     </motion.div>

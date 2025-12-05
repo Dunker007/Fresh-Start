@@ -439,19 +439,19 @@ export default function Home() {
             <div>
               <h4 className="font-semibold mb-4">Products</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link href="/tools" className="hover:text-cyan-400">AI Tools</Link></li>
+                <li><Link href="/apps" className="hover:text-cyan-400">All Apps</Link></li>
                 <li><Link href="/agents" className="hover:text-cyan-400">AI Agents</Link></li>
                 <li><Link href="/labs" className="hover:text-cyan-400">Labs Hub</Link></li>
-                <li><Link href="/download" className="hover:text-cyan-400">Nexus Workspace</Link></li>
+                <li><Link href="/income" className="hover:text-cyan-400">Passive Income</Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold mb-4">Resources</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="#" className="hover:text-cyan-400">Documentation</a></li>
-                <li><a href="#" className="hover:text-cyan-400">API Reference</a></li>
-                <li><a href="#" className="hover:text-cyan-400">Changelog</a></li>
+                <li><Link href="/docs" className="hover:text-cyan-400">Documentation</Link></li>
+                <li><Link href="/learn" className="hover:text-cyan-400">Learn</Link></li>
+                <li><Link href="/changelog" className="hover:text-cyan-400">Changelog</Link></li>
                 <li><a href="https://github.com/Dunker007" className="hover:text-cyan-400">GitHub</a></li>
               </ul>
             </div>
@@ -459,10 +459,10 @@ export default function Home() {
             <div>
               <h4 className="font-semibold mb-4">Connect</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="https://poe.com" target="_blank" className="hover:text-cyan-400">POE</a></li>
-                <li><a href="#" className="hover:text-cyan-400">YouTube</a></li>
-                <li><a href="#" className="hover:text-cyan-400">TikTok</a></li>
-                <li><a href="#" className="hover:text-cyan-400">Discord</a></li>
+                <li><Link href="/community" className="hover:text-cyan-400">Community</Link></li>
+                <li><Link href="/crypto" className="hover:text-cyan-400">Crypto Lab</Link></li>
+                <li><Link href="/deals" className="hover:text-cyan-400">Free AI Deals</Link></li>
+                <li><Link href="/download" className="hover:text-cyan-400">Download</Link></li>
               </ul>
             </div>
           </div>

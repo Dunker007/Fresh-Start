@@ -28,6 +28,30 @@ const apps = [
         color: 'from-cyan-500 to-blue-600',
         stats: '$4,250 left'
     },
+    {
+        name: 'Passive Income',
+        icon: '💸',
+        href: '/income',
+        desc: 'AI-powered income ideas',
+        color: 'from-yellow-500 to-orange-600',
+        stats: '$675/mo'
+    },
+    {
+        name: 'Idle PC',
+        icon: '💻',
+        href: '/idle',
+        desc: 'Monetize unused resources',
+        color: 'from-blue-500 to-indigo-600',
+        stats: '4 apps'
+    },
+    {
+        name: 'Crypto Lab',
+        icon: '💎',
+        href: '/crypto',
+        desc: 'Seeker + DeFi',
+        color: 'from-teal-500 to-cyan-600',
+        stats: '$2,847'
+    },
 ];
 
 const quickStats = [
