@@ -9,8 +9,8 @@ const navItems = [
     { href: '/chat', label: 'Chat', icon: '💬' },
     { href: '/agents', label: 'Agents', icon: '🤖' },
     { href: '/labs', label: 'Labs', icon: '🔬' },
-    { href: '/deals', label: 'Free AI', icon: '💰', hot: true },
-    { href: '/trends', label: 'Trends', icon: '📈' },
+    { href: '/income', label: 'Income', icon: '💸' },
+    { href: '/finance', label: 'Finance', icon: '💰' },
 ];
 
 export default function Navigation() {
@@ -36,17 +36,12 @@ export default function Navigation() {
                                 key={item.href}
                                 href={item.href}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${pathname === item.href
-                                        ? 'bg-cyan-500/20 text-cyan-400'
-                                        : 'text-gray-300 hover:text-white hover:bg-white/10'
+                                    ? 'bg-cyan-500/20 text-cyan-400'
+                                    : 'text-gray-300 hover:text-white hover:bg-white/10'
                                     }`}
                             >
                                 <span className="text-sm">{item.icon}</span>
                                 <span>{item.label}</span>
-                                {item.hot && (
-                                    <span className="px-1.5 py-0.5 bg-red-500/20 text-red-400 text-xs rounded-full animate-pulse">
-                                        HOT
-                                    </span>
-                                )}
                             </Link>
                         ))}
 
@@ -83,18 +78,13 @@ export default function Navigation() {
                                 key={item.href}
                                 href={item.href}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-lg ${pathname === item.href
-                                        ? 'bg-cyan-500/20 text-cyan-400'
-                                        : 'text-gray-300 hover:bg-white/10'
+                                    ? 'bg-cyan-500/20 text-cyan-400'
+                                    : 'text-gray-300 hover:bg-white/10'
                                     }`}
                                 onClick={() => setMobileOpen(false)}
                             >
                                 <span>{item.icon}</span>
                                 <span>{item.label}</span>
-                                {item.hot && (
-                                    <span className="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs rounded-full">
-                                        HOT
-                                    </span>
-                                )}
                             </Link>
                         ))}
                         <div className="pt-2 border-t border-gray-700">
