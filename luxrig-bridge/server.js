@@ -127,6 +127,26 @@ app.get('/llm/models', async (req, res) => {
     }
 });
 
+// List LM Studio models only
+app.get('/llm/lmstudio/models', async (req, res) => {
+    try {
+        const models = await lmstudioService.listModels();
+        res.json(models);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// List Ollama models only
+app.get('/llm/ollama/models', async (req, res) => {
+    try {
+        const models = await ollamaService.listModels();
+        res.json(models);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Chat completion (routes to best available)
 app.post('/llm/chat', async (req, res) => {
     const { messages, model, provider } = req.body;

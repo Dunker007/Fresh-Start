@@ -38,7 +38,7 @@ export default function StatusPage() {
 
         try {
             // Check Bridge
-            const bridgeRes = await fetch(`${BRIDGE_URL}/health`);
+            const bridgeRes = await fetch(`${BRIDGE_URL}/status`);
             const bridgeLatency = Date.now() - startTime;
 
             if (bridgeRes.ok) {
