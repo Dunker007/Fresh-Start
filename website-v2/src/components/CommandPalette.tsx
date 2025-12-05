@@ -36,11 +36,16 @@ export default function CommandPalette() {
         { id: 'prompts', icon: '📝', label: 'Prompt Library', category: 'AI', action: () => router.push('/prompts') },
         { id: 'voice', icon: '🎤', label: 'Voice Control', category: 'AI', action: () => router.push('/voice') },
 
-        // Finance
+        // Finance & Income
         { id: 'finance', icon: '💰', label: 'Finance Hub', shortcut: 'G F', category: 'Finance', action: () => router.push('/finance') },
         { id: 'portfolio', icon: '📈', label: 'Portfolio Tracker', category: 'Finance', action: () => router.push('/portfolio') },
         { id: 'trading', icon: '🤖', label: 'Trading Bots', category: 'Finance', action: () => router.push('/trading') },
         { id: 'budget', icon: '💵', label: 'Budget', category: 'Finance', action: () => router.push('/budget') },
+        { id: 'income', icon: '💸', label: 'Passive Income', shortcut: 'G I', category: 'Finance', action: () => router.push('/income') },
+        { id: 'income-ideas', icon: '💡', label: 'Income Ideas', category: 'Finance', action: () => router.push('/income/ideas') },
+        { id: 'idle', icon: '💻', label: 'Idle PC Income', category: 'Finance', action: () => router.push('/idle') },
+        { id: 'crypto', icon: '💎', label: 'Crypto Lab', category: 'Finance', action: () => router.push('/crypto') },
+
 
         // Smart Home
         { id: 'smarthome', icon: '🏠', label: 'Smart Home', category: 'Smart Home', action: () => router.push('/home') },

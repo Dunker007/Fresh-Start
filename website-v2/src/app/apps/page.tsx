@@ -28,6 +28,18 @@ const sections = [
         ]
     },
     {
+        title: 'Passive Income',
+        icon: '💸',
+        apps: [
+            { name: 'Income Hub', href: '/income', icon: '💸', desc: '8 categories' },
+            { name: 'Idea Generator', href: '/income/ideas', icon: '💡', desc: 'AI-curated ideas' },
+            { name: 'Opportunities', href: '/income/opportunities', icon: '🎯', desc: 'Vetted platforms' },
+            { name: 'Tracker', href: '/income/tracker', icon: '📊', desc: 'Track earnings' },
+            { name: 'Idle PC', href: '/idle', icon: '💻', desc: '6 idle apps' },
+            { name: 'Crypto Lab', href: '/crypto', icon: '💎', desc: 'Seeker + DeFi' },
+        ]
+    },
+    {
         title: 'Smart Home',
         icon: '🏠',
         apps: [
