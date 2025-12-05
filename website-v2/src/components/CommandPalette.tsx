@@ -49,6 +49,7 @@ export default function CommandPalette() {
         { id: 'workflows', icon: '⚡', label: 'Workflows', category: 'Productivity', action: () => router.push('/workflows') },
 
         // System
+        { id: 'github-mgmt', icon: '🐙', label: 'GitHub', shortcut: 'G G', category: 'System', action: () => router.push('/github') },
         { id: 'status', icon: '🚦', label: 'System Status', category: 'System', action: () => router.push('/status') },
         { id: 'setup', icon: '🔧', label: 'Dev Setup', category: 'System', action: () => router.push('/setup') },
         { id: 'terminal', icon: '💻', label: 'Terminal', shortcut: 'G T', category: 'System', action: () => router.push('/terminal') },

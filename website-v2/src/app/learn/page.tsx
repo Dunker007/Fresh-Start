@@ -4,271 +4,435 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useState } from 'react';
 
-const guides = [
+// Auto-generated lessons based on what's used in DLX Studio
+const lessons = [
+    // Git & GitHub
     {
-        id: 'getting-started',
-        category: 'Basics',
-        title: 'Getting Started with Local AI',
-        description: 'Set up LM Studio and Ollama on your machine in 10 minutes.',
-        duration: '10 min',
-        difficulty: 'Beginner',
-        icon: '🚀',
-        steps: [
-            'Download LM Studio from lmstudio.ai',
-            'Install and launch LM Studio',
-            'Download a model (recommended: Gemma 2 9B)',
-            'Start the local server',
-            'Connect from DLX Studio'
-        ]
+        id: 'git-basics',
+        title: 'Git & GitHub for Vibe Coders',
+        category: 'Git',
+        difficulty: 'beginner',
+        duration: '15 min',
+        icon: '🐙',
+        description: 'Learn git without the command line terror. Visual explanations of commits, branches, and syncing.',
+        topics: ['What is Git?', 'Saving your work (commits)', 'Branches explained', 'Push & Pull', 'Fixing mistakes'],
+        completed: false,
+        inProject: true
     },
     {
-        id: 'vibe-coding',
-        category: 'Workflow',
-        title: 'Vibe Coding Like a Pro',
-        description: 'Master the art of building with AI. Tips from 2025 veterans.',
-        duration: '15 min',
-        difficulty: 'Intermediate',
-        icon: '💻',
-        steps: [
-            'Start with clear intent, not vague ideas',
-            'Use multi-turn conversations, not one-shots',
-            'Always review generated code before running',
-            'Build incrementally, test frequently',
-            'Keep context fresh - clear chat when stuck'
-        ]
+        id: 'git-workflow',
+        title: 'Daily Git Workflow',
+        category: 'Git',
+        difficulty: 'beginner',
+        duration: '10 min',
+        icon: '🔄',
+        description: 'A simple daily routine for saving and sharing your code.',
+        topics: ['Morning sync', 'Saving changes often', 'End of day push', 'Working with others'],
+        completed: false,
+        inProject: true
+    },
+    // Next.js & React
+    {
+        id: 'nextjs-intro',
+        title: 'Next.js 14 Fundamentals',
+        category: 'Next.js',
+        difficulty: 'intermediate',
+        duration: '30 min',
+        icon: '▲',
+        description: 'The framework powering DLX Studio. Learn pages, routing, and server components.',
+        topics: ['File-based routing', 'Server vs Client components', 'Layouts', 'Data fetching', 'API routes'],
+        completed: true,
+        inProject: true
+    },
+    {
+        id: 'react-hooks',
+        title: 'React Hooks Deep Dive',
+        category: 'React',
+        difficulty: 'intermediate',
+        duration: '25 min',
+        icon: '⚛️',
+        description: 'useState, useEffect, and friends. Everything you need for interactive UIs.',
+        topics: ['useState for data', 'useEffect for side effects', 'Custom hooks', 'useCallback & useMemo'],
+        completed: false,
+        inProject: true
+    },
+    // TypeScript
+    {
+        id: 'typescript-basics',
+        title: 'TypeScript Essentials',
+        category: 'TypeScript',
+        difficulty: 'intermediate',
+        duration: '20 min',
+        icon: '💙',
+        description: 'Type safety made simple. Catch bugs before they happen.',
+        topics: ['Basic types', 'Interfaces', 'Type inference', 'Generics simplified', 'Type vs Interface'],
+        completed: false,
+        inProject: true
+    },
+    // Tailwind CSS
+    {
+        id: 'tailwind-mastery',
+        title: 'Tailwind CSS Mastery',
+        category: 'Styling',
+        difficulty: 'beginner',
+        duration: '20 min',
+        icon: '🎨',
+        description: 'Utility-first CSS. Build beautiful UIs without writing CSS files.',
+        topics: ['Utility classes', 'Responsive design', 'Dark mode', 'Custom colors', 'Animations'],
+        completed: true,
+        inProject: true
+    },
+    // Framer Motion
+    {
+        id: 'framer-motion',
+        title: 'Framer Motion Animations',
+        category: 'Animation',
+        difficulty: 'intermediate',
+        duration: '25 min',
+        icon: '🎬',
+        description: 'Bring your UI to life with smooth animations and gestures.',
+        topics: ['motion components', 'Initial/animate props', 'Variants', 'Gestures', 'AnimatePresence'],
+        completed: false,
+        inProject: true
+    },
+    // API & Backend
+    {
+        id: 'rest-api',
+        title: 'REST APIs Explained',
+        category: 'API',
+        difficulty: 'intermediate',
+        duration: '20 min',
+        icon: '🔌',
+        description: 'How the LuxRig Bridge communicates with your frontend.',
+        topics: ['HTTP methods', 'JSON data', 'fetch() in JavaScript', 'Error handling', 'CORS'],
+        completed: false,
+        inProject: true
+    },
+    {
+        id: 'websockets',
+        title: 'Real-time with WebSockets',
+        category: 'API',
+        difficulty: 'advanced',
+        duration: '25 min',
+        icon: '🔴',
+        description: 'How the live chat streaming works under the hood.',
+        topics: ['WebSocket vs HTTP', 'Connection lifecycle', 'Streaming data', 'Reconnection handling'],
+        completed: false,
+        inProject: true
+    },
+    // AI/LLM
+    {
+        id: 'llm-basics',
+        title: 'LLMs for Developers',
+        category: 'AI',
+        difficulty: 'beginner',
+        duration: '20 min',
+        icon: '🤖',
+        description: 'Understanding how ChatGPT-like models work.',
+        topics: ['What are LLMs?', 'Tokens explained', 'Context windows', 'Temperature & Top-P', 'Prompting basics'],
+        completed: true,
+        inProject: true
+    },
+    {
+        id: 'local-llm',
+        title: 'Running LLMs Locally',
+        category: 'AI',
+        difficulty: 'intermediate',
+        duration: '30 min',
+        icon: '🏠',
+        description: 'LM Studio, Ollama, and self-hosted AI.',
+        topics: ['Why local?', 'LM Studio setup', 'Ollama setup', 'Model formats (GGUF)', 'API endpoints'],
+        completed: false,
+        inProject: true
     },
     {
         id: 'prompt-engineering',
-        category: 'Skills',
-        title: 'Prompt Engineering That Works',
-        description: 'Write prompts that get results. Real patterns from production.',
-        duration: '20 min',
-        difficulty: 'Intermediate',
-        icon: '🎯',
-        steps: [
-            'Be specific about output format',
-            'Provide examples (few-shot learning)',
-            'Use chain-of-thought for complex tasks',
-            'Set constraints and boundaries',
-            'Iterate and refine based on outputs'
-        ]
-    },
-    {
-        id: 'multi-model',
-        category: 'Advanced',
-        title: 'Multi-Model Workflows',
-        description: 'Route tasks to the right model. GPT for creative, Claude for code, local for privacy.',
+        title: 'Prompt Engineering 101',
+        category: 'AI',
+        difficulty: 'beginner',
         duration: '25 min',
-        difficulty: 'Advanced',
-        icon: '🔀',
-        steps: [
-            'Map task types to model strengths',
-            'Use fast models for drafts, slow for polish',
-            'Chain models for complex workflows',
-            'Validate outputs across models',
-            'Fall back gracefully when models fail'
-        ]
+        icon: '📝',
+        description: 'Write prompts that get better results from AI.',
+        topics: ['System prompts', 'Few-shot examples', 'Chain of thought', 'Role playing', 'Output formatting'],
+        completed: false,
+        inProject: true
     },
+    // Smart Home
     {
-        id: 'agents',
-        category: 'Advanced',
-        title: 'Building AI Agents',
-        description: 'Create autonomous agents that can reason, plan, and execute.',
+        id: 'smart-home-apis',
+        title: 'Smart Home Integration',
+        category: 'IoT',
+        difficulty: 'advanced',
         duration: '30 min',
-        difficulty: 'Advanced',
+        icon: '🏠',
+        description: 'Connecting Govee, Reolink, and Google Home.',
+        topics: ['API authentication', 'Device discovery', 'State management', 'Automations', 'Voice control'],
+        completed: false,
+        inProject: true
+    },
+    // Finance/Trading
+    {
+        id: 'trading-bots',
+        title: 'Crypto Trading Bot Basics',
+        category: 'Trading',
+        difficulty: 'advanced',
+        duration: '35 min',
         icon: '🤖',
-        steps: [
-            'Define clear agent goals and constraints',
-            'Give agents tools (search, code exec, file access)',
-            'Implement planning and reflection loops',
-            'Handle failures and retries gracefully',
-            'Monitor and log agent actions'
-        ]
+        description: 'How automated trading works (3Commas style).',
+        topics: ['Exchange APIs', 'Order types', 'Grid strategy', 'DCA strategy', 'Risk management'],
+        completed: false,
+        inProject: true
+    },
+    // Architecture Concepts
+    {
+        id: 'component-architecture',
+        title: 'Component Architecture',
+        category: 'Architecture',
+        difficulty: 'intermediate',
+        duration: '20 min',
+        icon: '🏗️',
+        description: 'Building reusable UI components the right way.',
+        topics: ['Single responsibility', 'Props vs State', 'Composition', 'Container/Presentational', 'File structure'],
+        completed: false,
+        inProject: true
     },
     {
-        id: 'privacy',
-        category: 'Security',
-        title: 'Privacy-First AI',
-        description: 'Keep your data local. When to use cloud vs local models.',
-        duration: '15 min',
-        difficulty: 'Beginner',
-        icon: '🔒',
-        steps: [
-            'Use local models for sensitive data',
-            'Avoid sending PII to cloud APIs',
-            'Run inference on-device when possible',
-            'Audit what data you share',
-            'Use self-hosted solutions for production'
-        ]
+        id: 'state-management',
+        title: 'State Management Patterns',
+        category: 'Architecture',
+        difficulty: 'advanced',
+        duration: '25 min',
+        icon: '🔄',
+        description: 'Managing complex application state.',
+        topics: ['Local vs Global state', 'Context API', 'When to use Redux', 'Server state', 'Optimistic updates'],
+        completed: false,
+        inProject: true
     },
 ];
 
-const resources = [
-    { title: 'LM Studio Docs', link: 'https://lmstudio.ai/docs', icon: '📖' },
-    { title: 'Ollama Models', link: 'https://ollama.ai/library', icon: '🦙' },
-    { title: 'Hugging Face Hub', link: 'https://huggingface.co/models', icon: '🤗' },
-    { title: 'Prompt Engineering Guide', link: 'https://www.promptingguide.ai/', icon: '🎯' },
-    { title: 'AI Snake Oil (critical thinking)', link: 'https://www.aisnakeoil.com/', icon: '🐍' },
-    { title: 'The Batch (AI newsletter)', link: 'https://www.deeplearning.ai/the-batch/', icon: '📰' },
-];
-
-const difficultyColors = {
-    Beginner: 'text-green-400',
-    Intermediate: 'text-yellow-400',
-    Advanced: 'text-red-400',
-};
+const categories = ['All', 'Git', 'Next.js', 'React', 'TypeScript', 'Styling', 'Animation', 'API', 'AI', 'IoT', 'Trading', 'Architecture'];
+const difficulties = ['all', 'beginner', 'intermediate', 'advanced'];
 
 export default function LearnPage() {
-    const [selectedGuide, setSelectedGuide] = useState<typeof guides[0] | null>(null);
-    const [filter, setFilter] = useState('all');
+    const [filter, setFilter] = useState('All');
+    const [difficultyFilter, setDifficultyFilter] = useState('all');
+    const [showInProjectOnly, setShowInProjectOnly] = useState(false);
 
-    const categories = ['all', ...new Set(guides.map(g => g.category))];
-    const filteredGuides = filter === 'all' ? guides : guides.filter(g => g.category === filter);
+    const filteredLessons = lessons.filter(lesson => {
+        const matchesCategory = filter === 'All' || lesson.category === filter;
+        const matchesDifficulty = difficultyFilter === 'all' || lesson.difficulty === difficultyFilter;
+        const matchesInProject = !showInProjectOnly || lesson.inProject;
+        return matchesCategory && matchesDifficulty && matchesInProject;
+    });
+
+    const completedCount = lessons.filter(l => l.completed).length;
+    const totalDuration = lessons.reduce((sum, l) => sum + parseInt(l.duration), 0);
 
     return (
         <div className="min-h-screen pt-8">
             {/* Header */}
-            <section className="section-padding pb-12">
+            <section className="section-padding pb-8">
                 <div className="container-main">
                     <motion.div
-                        className="text-center"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                     >
-                        <h1 className="text-5xl md:text-6xl font-bold mb-4">
-                            Learn <span className="text-gradient">AI</span>
+                        <h1 className="text-4xl md:text-5xl font-bold mb-2">
+                            <span className="text-gradient">Learn</span>
                         </h1>
-                        <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-                            Practical guides for building with AI. No fluff, just what works.
+                        <p className="text-gray-400">
+                            Auto-generated lessons based on technologies used in DLX Studio
                         </p>
                     </motion.div>
                 </div>
             </section>
 
-            {/* Filter */}
+            {/* Stats */}
             <section className="container-main pb-8">
-                <div className="flex gap-2 flex-wrap">
-                    {categories.map((cat) => (
-                        <button
-                            key={cat}
-                            onClick={() => setFilter(cat)}
-                            className={`px-4 py-2 rounded-lg text-sm transition-all ${filter === cat
-                                    ? 'bg-cyan-500 text-black font-medium'
-                                    : 'bg-white/10 text-white hover:bg-white/20'
-                                }`}
-                        >
-                            {cat === 'all' ? 'All Guides' : cat}
-                        </button>
-                    ))}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <motion.div
+                        className="glass-card text-center"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                    >
+                        <div className="text-3xl font-bold text-cyan-400">{lessons.length}</div>
+                        <div className="text-sm text-gray-500">Lessons</div>
+                    </motion.div>
+                    <motion.div
+                        className="glass-card text-center"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                    >
+                        <div className="text-3xl font-bold text-green-400">{completedCount}</div>
+                        <div className="text-sm text-gray-500">Completed</div>
+                    </motion.div>
+                    <motion.div
+                        className="glass-card text-center"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                    >
+                        <div className="text-3xl font-bold text-purple-400">{totalDuration}</div>
+                        <div className="text-sm text-gray-500">Total Minutes</div>
+                    </motion.div>
+                    <motion.div
+                        className="glass-card text-center"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                    >
+                        <div className="text-3xl font-bold text-yellow-400">{categories.length - 1}</div>
+                        <div className="text-sm text-gray-500">Categories</div>
+                    </motion.div>
                 </div>
             </section>
 
-            {/* Guides Grid */}
+            {/* Filters */}
+            <section className="container-main pb-6">
+                <div className="flex flex-col gap-4">
+                    {/* Categories */}
+                    <div className="flex gap-2 flex-wrap">
+                        {categories.map((cat) => (
+                            <button
+                                key={cat}
+                                onClick={() => setFilter(cat)}
+                                className={`px-3 py-1 rounded-full text-sm ${filter === cat
+                                        ? 'bg-cyan-500 text-black'
+                                        : 'bg-white/10 hover:bg-white/20'
+                                    }`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Difficulty & Toggle */}
+                    <div className="flex items-center gap-4">
+                        <div className="flex gap-2">
+                            {difficulties.map((d) => (
+                                <button
+                                    key={d}
+                                    onClick={() => setDifficultyFilter(d)}
+                                    className={`px-3 py-1 rounded text-sm ${difficultyFilter === d
+                                            ? 'bg-purple-500 text-white'
+                                            : 'bg-white/10 hover:bg-white/20'
+                                        }`}
+                                >
+                                    {d === 'all' ? 'All Levels' : d.charAt(0).toUpperCase() + d.slice(1)}
+                                </button>
+                            ))}
+                        </div>
+                        <label className="flex items-center gap-2 text-sm cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={showInProjectOnly}
+                                onChange={(e) => setShowInProjectOnly(e.target.checked)}
+                                className="w-4 h-4 rounded"
+                            />
+                            Used in this project only
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            {/* Lessons Grid */}
             <section className="container-main pb-16">
                 <motion.div
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                     initial="initial"
                     animate="animate"
-                    variants={{ animate: { transition: { staggerChildren: 0.05 } } }}
+                    variants={{ animate: { transition: { staggerChildren: 0.03 } } }}
                 >
-                    {filteredGuides.map((guide) => (
+                    {filteredLessons.map((lesson) => (
                         <motion.div
-                            key={guide.id}
-                            className="glass-card cursor-pointer group"
+                            key={lesson.id}
+                            className={`glass-card relative overflow-hidden ${lesson.completed ? 'ring-2 ring-green-500/50' : ''
+                                }`}
                             variants={{ initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } }}
-                            whileHover={{ y: -5 }}
-                            onClick={() => setSelectedGuide(guide)}
                         >
-                            <div className="text-4xl mb-4">{guide.icon}</div>
-                            <span className="text-xs text-gray-500 uppercase tracking-wide">{guide.category}</span>
-                            <h3 className="text-xl font-bold mt-1 mb-2 group-hover:text-cyan-400 transition-colors">
-                                {guide.title}
-                            </h3>
-                            <p className="text-gray-400 text-sm mb-4">{guide.description}</p>
+                            {/* Completed Badge */}
+                            {lesson.completed && (
+                                <div className="absolute top-4 right-4">
+                                    <span className="text-green-400">✓</span>
+                                </div>
+                            )}
 
-                            <div className="flex items-center gap-4 text-sm">
-                                <span className="text-gray-500">⏱️ {guide.duration}</span>
-                                <span className={difficultyColors[guide.difficulty as keyof typeof difficultyColors]}>
-                                    {guide.difficulty}
-                                </span>
+                            {/* Header */}
+                            <div className="flex items-start gap-3 mb-4">
+                                <span className="text-3xl">{lesson.icon}</span>
+                                <div>
+                                    <h3 className="font-bold">{lesson.title}</h3>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className={`text-xs px-2 py-0.5 rounded ${lesson.difficulty === 'beginner' ? 'bg-green-500/20 text-green-400' :
+                                                lesson.difficulty === 'intermediate' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                    'bg-red-500/20 text-red-400'
+                                            }`}>
+                                            {lesson.difficulty}
+                                        </span>
+                                        <span className="text-xs text-gray-500">{lesson.duration}</span>
+                                    </div>
+                                </div>
                             </div>
+
+                            {/* Description */}
+                            <p className="text-sm text-gray-400 mb-4">{lesson.description}</p>
+
+                            {/* Topics */}
+                            <div className="space-y-1 mb-4">
+                                {lesson.topics.slice(0, 3).map((topic, i) => (
+                                    <div key={i} className="flex items-center gap-2 text-sm">
+                                        <span className="text-gray-500">•</span>
+                                        <span className="text-gray-300">{topic}</span>
+                                    </div>
+                                ))}
+                                {lesson.topics.length > 3 && (
+                                    <div className="text-xs text-gray-500">
+                                        +{lesson.topics.length - 3} more topics
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* In Project Badge */}
+                            {lesson.inProject && (
+                                <div className="text-xs text-cyan-400 mb-4">
+                                    ✨ Used in DLX Studio
+                                </div>
+                            )}
+
+                            {/* Action */}
+                            <button className={`w-full py-2 rounded-lg text-sm ${lesson.completed
+                                    ? 'bg-green-500/20 text-green-400'
+                                    : 'bg-cyan-500 text-black font-medium hover:bg-cyan-400'
+                                }`}>
+                                {lesson.completed ? '✓ Completed - Review' : 'Start Lesson'}
+                            </button>
                         </motion.div>
                     ))}
                 </motion.div>
             </section>
 
-            {/* Guide Modal */}
-            {selectedGuide && (
-                <motion.div
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    onClick={() => setSelectedGuide(null)}
-                >
-                    <motion.div
-                        className="glass-card max-w-2xl w-full max-h-[80vh] overflow-y-auto"
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="flex items-start justify-between mb-6">
-                            <div>
-                                <span className="text-4xl">{selectedGuide.icon}</span>
-                                <h2 className="text-2xl font-bold mt-2">{selectedGuide.title}</h2>
-                                <p className="text-gray-400 mt-1">{selectedGuide.description}</p>
-                            </div>
-                            <button
-                                className="text-gray-400 hover:text-white text-xl"
-                                onClick={() => setSelectedGuide(null)}
-                            >
-                                ✕
-                            </button>
-                        </div>
-
-                        <div className="flex gap-4 mb-6 text-sm">
-                            <span className="px-3 py-1 bg-white/10 rounded-full">⏱️ {selectedGuide.duration}</span>
-                            <span className={`px-3 py-1 rounded-full ${selectedGuide.difficulty === 'Beginner' ? 'bg-green-500/20 text-green-400' : selectedGuide.difficulty === 'Intermediate' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'}`}>
-                                {selectedGuide.difficulty}
-                            </span>
-                        </div>
-
-                        <h3 className="font-bold mb-4">Steps</h3>
-                        <ol className="space-y-3">
-                            {selectedGuide.steps.map((step, i) => (
-                                <li key={i} className="flex gap-3">
-                                    <span className="flex-shrink-0 w-6 h-6 bg-cyan-500/20 text-cyan-400 rounded-full flex items-center justify-center text-sm">
-                                        {i + 1}
-                                    </span>
-                                    <span className="text-gray-300">{step}</span>
-                                </li>
-                            ))}
-                        </ol>
-
-                        <div className="mt-8 pt-6 border-t border-gray-700">
-                            <button className="btn-primary w-full">Start Guide</button>
-                        </div>
-                    </motion.div>
-                </motion.div>
-            )}
-
-            {/* Resources */}
+            {/* Getting Started */}
             <section className="section-padding bg-[#050508]">
                 <div className="container-main">
-                    <h2 className="text-2xl font-bold mb-6">📚 Essential Resources</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                        {resources.map((resource) => (
-                            <motion.a
-                                key={resource.title}
-                                href={resource.link}
-                                target="_blank"
-                                className="glass-card text-center py-4 group"
-                                whileHover={{ scale: 1.05 }}
-                            >
-                                <div className="text-2xl mb-2">{resource.icon}</div>
-                                <div className="text-sm group-hover:text-cyan-400 transition-colors">{resource.title}</div>
-                            </motion.a>
-                        ))}
-                    </div>
+                    <motion.div
+                        className="glass-card py-8 text-center"
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true }}
+                    >
+                        <h2 className="text-2xl font-bold mb-2">🎯 Recommended Learning Path</h2>
+                        <p className="text-gray-400 mb-6">Start here if you're new to the stack</p>
+                        <div className="flex flex-wrap justify-center gap-3">
+                            <span className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg">1. Git Basics</span>
+                            <span className="text-gray-500">→</span>
+                            <span className="px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg">2. Next.js Intro</span>
+                            <span className="text-gray-500">→</span>
+                            <span className="px-4 py-2 bg-purple-500/20 text-purple-400 rounded-lg">3. React Hooks</span>
+                            <span className="text-gray-500">→</span>
+                            <span className="px-4 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg">4. LLMs for Devs</span>
+                        </div>
+                    </motion.div>
                 </div>
             </section>
 

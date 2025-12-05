@@ -49,6 +49,7 @@ const sections = [
         icon: '⚙️',
         apps: [
             { name: 'Dashboard', href: '/dashboard', icon: '📊', desc: 'Command center' },
+            { name: 'GitHub', href: '/github', icon: '🐙', desc: 'Vibe-coder git' },
             { name: 'Status', href: '/status', icon: '🚦', desc: 'Service health' },
             { name: 'Setup', href: '/setup', icon: '🔧', desc: 'Dev environment' },
             { name: 'Terminal', href: '/terminal', icon: '💻', desc: 'Command line' },
