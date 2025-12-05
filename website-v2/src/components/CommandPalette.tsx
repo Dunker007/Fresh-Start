@@ -24,6 +24,8 @@ export default function CommandPalette() {
         { id: 'home', icon: '🏠', label: 'Go to Home', shortcut: 'G H', category: 'Core', action: () => router.push('/') },
         { id: 'dashboard', icon: '📊', label: 'Go to Dashboard', shortcut: 'G D', category: 'Core', action: () => router.push('/dashboard') },
         { id: 'apps', icon: '📱', label: 'All Apps', shortcut: 'G A', category: 'Core', action: () => router.push('/apps') },
+        { id: 'search', icon: '🔍', label: 'Search', shortcut: '/', category: 'Core', action: () => router.push('/search') },
+        { id: 'profile', icon: '👤', label: 'Profile', shortcut: 'G P', category: 'Core', action: () => router.push('/profile') },
 
         // AI & LLM
         { id: 'chat', icon: '💬', label: 'Go to Chat', shortcut: 'G C', category: 'AI', action: () => router.push('/chat') },
@@ -32,6 +34,7 @@ export default function CommandPalette() {
         { id: 'playground', icon: '🧪', label: 'AI Playground', category: 'AI', action: () => router.push('/playground') },
         { id: 'models', icon: '🔎', label: 'Model Explorer', category: 'AI', action: () => router.push('/models') },
         { id: 'prompts', icon: '📝', label: 'Prompt Library', category: 'AI', action: () => router.push('/prompts') },
+        { id: 'voice', icon: '🎤', label: 'Voice Control', category: 'AI', action: () => router.push('/voice') },
 
         // Finance
         { id: 'finance', icon: '💰', label: 'Finance Hub', shortcut: 'G F', category: 'Finance', action: () => router.push('/finance') },
@@ -47,6 +50,9 @@ export default function CommandPalette() {
         { id: 'notes', icon: '📝', label: 'Notes', category: 'Productivity', action: () => router.push('/notes') },
         { id: 'files', icon: '📁', label: 'Files', category: 'Productivity', action: () => router.push('/files') },
         { id: 'workflows', icon: '⚡', label: 'Workflows', category: 'Productivity', action: () => router.push('/workflows') },
+        { id: 'scratchpad', icon: '📋', label: 'Scratchpad', shortcut: 'G X', category: 'Productivity', action: () => router.push('/scratchpad') },
+        { id: 'projects', icon: '🚀', label: 'Projects', category: 'Productivity', action: () => router.push('/projects') },
+        { id: 'media', icon: '🖼️', label: 'Media Gallery', category: 'Productivity', action: () => router.push('/media') },
 
         // System
         { id: 'github-mgmt', icon: '🐙', label: 'GitHub', shortcut: 'G G', category: 'System', action: () => router.push('/github') },
@@ -56,6 +62,9 @@ export default function CommandPalette() {
         { id: 'settings', icon: '⚙️', label: 'Settings', shortcut: 'G S', category: 'System', action: () => router.push('/settings') },
         { id: 'analytics', icon: '📊', label: 'Analytics', category: 'System', action: () => router.push('/analytics') },
         { id: 'notifications', icon: '🔔', label: 'Notifications', category: 'System', action: () => router.push('/notifications') },
+        { id: 'logs', icon: '📜', label: 'Activity Logs', category: 'System', action: () => router.push('/logs') },
+        { id: 'backup', icon: '💾', label: 'Backups', category: 'System', action: () => router.push('/backup') },
+        { id: 'api-keys', icon: '🔑', label: 'API Keys', category: 'System', action: () => router.push('/api-keys') },
 
         // Resources
         { id: 'learn', icon: '🎓', label: 'Learn', category: 'Resources', action: () => router.push('/learn') },

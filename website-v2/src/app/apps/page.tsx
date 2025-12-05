@@ -14,6 +14,7 @@ const sections = [
             { name: 'Playground', href: '/playground', icon: '🧪', desc: 'Test prompts' },
             { name: 'Models', href: '/models', icon: '🔎', desc: 'Explore 12+ models' },
             { name: 'Prompts', href: '/prompts', icon: '📝', desc: '12 prompt templates' },
+            { name: 'Voice', href: '/voice', icon: '🎤', desc: 'Voice control' },
         ]
     },
     {
@@ -41,6 +42,9 @@ const sections = [
             { name: 'Notes', href: '/notes', icon: '📝', desc: 'Quick capture' },
             { name: 'Files', href: '/files', icon: '📁', desc: 'File browser' },
             { name: 'Workflows', href: '/workflows', icon: '⚡', desc: '6 automations' },
+            { name: 'Scratchpad', href: '/scratchpad', icon: '📋', desc: 'Quick ideas' },
+            { name: 'Projects', href: '/projects', icon: '🚀', desc: '5 projects' },
+            { name: 'Media', href: '/media', icon: '🖼️', desc: '12 items' },
             { name: 'Blog', href: '/blog', icon: '📰', desc: '8 articles' },
         ]
     },
@@ -49,6 +53,8 @@ const sections = [
         icon: '⚙️',
         apps: [
             { name: 'Dashboard', href: '/dashboard', icon: '📊', desc: 'Command center' },
+            { name: 'Search', href: '/search', icon: '🔍', desc: 'Find anything' },
+            { name: 'Profile', href: '/profile', icon: '👤', desc: 'Your account' },
             { name: 'GitHub', href: '/github', icon: '🐙', desc: 'Vibe-coder git' },
             { name: 'Status', href: '/status', icon: '🚦', desc: 'Service health' },
             { name: 'Setup', href: '/setup', icon: '🔧', desc: 'Dev environment' },
@@ -56,13 +62,16 @@ const sections = [
             { name: 'Settings', href: '/settings', icon: '⚙️', desc: 'Configuration' },
             { name: 'Analytics', href: '/analytics', icon: '📊', desc: 'Usage stats' },
             { name: 'Notifications', href: '/notifications', icon: '🔔', desc: 'Alerts' },
+            { name: 'Logs', href: '/logs', icon: '📜', desc: 'Activity log' },
+            { name: 'Backup', href: '/backup', icon: '💾', desc: 'Data safety' },
+            { name: 'API Keys', href: '/api-keys', icon: '🔑', desc: 'Credentials' },
         ]
     },
     {
         title: 'Resources',
         icon: '📚',
         apps: [
-            { name: 'Learn', href: '/learn', icon: '🎓', desc: 'Guides & tutorials' },
+            { name: 'Learn', href: '/learn', icon: '🎓', desc: '16 lessons' },
             { name: 'Free AI', href: '/deals', icon: '💎', desc: '24 free resources' },
             { name: 'Compare', href: '/compare', icon: '⚖️', desc: 'AI cost calculator' },
             { name: 'Trends', href: '/trends', icon: '📈', desc: 'Industry news' },
