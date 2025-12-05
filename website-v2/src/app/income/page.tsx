@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useState } from 'react';
+import RevenueAgentWidget from '@/components/RevenueAgentWidget';
 
 // Income streams organized by effort level
 const incomeStreams = {
@@ -101,6 +102,41 @@ export default function IncomePage() {
                 </div>
             </section>
 
+            {/* Autonomous Agents */}
+            <section className="container-main pb-8">
+                <div className="grid md:grid-cols-2 gap-6">
+                    <RevenueAgentWidget />
+
+                    <motion.div
+                        className="glass-card flex flex-col justify-center"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                    >
+                        <h3 className="text-xl font-bold mb-4">💡 Optimization Strategy</h3>
+                        <div className="space-y-4 text-sm text-gray-400">
+                            <p>
+                                The <span className="text-cyan-400">Revenue Agent</span> continuously monitors crypto markets and your local energy costs.
+                            </p>
+                            <ul className="space-y-2">
+                                <li className="flex gap-2">
+                                    <span className="text-green-400">✓</span>
+                                    <span>Real-time price feeds from CoinGecko</span>
+                                </li>
+                                <li className="flex gap-2">
+                                    <span className="text-green-400">✓</span>
+                                    <span>Automatic algorithm switching (ETH/RVN/XMR)</span>
+                                </li>
+                                <li className="flex gap-2">
+                                    <span className="text-green-400">✓</span>
+                                    <span>Profitability threshold: &gt; $0.50/day</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </motion.div>
+                </div>
+            </section>
+
             {/* Quick Links */}
             <section className="container-main pb-8">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -176,9 +212,9 @@ export default function IncomePage() {
                         >
                             <div className="flex items-center gap-4">
                                 <div className={`w-2 h-2 rounded-full ${stream.status === 'active' ? 'bg-green-500' :
-                                        stream.status === 'pending' ? 'bg-yellow-500' :
-                                            stream.status === 'building' ? 'bg-blue-500' :
-                                                'bg-gray-500'
+                                    stream.status === 'pending' ? 'bg-yellow-500' :
+                                        stream.status === 'building' ? 'bg-blue-500' :
+                                            'bg-gray-500'
                                     }`}></div>
                                 <div>
                                     <h3 className="font-medium">{stream.name}</h3>
@@ -194,8 +230,8 @@ export default function IncomePage() {
                             <div className="text-right">
                                 <div className="text-lg font-bold text-green-400">{stream.monthly}</div>
                                 <div className={`text-xs ${stream.status === 'active' ? 'text-green-400' :
-                                        stream.status === 'building' ? 'text-blue-400' :
-                                            'text-gray-500'
+                                    stream.status === 'building' ? 'text-blue-400' :
+                                        'text-gray-500'
                                     }`}>{stream.status}</div>
                             </div>
                         </motion.div>

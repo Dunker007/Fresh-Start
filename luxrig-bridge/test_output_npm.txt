@@ -1,0 +1,897 @@
+
+> luxrig-bridge@1.0.0 test
+> node --experimental-vm-modules node_modules/jest/bin/jest.js
+
+FAIL __tests__/services/agents.test.js
+  ΓùÅ Test suite failed to run
+
+    ReferenceError: Cannot access 'ArchitectAgent' before initialization
+
+      378 |     workflow: WorkflowAgent,
+      379 |     // Advanced agents (2026 Vision)
+    > 380 |     architect: ArchitectAgent,
+          |                ^
+      381 |     qa: QAAgent,
+      382 |     security: SecurityAgent,
+      383 |     devops: DevOpsAgent
+
+      at services/agents.js:380:16
+
+(node:12012) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  console.warn
+    [PerformanceMonitor] Database not available, using in-memory only: Using engine type "client" requires either "adapter" or "accelerateUrl" to be provided to PrismaClient constructor.
+    Read more at https://pris.ly/d/client-constructor
+
+    [0m [90m 20 |[39m             [36mthis[39m[33m.[39mdbReady [33m=[39m [36mtrue[39m[33m;[39m
+     [90m 21 |[39m         } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 22 |[39m             console[33m.[39mwarn([32m'[PerformanceMonitor] Database not available, using in-memory only:'[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 23 |[39m             [36mthis[39m[33m.[39museDatabase [33m=[39m [36mfalse[39m[33m;[39m
+     [90m 24 |[39m         }
+     [90m 25 |[39m     }[0m
+
+      at PerformanceMonitor.initDatabase (services/performance.js:22:21)
+
+  console.warn
+    [ErrorLogger] Database not available, using in-memory only: Using engine type "client" requires either "adapter" or "accelerateUrl" to be provided to PrismaClient constructor.
+    Read more at https://pris.ly/d/client-constructor
+
+    [0m [90m 65 |[39m             [36mthis[39m[33m.[39mdbReady [33m=[39m [36mtrue[39m[33m;[39m
+     [90m 66 |[39m         } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 67 |[39m             console[33m.[39mwarn([32m'[ErrorLogger] Database not available, using in-memory only:'[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 68 |[39m             [36mthis[39m[33m.[39museDatabase [33m=[39m [36mfalse[39m[33m;[39m
+     [90m 69 |[39m         }
+     [90m 70 |[39m     }[0m
+
+      at ErrorLogger.initDatabase (services/errors.js:67:21)
+
+(node:3228) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  console.error
+    [ERROR] {
+      message: 'Test error',
+      stack: 'Error: Test error\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:102:23)\n' +
+        '    at Promise.finally.completed (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1557:28)\n' +
+        '    at new Promise (<anonymous>)\n' +
+        '    at callAsyncCircusFn (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1497:10)\n' +
+        '    at _callCircusTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1007:40)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at _runTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:947:3)\n' +
+        '    at C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:849:7\n' +
+        '    at _runTestsForDescribeBlock (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:862:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:857:11)\n' +
+        '    at run (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:761:3)\n' +
+        '    at runAndTransformResultsToJestFormat (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1918:21)\n' +
+        '    at jestAdapter (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\runner.js:101:19)\n' +
+        '    at runTestInternal (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:275:16)\n' +
+        '    at runTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:343:7)\n' +
+        '    at Object.worker (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:497:12)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.321Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:103:39)
+
+  console.error
+    [ERROR] {
+      message: 'Test error',
+      stack: 'Error: Test error\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:112:23)\n' +
+        '    at Promise.finally.completed (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1557:28)\n' +
+        '    at new Promise (<anonymous>)\n' +
+        '    at callAsyncCircusFn (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1497:10)\n' +
+        '    at _callCircusTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1007:40)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at _runTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:947:3)\n' +
+        '    at C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:849:7\n' +
+        '    at _runTestsForDescribeBlock (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:862:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:857:11)\n' +
+        '    at run (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:761:3)\n' +
+        '    at runAndTransformResultsToJestFormat (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1918:21)\n' +
+        '    at jestAdapter (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\runner.js:101:19)\n' +
+        '    at runTestInternal (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:275:16)\n' +
+        '    at runTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:343:7)\n' +
+        '    at Object.worker (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:497:12)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.326Z,
+      context: { userId: '123', action: 'test' },
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:114:39)
+
+  console.error
+    [ERROR] {
+      message: 'Error 0',
+      stack: 'Error: Error 0\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:121:35)\n' +
+        '    at Promise.finally.completed (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1557:28)\n' +
+        '    at new Promise (<anonymous>)\n' +
+        '    at callAsyncCircusFn (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1497:10)\n' +
+        '    at _callCircusTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1007:40)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at _runTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:947:3)\n' +
+        '    at C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:849:7\n' +
+        '    at _runTestsForDescribeBlock (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:862:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:857:11)\n' +
+        '    at run (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:761:3)\n' +
+        '    at runAndTransformResultsToJestFormat (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1918:21)\n' +
+        '    at jestAdapter (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\runner.js:101:19)\n' +
+        '    at runTestInternal (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:275:16)\n' +
+        '    at runTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:343:7)\n' +
+        '    at Object.worker (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:497:12)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.330Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:121:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 1',
+      stack: 'Error: Error 1\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:121:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.333Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:121:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 2',
+      stack: 'Error: Error 2\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:121:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.336Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:121:31)
+
+FAIL __tests__/services/database.test.js
+  ΓùÅ Test suite failed to run
+
+    PrismaClientConstructorValidationError: Using engine type "client" requires either "adapter" or "accelerateUrl" to be provided to PrismaClient constructor.
+    Read more at https://pris.ly/d/client-constructor
+
+       7 |
+       8 | // Initialize Prisma Client
+    >  9 | const prisma = new PrismaClient({
+         |                ^
+      10 |     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+      11 | });
+      12 |
+
+      at kd (node_modules/@prisma/client/src/runtime/utils/validatePrismaClientOptions.ts:229:11)
+      at validateDependentOptions (node_modules/@prisma/client/src/runtime/utils/validatePrismaClientOptions.ts:246:3)
+      at new validatePrismaClientOptions (node_modules/@prisma/client/src/runtime/getPrismaClient.ts:281:7)
+      at services/database.js:9:16
+
+(node:5976) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  console.error
+    [ERROR] {
+      message: 'Error 3',
+      stack: 'Error: Error 3\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:121:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.337Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:121:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 4',
+      stack: 'Error: Error 4\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:121:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.340Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:121:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 5',
+      stack: 'Error: Error 5\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:121:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.342Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:121:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 6',
+      stack: 'Error: Error 6\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:121:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.344Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:121:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 7',
+      stack: 'Error: Error 7\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:121:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.346Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:121:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 8',
+      stack: 'Error: Error 8\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:121:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.348Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:121:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 9',
+      stack: 'Error: Error 9\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:121:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.350Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:121:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 0',
+      stack: 'Error: Error 0\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:134:35)\n' +
+        '    at Promise.finally.completed (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1557:28)\n' +
+        '    at new Promise (<anonymous>)\n' +
+        '    at callAsyncCircusFn (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1497:10)\n' +
+        '    at _callCircusTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1007:40)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at _runTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:947:3)\n' +
+        '    at C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:849:7\n' +
+        '    at _runTestsForDescribeBlock (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:862:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:857:11)\n' +
+        '    at run (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:761:3)\n' +
+        '    at runAndTransformResultsToJestFormat (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1918:21)\n' +
+        '    at jestAdapter (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\runner.js:101:19)\n' +
+        '    at runTestInternal (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:275:16)\n' +
+        '    at runTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:343:7)\n' +
+        '    at Object.worker (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:497:12)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.352Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:134:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 1',
+      stack: 'Error: Error 1\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:134:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.356Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:134:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 2',
+      stack: 'Error: Error 2\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:134:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.357Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:134:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 3',
+      stack: 'Error: Error 3\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:134:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.359Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:134:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 4',
+      stack: 'Error: Error 4\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:134:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.360Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:134:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 5',
+      stack: 'Error: Error 5\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:134:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.362Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:134:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 6',
+      stack: 'Error: Error 6\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:134:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.363Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:134:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 7',
+      stack: 'Error: Error 7\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:134:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.365Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:134:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 8',
+      stack: 'Error: Error 8\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:134:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.366Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:134:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 9',
+      stack: 'Error: Error 9\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:134:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.368Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:134:31)
+
+  console.error
+    [ERROR] {
+      message: 'Error 1',
+      stack: 'Error: Error 1\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:148:31)\n' +
+        '    at Promise.finally.completed (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1557:28)\n' +
+        '    at new Promise (<anonymous>)\n' +
+        '    at callAsyncCircusFn (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1497:10)\n' +
+        '    at _callCircusTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1007:40)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at _runTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:947:3)\n' +
+        '    at C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:849:7\n' +
+        '    at _runTestsForDescribeBlock (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:862:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:857:11)\n' +
+        '    at run (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:761:3)\n' +
+        '    at runAndTransformResultsToJestFormat (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1918:21)\n' +
+        '    at jestAdapter (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\runner.js:101:19)\n' +
+        '    at runTestInternal (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:275:16)\n' +
+        '    at runTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:343:7)\n' +
+        '    at Object.worker (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:497:12)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.370Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:148:27)
+
+  console.error
+    [ERROR] {
+      message: 'Error 2',
+      stack: 'Error: Error 2\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:149:31)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.371Z,
+      context: {},
+      isOperational: false
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:149:27)
+
+  console.error
+    [ERROR] {
+      message: 'Error 3',
+      stack: 'Error: Error 3\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:150:31)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.374Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:150:27)
+
+  console.error
+    [ERROR] {
+      message: 'Error 1',
+      stack: 'Error: Error 1\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:159:31)\n' +
+        '    at Promise.finally.completed (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1557:28)\n' +
+        '    at new Promise (<anonymous>)\n' +
+        '    at callAsyncCircusFn (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1497:10)\n' +
+        '    at _callCircusTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1007:40)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at _runTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:947:3)\n' +
+        '    at C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:849:7\n' +
+        '    at _runTestsForDescribeBlock (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:862:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:857:11)\n' +
+        '    at run (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:761:3)\n' +
+        '    at runAndTransformResultsToJestFormat (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1918:21)\n' +
+        '    at jestAdapter (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-circus\\build\\runner.js:101:19)\n' +
+        '    at runTestInternal (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:275:16)\n' +
+        '    at runTest (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:343:7)\n' +
+        '    at Object.worker (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\node_modules\\jest-runner\\build\\testWorker.js:497:12)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.376Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:159:27)
+
+  console.error
+    [ERROR] {
+      message: 'Error 2',
+      stack: 'Error: Error 2\n' +
+        '    at Object.<anonymous> (C:\\Repos GIT\\Fresh-Start\\Fresh-Start\\luxrig-bridge\\__tests__\\services\\errors.test.js:160:31)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      statusCode: 500,
+      timestamp: 2025-12-05T05:32:03.379Z,
+      context: {},
+      isOperational: true
+    }
+
+    [0m [90m 90 |[39m         [90m// Log to console in development[39m
+     [90m 91 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 92 |[39m             console[33m.[39merror([32m'[ERROR]'[39m[33m,[39m errorLogEntry)[33m;[39m
+     [90m    |[39m                     [31m[1m^[22m[39m
+     [90m 93 |[39m         }
+     [90m 94 |[39m
+     [90m 95 |[39m         [90m// Persist to database (async, non-blocking)[39m[0m
+
+      at ErrorLogger.log (services/errors.js:92:21)
+      at Object.<anonymous> (__tests__/services/errors.test.js:160:27)
+
+(node:10328) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS __tests__/services/errors.test.js
+  Error Classes
+    AppError
+      ΓêÜ should create error with default values (61 ms)
+      ΓêÜ should create error with custom status code
+      ΓêÜ should create non-operational error
+    ValidationError
+      ΓêÜ should create validation error with field
+      ΓêÜ should create validation error without field
+    AuthenticationError
+      ΓêÜ should create auth error with default message
+      ΓêÜ should create auth error with custom message
+    AuthorizationError
+      ΓêÜ should create authorization error
+    NotFoundError
+      ΓêÜ should create not found error with default resource
+      ΓêÜ should create not found error with custom resource
+    RateLimitError
+      ΓêÜ should create rate limit error (1 ms)
+  ErrorLogger
+    ΓêÜ should log errors (6 ms)
+    ΓêÜ should log errors with context (4 ms)
+    ΓêÜ should retrieve errors with limit (22 ms)
+    ΓêÜ should limit stored errors to maxErrors (17 ms)
+    ΓêÜ should calculate error stats (7 ms)
+    ΓêÜ should clear all errors (4 ms)
+  Validation
+    required
+      ΓêÜ should pass for valid values (1 ms)
+      ΓêÜ should throw for null/undefined/empty (1 ms)
+    string
+      ΓêÜ should validate string type
+      ΓêÜ should throw for non-string
+      ΓêÜ should validate minLength (1 ms)
+      ΓêÜ should validate maxLength
+      ΓêÜ should validate pattern
+    number
+      ΓêÜ should validate number type
+      ΓêÜ should throw for non-number
+      ΓêÜ should validate min
+      ΓêÜ should validate max
+    enum
+      ΓêÜ should validate allowed values
+      ΓêÜ should throw for disallowed values
+    sanitize
+      ΓêÜ should sanitize HTML characters
+      ΓêÜ should sanitize quotes and slashes
+      ΓêÜ should return non-string values unchanged
+  RateLimiter
+    ΓêÜ should allow requests within limit (1 ms)
+    ΓêÜ should throw when limit exceeded
+    ΓêÜ should track different identifiers separately
+    ΓêÜ should reset requests after window (1102 ms)
+    ΓêÜ should reset specific identifier
+    ΓêÜ should clear all identifiers
+    ΓêÜ should provide resetAt timestamp (1 ms)
+
+PASS __tests__/services/performance.test.js
+  PerformanceMonitor
+    track
+      ΓêÜ should track performance metrics (59 ms)
+      ΓêÜ should mark slow requests
+      ΓêÜ should include metadata
+      ΓêÜ should limit stored metrics (1 ms)
+    getStats
+      ΓêÜ should return null for unknown endpoint
+      ΓêÜ should calculate statistics correctly (1 ms)
+      ΓêÜ should count slow requests
+      ΓêÜ should include last request
+    getAllStats
+      ΓêÜ should return stats for all endpoints (1 ms)
+      ΓêÜ should return empty object when no metrics (1 ms)
+    clear
+      ΓêÜ should clear all metrics
+  Cache
+    set and get
+      ΓêÜ should store and retrieve values
+      ΓêÜ should return null for missing keys
+      ΓêÜ should handle different data types
+    TTL (Time To Live)
+      ΓêÜ should expire items after TTL (153 ms)
+      ΓêÜ should support custom TTL per item (157 ms)
+    has
+      ΓêÜ should return true for existing keys
+      ΓêÜ should return false for missing keys (1 ms)
+      ΓêÜ should return false for expired keys (155 ms)
+    delete
+      ΓêÜ should delete keys
+    clear
+      ΓêÜ should clear all entries
+    size
+      ΓêÜ should return number of valid entries (1 ms)
+      ΓêÜ should exclude expired entries (155 ms)
+    getStats
+      ΓêÜ should return cache statistics
+      ΓêÜ should count expired entries (157 ms)
+  retry
+    ΓêÜ should succeed on first attempt
+    ΓêÜ should retry on failure (47 ms)
+    ΓêÜ should throw after max attempts (46 ms)
+    ΓêÜ should use exponential backoff (315 ms)
+    ΓêÜ should call onRetry callback (16 ms)
+  BatchProcessor
+    ΓêÜ should handle processing errors (1 ms)
+    Γùï skipped should process items in batches
+    Γùï skipped should respect batch size
+  debounce
+    ΓêÜ should debounce function calls (156 ms)
+    ΓêÜ should return a promise (61 ms)
+  throttle
+    ΓêÜ should throttle function calls (156 ms)
+    ΓêÜ should preserve function arguments
+
+Test Suites: 2 failed, 2 passed, 4 total
+Tests:       2 skipped, 75 passed, 77 total
+Snapshots:   0 total
+Time:        2.227 s
+Ran all test suites.

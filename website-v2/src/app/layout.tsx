@@ -12,6 +12,10 @@ export const metadata: Metadata = {
   keywords: ["AI", "LLM", "LM Studio", "Ollama", "Machine Learning", "Local AI"],
 };
 
+import { VibeProvider } from "@/components/VibeContext";
+import VibeController from "@/components/VibeController";
+import VoiceControl from "@/components/VoiceControl";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -20,11 +24,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} bg-grid`}>
-        <Navigation />
-        <CommandPalette />
-        <main className="pt-16">
-          {children}
-        </main>
+        <VibeProvider>
+          <Navigation />
+          <CommandPalette />
+          <main className="pt-16">
+            {children}
+          </main>
+          <VibeController />
+          <VoiceControl />
+        </VibeProvider>
       </body>
     </html>
   );

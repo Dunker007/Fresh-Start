@@ -95,10 +95,11 @@ async function sendStatus(ws) {
 
 // Get full system status
 async function getFullStatus() {
-    const [lmstudio, ollama, system] = await Promise.all([
+    const [lmstudio, ollama, system, errors] = await Promise.all([
         lmstudioService.getStatus(),
         ollamaService.getStatus(),
-        systemService.getMetrics()
+        systemService.getMetrics(),
+        errorLogger.getStats()
     ]);
 
     return {
@@ -107,7 +108,14 @@ async function getFullStatus() {
             lmstudio,
             ollama
         },
-        system
+        system,
+        errors,
+        agents: Array.from(activeAgents.values()).map(agent => ({
+            id: agent.id,
+            name: agent.name,
+            status: agent.status,
+            type: agent.id.split('-')[0] // Derive type from ID or add type property to agent
+        }))
     };
 }
 

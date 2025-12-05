@@ -7,7 +7,8 @@ import LLMModels from '@/components/LLMModels';
 import Link from 'next/link';
 
 // Dynamic import for Three.js (no SSR)
-const NeuralNetwork = dynamic(() => import('@/components/NeuralNetwork'), {
+// Dynamic import for Three.js (no SSR)
+const HolographicBrain = dynamic(() => import('@/components/HolographicBrain'), {
   ssr: false,
   loading: () => <div className="h-[500px] bg-gradient-to-b from-transparent to-[#050508]"></div>
 });
@@ -47,7 +48,7 @@ export default function Home() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative h-[90vh] flex items-center justify-center overflow-hidden">
-        <NeuralNetwork />
+        <HolographicBrain />
 
         <motion.div
           className="relative z-10 text-center px-4"

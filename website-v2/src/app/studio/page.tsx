@@ -5,13 +5,27 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { LUXRIG_BRIDGE_URL } from '@/lib/utils';
 
+interface Agent {
+    name: string;
+    description: string;
+    status: string;
+}
+
+interface Result {
+    id: number;
+    agent: string;
+    task: any;
+    result: any;
+    timestamp: Date;
+}
+
 export default function AIStudioPage() {
-    const [agents, setAgents] = useState([]);
-    const [systemStatus, setSystemStatus] = useState(null);
-    const [selectedAgent, setSelectedAgent] = useState(null);
+    const [agents, setAgents] = useState<Agent[]>([]);
+    const [systemStatus, setSystemStatus] = useState<any>(null);
+    const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
     const [taskInput, setTaskInput] = useState('');
     const [executing, setExecuting] = useState(false);
-    const [results, setResults] = useState([]);
+    const [results, setResults] = useState<Result[]>([]);
 
     useEffect(() => {
         loadAgents();
@@ -40,7 +54,7 @@ export default function AIStudioPage() {
         }
     }
 
-    async function executeTask(agentType, task) {
+    async function executeTask(agentType: string, task: any) {
         setExecuting(true);
         try {
             const response = await fetch(`${LUXRIG_BRIDGE_URL}/agents/execute`, {
@@ -246,8 +260,8 @@ export default function AIStudioPage() {
                                                     <p className="text-xs text-gray-400">{agent.description}</p>
                                                 </div>
                                                 <span className={`px-2 py-1 rounded text-xs ${agent.status === 'running' ? 'bg-green-500/20 text-green-400' :
-                                                        agent.status === 'idle' ? 'bg-gray-500/20 text-gray-400' :
-                                                            'bg-yellow-500/20 text-yellow-400'
+                                                    agent.status === 'idle' ? 'bg-gray-500/20 text-gray-400' :
+                                                        'bg-yellow-500/20 text-yellow-400'
                                                     }`}>
                                                     {agent.status}
                                                 </span>

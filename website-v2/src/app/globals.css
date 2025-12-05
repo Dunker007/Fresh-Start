@@ -40,6 +40,39 @@
   --glow-cyan: 0 0 20px rgba(0, 245, 212, 0.5);
   --glow-magenta: 0 0 20px rgba(199, 125, 255, 0.5);
   --glow-purple: 0 0 20px rgba(123, 47, 247, 0.5);
+
+  /* Vibe Modes Defaults (Normal) */
+  --vibe-glass-opacity: 0.8;
+  --vibe-glass-blur: 20px;
+  --vibe-accent: var(--cyan);
+  --vibe-bg: var(--bg-void);
+}
+
+/* High Load Mode: Reduce visual effects */
+body[data-vibe="high-load"] {
+  --glass-blur: blur(5px); /* Reduce blur cost */
+  --glow-cyan: none; /* Disable expensive shadows */
+  --glow-magenta: none;
+  --glow-purple: none;
+  --bg-grid-animation: none; /* Stop grid animation */
+}
+
+/* Crisis Mode: High contrast, red alert */
+body[data-vibe="crisis"] {
+  --bg-void: #1a0505; /* Red tint background */
+  --cyan: #ff0000; /* Override cyan with red */
+  --text-primary: #ffffff;
+  --glass-border: rgba(255, 0, 0, 0.5);
+  --glow-cyan: 0 0 30px rgba(255, 0, 0, 0.8);
+}
+
+/* Focus Mode: Dim distractions */
+body[data-vibe="focus"] {
+  --bg-void: #000000;
+  --glass-bg: rgba(0, 0, 0, 0.95); /* Opaque panels */
+  --glass-blur: none;
+  --text-secondary: #444; /* Dim secondary text */
+  --glow-cyan: none;
 }
 
 @theme inline {
