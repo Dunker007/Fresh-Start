@@ -3,7 +3,7 @@
  * Connects to LM Studio's OpenAI-compatible API
  */
 
-const LMSTUDIO_URL = process.env.LMSTUDIO_URL || 'http://localhost:1234';
+const LMSTUDIO_URL = process.env.LMSTUDIO_URL || 'http://127.0.0.1:1234';
 
 export const lmstudioService = {
 
@@ -41,8 +41,14 @@ export const lmstudioService = {
      */
     async listModels() {
         try {
+            console.log(`[LMStudio] Fetching models from ${LMSTUDIO_URL}/v1/models...`);
             const response = await fetch(`${LMSTUDIO_URL}/v1/models`);
+            if (!response.ok) {
+                console.error(`[LMStudio] Response not OK: ${response.status} ${response.statusText}`);
+                throw new Error(`HTTP ${response.status}`);
+            }
             const data = await response.json();
+            console.log(`[LMStudio] Found ${data.data?.length || 0} models.`);
 
             return (data.data || []).map(model => ({
                 id: model.id,
@@ -51,7 +57,8 @@ export const lmstudioService = {
                 owned_by: model.owned_by
             }));
         } catch (error) {
-            console.error('LM Studio listModels error:', error.message);
+            console.error('LM Studio listModels error:', error);
+            if (error.cause) console.error('Cause:', error.cause);
             return [];
         }
     },

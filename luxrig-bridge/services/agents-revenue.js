@@ -18,7 +18,9 @@ export class RevenueAgent extends Agent {
         this.state = {
             currentProfile: 'idle',
             lastCheck: null,
-            estimatedDailyRevenue: 0
+            estimatedDailyRevenue: 0,
+            prices: null,
+            profitability: null
         };
     }
 
@@ -68,8 +70,11 @@ export class RevenueAgent extends Agent {
             await this.switchProfile(bestProfile);
         }
 
+        // Update state
         this.state.lastCheck = new Date();
         this.state.estimatedDailyRevenue = maxProfit;
+        this.state.prices = prices;
+        this.state.profitability = profitability;
 
         return {
             action: 'optimization_complete',

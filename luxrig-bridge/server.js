@@ -4,7 +4,7 @@
  */
 
 import express from 'express';
-import { WebSocketServer } from 'ws';
+// import { WebSocketServer } from 'ws';
 import cors from 'cors';
 import { createServer } from 'http';
 import dotenv from 'dotenv';
@@ -44,39 +44,52 @@ app.use(performanceMonitor.middleware()); // Track all request performance
 const server = createServer(app);
 
 // WebSocket server for real-time updates
-const wss = new WebSocketServer({ server, path: '/stream' });
+// const wss = new WebSocketServer({ server, path: '/stream' });
 
 // Track connected clients
 const clients = new Set();
 
+/*
 wss.on('connection', (ws) => {
     console.log('🔌 Client connected to stream');
     clients.add(ws);
 
     // Send initial status
-    sendStatus(ws);
+    try {
+        sendStatus(ws);
+    } catch (error) {
+        console.error('Initial status error:', error.message);
+    }
 
     ws.on('close', () => {
         clients.delete(ws);
         console.log('🔌 Client disconnected');
     });
 });
+*/
 
 // Broadcast to all connected clients
 function broadcast(data) {
+    /*
     const message = JSON.stringify(data);
     clients.forEach(client => {
         if (client.readyState === 1) { // OPEN
             client.send(message);
         }
     });
+    */
 }
 
 // Send full status to a client
+/*
 async function sendStatus(ws) {
     const status = await getFullStatus();
     ws.send(JSON.stringify({ type: 'status', data: status }));
 }
+*/
+
+// Active agents registry (Moved up for scope visibility if needed, but getFullStatus needs it)
+const activeAgents = new Map();
 
 // Get full system status
 async function getFullStatus() {
@@ -116,7 +129,7 @@ app.get('/', (req, res) => {
             status: '/status',
             llm: '/llm/*',
             system: '/system',
-            stream: 'ws://localhost:3456/stream'
+            stream: 'DISABLED'
         }
     });
 });
@@ -292,8 +305,7 @@ app.get('/google/drive/files', async (req, res) => {
 
 // ============ Agent Routes ============
 
-// Active agents registry
-const activeAgents = new Map();
+// activeAgents is defined earlier now.
 
 // Create and execute agent task
 app.post('/agents/execute', async (req, res) => {
@@ -481,8 +493,8 @@ function generateAgentMessage(agent, topic, round) {
 // Get meeting status
 app.get('/agents/meeting/:meetingId', (req, res) => {
     try {
-        const status = staffMeetingAgent.getMeetingStatus();
-        res.json(status);
+        // const status = staffMeetingAgent.getMeetingStatus();
+        res.status(501).json({ error: 'Not implemented' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -692,13 +704,19 @@ app.use(errorHandler);
 
 // ============ Periodic Updates ============
 
-// Broadcast status every 5 seconds
+// Broadcast status every 5 seconds (Disabled)
+/*
 setInterval(async () => {
-    if (clients.size > 0) {
-        const status = await getFullStatus();
-        broadcast({ type: 'status', data: status });
+    try {
+        if (clients.size > 0) {
+            const status = await getFullStatus();
+            broadcast({ type: 'status', data: status });
+        }
+    } catch (error) {
+        console.error('Status broadcast error:', error.message);
     }
 }, 5000);
+*/
 
 // Start server
 server.listen(PORT, () => {
@@ -707,7 +725,7 @@ server.listen(PORT, () => {
 ║                   LUXRIG BRIDGE v1.0.0                    ║
 ╠═══════════════════════════════════════════════════════════╣
 ║  REST API:    http://localhost:${PORT}                      ║
-║  WebSocket:   ws://localhost:${PORT}/stream                 ║
+║  WebSocket:   DISABLED                                    ║
 ╠═══════════════════════════════════════════════════════════╣
 ║  Services:                                                ║
 ║    • LM Studio  → localhost:1234                          ║

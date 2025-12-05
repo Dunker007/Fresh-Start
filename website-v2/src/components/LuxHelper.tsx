@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
+import { LUXRIG_BRIDGE_URL, storage } from '@/lib/utils';
 
 // Lux personality and tips per page context
 const LUX_TIPS: Record<string, string[]> = {
@@ -91,7 +92,7 @@ export default function LuxHelper({ initialOpen = false }: LuxHelperProps) {
         return () => clearInterval(interval);
     }, [pathname, tips]);
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!input.trim()) return;
 
         const userMessage = input.toLowerCase();
@@ -99,21 +100,43 @@ export default function LuxHelper({ initialOpen = false }: LuxHelperProps) {
         setInput('');
         setIsTyping(true);
 
-        // Simulate typing delay
-        setTimeout(() => {
-            let response = LUX_RESPONSES['default'];
-
-            // Check for keyword matches
-            for (const [key, value] of Object.entries(LUX_RESPONSES)) {
-                if (userMessage.includes(key)) {
-                    response = value;
-                    break;
-                }
+        // 1. Check for local canned responses (Fast Path)
+        for (const [key, value] of Object.entries(LUX_RESPONSES)) {
+            if (userMessage.includes(key)) {
+                setTimeout(() => {
+                    setMessages(prev => [...prev, { role: 'lux', content: value }]);
+                    setIsTyping(false);
+                }, 500);
+                return;
             }
+        }
 
-            setMessages(prev => [...prev, { role: 'lux', content: response }]);
+        // 2. Fallback to LuxRig LLM
+        try {
+            const settings = storage.get('DLX-settings', { defaultProvider: 'lmstudio', defaultModel: '' });
+
+            const res = await fetch(`${LUXRIG_BRIDGE_URL}/llm/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    provider: settings.defaultProvider || 'lmstudio',
+                    model: settings.defaultModel || '',
+                    messages: [
+                        { role: 'system', content: 'You are Lux, a specific AI assistant for this DLX Studio app. Be concise (max 2 sentences), helpful, and slightly witty. You are helping the user navigate their app.' },
+                        { role: 'user', content: input }
+                    ]
+                })
+            });
+
+            const data = await res.json();
+            const reply = data.content || data.error || "I'm having trouble connecting to my brain (LuxRig).";
+
+            setMessages(prev => [...prev, { role: 'lux', content: reply }]);
+        } catch (e) {
+            setMessages(prev => [...prev, { role: 'lux', content: "I can't reach LuxRig right now. Is it running?" }]);
+        } finally {
             setIsTyping(false);
-        }, 800);
+        }
     };
 
     return (
@@ -156,8 +179,8 @@ export default function LuxHelper({ initialOpen = false }: LuxHelperProps) {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     className={`rounded-lg p-3 text-sm ${msg.role === 'user'
-                                            ? 'bg-purple-500/10 ml-6 border border-purple-500/20'
-                                            : 'bg-cyan-500/10 mr-6 border border-cyan-500/20'
+                                        ? 'bg-purple-500/10 ml-6 border border-purple-500/20'
+                                        : 'bg-cyan-500/10 mr-6 border border-cyan-500/20'
                                         }`}
                                 >
                                     {msg.content}

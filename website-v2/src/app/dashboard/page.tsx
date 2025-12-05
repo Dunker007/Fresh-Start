@@ -3,24 +3,23 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { LUXRIG_BRIDGE_URL } from '@/lib/utils';
+import { parseRSSFeed, NEWS_SOURCES } from '@/lib/news-service';
+import PageBackground from '@/components/PageBackground';
 
-// ===== SAMPLE DATA =====
-
-// News headlines (would pull from News Hub)
-const NEWS_HEADLINES = [
+// Fallback data
+const SAMPLE_NEWS = [
     { title: 'Minneapolis City Council Passes New Public Safety Measure', source: 'Alpha News', time: '2h ago' },
     { title: 'Governor Walz Signs Executive Order on Energy Policy', source: 'Bring Me The News', time: '4h ago' },
     { title: 'Glenn Beck: The Media Won\'t Tell You This', source: 'The Blaze', time: '5h ago' },
 ];
 
-// Calendar events
 const CALENDAR_EVENTS = [
     { title: 'Team standup', time: '10:00 AM', type: 'meeting' },
     { title: 'Music pipeline review', time: '2:00 PM', type: 'work' },
     { title: 'AI research session', time: '4:30 PM', type: 'personal' },
 ];
 
-// Project tasks
 const PROJECT_TASKS = [
     { title: 'Finish News Hub UI polish', status: 'done', priority: 'high' },
     { title: 'Set up YouTube channel', status: 'in-progress', priority: 'high' },
@@ -28,7 +27,6 @@ const PROJECT_TASKS = [
     { title: 'Connect Neural Frames API', status: 'todo', priority: 'low' },
 ];
 
-// Daily inspiration/fun
 const DAILY_FUN = [
     { type: 'quote', content: '"The best way to predict the future is to create it."', author: 'Peter Drucker' },
     { type: 'quote', content: '"Move fast and break things. Unless you are breaking stuff, you are not moving fast enough."', author: 'Mark Zuckerberg' },
@@ -37,11 +35,15 @@ const DAILY_FUN = [
     { type: 'tip', content: 'Tip: Use Ctrl+K to open the command palette in most apps.' },
 ];
 
-
 export default function DashboardPage() {
     const [time, setTime] = useState(new Date());
     const [greeting, setGreeting] = useState('');
     const [dailyFun, setDailyFun] = useState(DAILY_FUN[0]);
+
+    // Real Data States
+    const [systemStats, setSystemStats] = useState<any>(null);
+    const [news, setNews] = useState<any[]>(SAMPLE_NEWS);
+    const [loadingNews, setLoadingNews] = useState(true);
 
     // Initialize on mount
     useEffect(() => {
@@ -56,8 +58,69 @@ export default function DashboardPage() {
 
         // Update time every second
         const timer = setInterval(() => setTime(new Date()), 1000);
-        return () => clearInterval(timer);
+
+        // Initial Fetch
+        fetchSystemStats();
+        fetchDashboardNews();
+
+        // Poll system stats every 5s
+        const statsTimer = setInterval(fetchSystemStats, 5000);
+
+        return () => {
+            clearInterval(timer);
+            clearInterval(statsTimer);
+        };
     }, []);
+
+    async function fetchSystemStats() {
+        try {
+            const res = await fetch(`${LUXRIG_BRIDGE_URL}/system`);
+            if (res.ok) {
+                const data = await res.json();
+                setSystemStats(data);
+            }
+        } catch (e) {
+            console.error('Failed to fetch system stats');
+            // Keep previous stats or null
+        }
+    }
+
+    async function fetchDashboardNews() {
+        try {
+            // Pick 2 focused sources for dashboard to keep it fast
+            const alphaNews = await parseRSSFeed(NEWS_SOURCES.local.find(s => s.id === 'alpha-news')?.rss || '');
+            const blaze = await parseRSSFeed(NEWS_SOURCES.national.find(s => s.id === 'the-blaze')?.rss || '');
+
+            // Combine and take top 5
+            const combined = [
+                ...alphaNews.map(i => ({ ...i, source: 'Alpha News' })),
+                ...blaze.map(i => ({ ...i, source: 'The Blaze' }))
+            ].sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime())
+                .slice(0, 5)
+                .map(item => ({
+                    title: item.title,
+                    source: item.source,
+                    time: getTimeAgo(item.pubDate),
+                    link: item.link
+                }));
+
+            if (combined.length > 0) {
+                setNews(combined);
+            }
+        } catch (e) {
+            console.error('Failed to fetch dashboard news');
+        } finally {
+            setLoadingNews(false);
+        }
+    }
+
+    function getTimeAgo(dateStr: string) {
+        const diff = Date.now() - new Date(dateStr).getTime();
+        const hrs = Math.floor(diff / (1000 * 60 * 60));
+        if (hrs < 1) return 'Just now';
+        if (hrs > 24) return `${Math.floor(hrs / 24)}d ago`;
+        return `${hrs}h ago`;
+    }
 
     const getTaskStatusStyle = (status: string) => {
         switch (status) {
@@ -68,7 +131,9 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className="min-h-screen pb-24">
+        <div className="min-h-screen pb-24 relative">
+            <PageBackground color="cyan" />
+
             {/* Header with greeting */}
             <section className="container-main py-8">
                 <motion.div
@@ -91,17 +156,27 @@ export default function DashboardPage() {
 
                     {/* Quick System Status */}
                     <div className="flex items-center gap-4 text-sm">
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 rounded-full border border-green-500/30">
-                            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                            <span className="text-green-400">LuxRig Online</span>
+                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-colors ${systemStats ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/10 border-red-500/30'
+                            }`}>
+                            <span className={`w-2 h-2 rounded-full ${systemStats ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`}></span>
+                            <span className={systemStats ? 'text-green-400' : 'text-red-400'}>
+                                {systemStats ? 'LuxRig Online' : 'LuxRig Offline'}
+                            </span>
                         </div>
-                        <div className="hidden md:flex items-center gap-3 text-gray-400">
-                            <span>🖥️ RTX 3060</span>
-                            <span>•</span>
-                            <span>🌡️ 45°C</span>
-                            <span>•</span>
-                            <span>💾 18GB free</span>
-                        </div>
+                        {systemStats && systemStats.gpu?.available && (
+                            <div className="hidden md:flex items-center gap-3 text-gray-400">
+                                <span>🖥️ {systemStats.gpu.name}</span>
+                                <span>•</span>
+                                <span>🌡️ {systemStats.gpu.temperature}°C</span>
+                                <span>•</span>
+                                <span>⚡ {systemStats.gpu.utilization}%</span>
+                            </div>
+                        )}
+                        {!systemStats && (
+                            <div className="hidden md:flex items-center gap-3 text-gray-500 italic">
+                                Connecting to bridge...
+                            </div>
+                        )}
                     </div>
                 </motion.div>
             </section>
@@ -128,14 +203,23 @@ export default function DashboardPage() {
                                 </Link>
                             </div>
                             <div className="space-y-3">
-                                {NEWS_HEADLINES.map((news, i) => (
-                                    <div key={i} className="border-b border-white/5 last:border-0 pb-3 last:pb-0">
-                                        <p className="text-sm font-medium hover:text-cyan-400 cursor-pointer transition-colors line-clamp-2">
-                                            {news.title}
-                                        </p>
-                                        <p className="text-xs text-gray-500 mt-1">{news.source} • {news.time}</p>
-                                    </div>
-                                ))}
+                                {loadingNews ? (
+                                    <div className="text-center py-4 text-gray-500">Loading headlines...</div>
+                                ) : (
+                                    news.map((item, i) => (
+                                        <div key={i} className="border-b border-white/5 last:border-0 pb-3 last:pb-0">
+                                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="block group">
+                                                <p className="text-sm font-medium group-hover:text-cyan-400 transition-colors line-clamp-2">
+                                                    {item.title}
+                                                </p>
+                                                <p className="text-xs text-gray-500 mt-1 flex justify-between">
+                                                    <span>{item.source}</span>
+                                                    <span>{item.time}</span>
+                                                </p>
+                                            </a>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </motion.div>
 

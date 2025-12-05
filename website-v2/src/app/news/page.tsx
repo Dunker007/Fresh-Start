@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import PageBackground from '@/components/PageBackground';
 import {
     NEWS_SOURCES,
     BIAS_COLORS,
@@ -250,7 +251,9 @@ export default function NewsPage() {
     }, []);
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen relative overflow-hidden">
+            <PageBackground color="red" />
+
             <style jsx>{`
                 .news-card {
                     transition: all 0.2s ease;

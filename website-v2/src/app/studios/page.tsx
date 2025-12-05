@@ -2,472 +2,227 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import PageBackground from '@/components/PageBackground';
 
 interface Studio {
-    id: string;
-    name: string;
-    description: string;
-    icon: string;
-    href: string;
-    color: string;
-    gradient: string;
-    status: 'live' | 'beta' | 'coming-soon';
-    features: string[];
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  href: string;
+  color: string; // Tailwind color class partial
+  status: 'live' | 'beta' | 'coming-soon';
+  features: string[];
 }
 
 const studios: Studio[] = [
-    {
-        id: 'music',
-        name: 'DLX Music Studio',
-        description: 'AI-powered songwriting with collaborative agents. Create lyrics, compose melodies, and generate Suno-ready prompts.',
-        icon: '🎵',
-        href: '/music',
-        color: '#EC4899',
-        gradient: 'from-pink-500 to-purple-600',
-        status: 'live',
-        features: ['Songwriter Agents', 'Newsician Rap Duo', 'Midwest Sentinel', 'Suno Integration']
-    },
-    {
-        id: 'dev',
-        name: 'DLX Dev Studio',
-        description: 'AI-assisted app development. Build websites, APIs, and applications with intelligent code generation.',
-        icon: '💻',
-        href: '/studios/dev',
-        color: '#06B6D4',
-        gradient: 'from-cyan-500 to-blue-600',
-        status: 'beta',
-        features: ['Code Generation', 'App Templates', 'API Builder', 'Deploy Pipeline']
-    },
-    {
-        id: 'video',
-        name: 'DLX Video Studio',
-        description: 'AI video creation with Neural Frames integration. Turn music into stunning visualizers and music videos.',
-        icon: '🎬',
-        href: '/studios/video',
-        color: '#F59E0B',
-        gradient: 'from-amber-500 to-orange-600',
-        status: 'coming-soon',
-        features: ['Neural Frames', 'Music Visualizers', 'AI Video Gen', 'YouTube Ready']
-    },
-    {
-        id: 'blog',
-        name: 'DLX Blog Studio',
-        description: 'AI content creation for blogs and articles. SEO-optimized writing with your brand voice.',
-        icon: '✍️',
-        href: '/studios/blog',
-        color: '#10B981',
-        gradient: 'from-emerald-500 to-teal-600',
-        status: 'coming-soon',
-        features: ['AI Copywriting', 'SEO Optimization', 'Brand Voice', 'Auto Publishing']
-    },
-    {
-        id: 'art',
-        name: 'DLX Art Studio',
-        description: 'AI image generation and editing. Create album covers, thumbnails, and visual assets.',
-        icon: '🎨',
-        href: '/studios/art',
-        color: '#8B5CF6',
-        gradient: 'from-violet-500 to-purple-600',
-        status: 'coming-soon',
-        features: ['Image Generation', 'Album Art', 'Thumbnails', 'Brand Assets']
-    },
-    {
-        id: 'podcast',
-        name: 'DLX Podcast Studio',
-        description: 'AI-powered podcast creation. Script writing, voice synthesis, and audio production.',
-        icon: '🎙️',
-        href: '/studios/podcast',
-        color: '#EF4444',
-        gradient: 'from-red-500 to-rose-600',
-        status: 'coming-soon',
-        features: ['Script Writing', 'Voice Clone', 'Audio Editing', 'Distribution']
-    }
+  {
+    id: 'music',
+    name: 'DLX Music Studio',
+    description: 'AI-powered songwriting with collaborative agents. Create lyrics, compose melodies, and generate Suno-ready prompts.',
+    icon: '🎵',
+    href: '/music',
+    color: 'pink',
+    status: 'live',
+    features: ['Songwriter Agents', 'Newsician Rap Guo', 'Midwest Sentinel', 'Suno Integration']
+  },
+  {
+    id: 'dev',
+    name: 'DLX Dev Studio',
+    description: 'AI-assisted app development. Build websites, APIs, and applications with intelligent code generation.',
+    icon: '💻',
+    href: '/studios/dev',
+    color: 'cyan',
+    status: 'beta',
+    features: ['Code Generation', 'App Templates', 'API Builder', 'Deploy Pipeline']
+  },
+  {
+    id: 'video',
+    name: 'DLX Video Studio',
+    description: 'AI video creation with Neural Frames integration. Turn music into stunning visualizers and music videos.',
+    icon: '🎬',
+    href: '/studios/video',
+    color: 'amber',
+    status: 'coming-soon',
+    features: ['Neural Frames', 'Music Visualizers', 'AI Video Gen', 'YouTube Ready']
+  },
+  {
+    id: 'blog',
+    name: 'DLX Blog Studio',
+    description: 'AI content creation for blogs and articles. SEO-optimized writing with your brand voice.',
+    icon: '✍️',
+    href: '/studios/blog',
+    color: 'emerald',
+    status: 'coming-soon',
+    features: ['AI Copywriting', 'SEO Optimization', 'Brand Voice', 'Auto Publishing']
+  },
+  {
+    id: 'art',
+    name: 'DLX Art Studio',
+    description: 'AI image generation and editing. Create album covers, thumbnails, and visual assets.',
+    icon: '🎨',
+    href: '/studios/art',
+    color: 'purple',
+    status: 'coming-soon',
+    features: ['Image Generation', 'Album Art', 'Thumbnails', 'Brand Assets']
+  },
+  {
+    id: 'podcast',
+    name: 'DLX Podcast Studio',
+    description: 'AI-powered podcast creation. Script writing, voice synthesis, and audio production.',
+    icon: '🎙️',
+    href: '/studios/podcast',
+    color: 'red',
+    status: 'coming-soon',
+    features: ['Script Writing', 'Voice Clone', 'Audio Editing', 'Distribution']
+  },
+  {
+    id: '3dprint',
+    name: 'DLX 3D Print Studio',
+    description: 'Autonomous print farm management. AI model analysis, slicing optimization, and failure detection.',
+    icon: '🖨️',
+    href: '/studios/3dprint',
+    color: 'orange',
+    status: 'coming-soon',
+    features: ['Print Farms', 'Model Analysis', 'Slice Optimization', 'Remote Monitor']
+  },
+  {
+    id: 'laser',
+    name: 'DLX Laser Studio',
+    description: 'Precision laser engraving command center. AI vector generation and material settings optimization.',
+    icon: '⚡',
+    href: '/studios/laser',
+    color: 'indigo',
+    status: 'coming-soon',
+    features: ['Vector Generation', 'Material Settings', 'Engrave Optimization', 'Job Queue']
+  }
 ];
 
-const statusBadge = (status: Studio['status']) => {
-    switch (status) {
-        case 'live':
-            return <span className="status-badge live">● Live</span>;
-        case 'beta':
-            return <span className="status-badge beta">◐ Beta</span>;
-        case 'coming-soon':
-            return <span className="status-badge coming">◌ Coming Soon</span>;
-    }
+const getStatusBadge = (status: Studio['status']) => {
+  switch (status) {
+    case 'live':
+      return <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-bold uppercase tracking-wider border border-green-500/30">● Live</span>;
+    case 'beta':
+      return <span className="px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded-full text-xs font-bold uppercase tracking-wider border border-cyan-500/30">◐ Beta</span>;
+    case 'coming-soon':
+      return <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-bold uppercase tracking-wider border border-purple-500/30">◌ Coming Soon</span>;
+  }
 };
 
 export default function StudiosPage() {
-    return (
-        <div className="studios-page">
-            <style jsx>{`
-        .studios-page {
-          min-height: 100vh;
-          background: linear-gradient(135deg, #0a0a12 0%, #0f0f23 25%, #1a1a3e 50%, #0f0f23 75%, #0a0a12 100%);
-          padding: 2rem;
-          color: white;
-          position: relative;
-        }
+  return (
+    <div className="min-h-screen pt-20 pb-20 relative">
+      <PageBackground color="cyan" />
 
-        .studios-page::before {
-          content: '';
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: radial-gradient(ellipse at 20% 30%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-                      radial-gradient(ellipse at 80% 70%, rgba(236, 72, 153, 0.08) 0%, transparent 50%),
-                      radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 60%);
-          pointer-events: none;
-          z-index: 0;
-        }
+      {/* Header */}
+      <section className="container-main text-center mb-16 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <h1 className="text-5xl md:text-7xl font-bold mb-6">
+            <span className="text-gradient">AI Studios</span>
+          </h1>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+            Your creative command center. AI-powered studios for music, video, code, and content creation.
+          </p>
+        </motion.div>
 
-        .container {
-          max-width: 1400px;
-          margin: 0 auto;
-          position: relative;
-          z-index: 1;
-        }
+        {/* Background Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
+      </section>
 
-        .header {
-          text-align: center;
-          margin-bottom: 3.5rem;
-        }
+      {/* Grid */}
+      <section className="container-main">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {studios.map((studio, index) => {
+            const isDisabled = studio.status === 'coming-soon';
 
-        .header h1 {
-          font-size: 4rem;
-          font-weight: 800;
-          background: linear-gradient(135deg, #EC4899, #8B5CF6, #06B6D4, #10B981);
-          background-size: 300% 300%;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          margin-bottom: 1rem;
-          animation: gradientShift 8s ease infinite;
-        }
-
-        @keyframes gradientShift {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-
-        .header p {
-          color: #8888aa;
-          font-size: 1.2rem;
-          max-width: 600px;
-          margin: 0 auto;
-          line-height: 1.6;
-        }
-
-        .studios-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-          gap: 1.5rem;
-        }
-
-        @media (max-width: 500px) {
-          .studios-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .studio-card {
-          background: linear-gradient(145deg, rgba(20, 20, 35, 0.9), rgba(15, 15, 30, 0.95));
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 1.5rem;
-          padding: 2rem;
-          position: relative;
-          overflow: hidden;
-          transition: all 0.4s ease;
-          cursor: pointer;
-          text-decoration: none;
-          display: flex;
-          flex-direction: column;
-          width: 100%;
-          height: 100%;
-        }
-
-        .studio-card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 3px;
-          background: var(--card-gradient);
-          opacity: 0.8;
-        }
-
-        .studio-card::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: var(--card-gradient);
-          opacity: 0;
-          transition: opacity 0.4s ease;
-          z-index: 0;
-        }
-
-        .studio-card:hover {
-          transform: translateY(-8px);
-          border-color: var(--card-color);
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4),
-                      0 0 60px var(--card-glow);
-        }
-
-        .studio-card:hover::after {
-          opacity: 0.05;
-        }
-
-        .studio-card.disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-
-        .studio-card.disabled:hover {
-          transform: none;
-        }
-
-        .card-content {
-          position: relative;
-          z-index: 1;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-        }
-
-        .card-header {
-          display: flex;
-          align-items: flex-start;
-          justify-content: space-between;
-          margin-bottom: 1rem;
-        }
-
-        .studio-icon {
-          font-size: 3rem;
-          filter: drop-shadow(0 0 20px var(--card-glow));
-        }
-
-        .status-badge {
-          font-size: 0.75rem;
-          font-weight: 600;
-          padding: 0.35rem 0.75rem;
-          border-radius: 2rem;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-
-        .status-badge.live {
-          background: rgba(16, 185, 129, 0.2);
-          color: #10B981;
-          border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .status-badge.beta {
-          background: rgba(6, 182, 212, 0.2);
-          color: #06B6D4;
-          border: 1px solid rgba(6, 182, 212, 0.3);
-        }
-
-        .status-badge.coming {
-          background: rgba(139, 92, 246, 0.2);
-          color: #A78BFA;
-          border: 1px solid rgba(139, 92, 246, 0.3);
-        }
-
-        .studio-name {
-          font-size: 1.5rem;
-          font-weight: 700;
-          margin-bottom: 0.75rem;
-          color: white;
-        }
-
-        .studio-description {
-          color: #9090b0;
-          font-size: 0.95rem;
-          line-height: 1.6;
-          margin-bottom: 1.5rem;
-        }
-
-        .features-list {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.5rem;
-        }
-
-        .feature-tag {
-          font-size: 0.75rem;
-          padding: 0.4rem 0.75rem;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 2rem;
-          color: #aaa;
-          transition: all 0.3s ease;
-        }
-
-        .studio-card:hover .feature-tag {
-          background: rgba(255, 255, 255, 0.1);
-          border-color: var(--card-color);
-          color: white;
-        }
-
-        .enter-arrow {
-          position: absolute;
-          bottom: 2rem;
-          right: 2rem;
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.25rem;
-          opacity: 0;
-          transform: translateX(-10px);
-          transition: all 0.3s ease;
-        }
-
-        .studio-card:hover .enter-arrow {
-          opacity: 1;
-          transform: translateX(0);
-        }
-
-        .quick-stats {
-          display: flex;
-          justify-content: center;
-          gap: 3rem;
-          margin-top: 4rem;
-          padding: 2rem;
-          background: linear-gradient(145deg, rgba(20, 20, 35, 0.6), rgba(15, 15, 30, 0.7));
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 1rem;
-        }
-
-        .stat-item {
-          text-align: center;
-        }
-
-        .stat-value {
-          font-size: 2.5rem;
-          font-weight: 800;
-          background: linear-gradient(135deg, #EC4899, #8B5CF6);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .stat-label {
-          color: #8888aa;
-          font-size: 0.9rem;
-          margin-top: 0.25rem;
-        }
-      `}</style>
-
-            <div className="container">
-                <header className="header">
-                    <motion.h1
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                    >
-                        🎨 AI Studios
-                    </motion.h1>
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                    >
-                        Your creative command center. AI-powered studios for music, video, code, and content creation.
-                    </motion.p>
-                </header>
-
-                <div className="studios-grid">
-                    {studios.map((studio, index) => {
-                        const isDisabled = studio.status === 'coming-soon';
-
-                        const cardContent = (
-                            <>
-                                <div className="card-content">
-                                    <div className="card-header">
-                                        <span className="studio-icon">{studio.icon}</span>
-                                        {statusBadge(studio.status)}
-                                    </div>
-                                    <h2 className="studio-name">{studio.name}</h2>
-                                    <p className="studio-description">{studio.description}</p>
-                                    <div className="features-list">
-                                        {studio.features.map(feature => (
-                                            <span key={feature} className="feature-tag">{feature}</span>
-                                        ))}
-                                    </div>
-                                </div>
-                                {!isDisabled && <span className="enter-arrow">→</span>}
-                            </>
-                        );
-
-                        return (
-                            <motion.div
-                                key={studio.id}
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5, delay: index * 0.1 }}
-                            >
-                                {isDisabled ? (
-                                    <div
-                                        className={`studio-card disabled`}
-                                        style={{
-                                            '--card-color': studio.color,
-                                            '--card-gradient': `linear-gradient(135deg, ${studio.color}, transparent)`,
-                                            '--card-glow': `${studio.color}33`
-                                        } as React.CSSProperties}
-                                    >
-                                        {cardContent}
-                                    </div>
-                                ) : (
-                                    <Link
-                                        href={studio.href}
-                                        className="studio-card"
-                                        style={{
-                                            '--card-color': studio.color,
-                                            '--card-gradient': `linear-gradient(135deg, ${studio.color}, transparent)`,
-                                            '--card-glow': `${studio.color}33`
-                                        } as React.CSSProperties}
-                                    >
-                                        {cardContent}
-                                    </Link>
-                                )}
-                            </motion.div>
-                        );
-                    })}
-                </div>
-
-                <motion.div
-                    className="quick-stats"
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.8 }}
+            return (
+              <motion.div
+                key={studio.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <Link
+                  href={isDisabled ? '#' : studio.href}
+                  className={`block h-full relative group ${isDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
                 >
-                    <div className="stat-item">
-                        <div className="stat-value">6</div>
-                        <div className="stat-label">AI Studios</div>
+                  <div className={`glass-card h-full transition-all duration-300 group-hover:-translate-y-2 relative overflow-hidden`}>
+                    {/* Hover Gradient Border Effect */}
+                    <div className={`absolute inset-0 bg-gradient-to-br from-${studio.color}-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`}></div>
+
+                    <div className="relative z-10 flex flex-col h-full">
+                      <div className="flex items-center justify-between mb-6">
+                        <span className="text-4xl filter drop-shadow-lg">{studio.icon}</span>
+                        {getStatusBadge(studio.status)}
+                      </div>
+
+                      <h2 className="text-2xl font-bold mb-3 text-white group-hover:text-cyan-400 transition-colors">
+                        {studio.name}
+                      </h2>
+
+                      <p className="text-gray-400 text-sm leading-relaxed mb-6 flex-grow">
+                        {studio.description}
+                      </p>
+
+                      <div className="flex flex-wrap gap-2 mt-auto">
+                        {studio.features.map(feature => (
+                          <span
+                            key={feature}
+                            className="px-3 py-1 rounded-full text-xs bg-white/5 border border-white/10 text-gray-400 group-hover:border-white/20 group-hover:text-gray-300 transition-colors"
+                          >
+                            {feature}
+                          </span>
+                        ))}
+                      </div>
+
+                      {!isDisabled && (
+                        <div className="absolute bottom-6 right-6 opacity-0 transform translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                          <div className={`w-10 h-10 rounded-full bg-${studio.color}-500/20 border border-${studio.color}-500/30 flex items-center justify-center text-${studio.color}-400`}>
+                            →
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className="stat-item">
-                        <div className="stat-value">2</div>
-                        <div className="stat-label">Active Now</div>
-                    </div>
-                    <div className="stat-item">
-                        <div className="stat-value">12+</div>
-                        <div className="stat-label">AI Agents</div>
-                    </div>
-                    <div className="stat-item">
-                        <div className="stat-value">∞</div>
-                        <div className="stat-label">Possibilities</div>
-                    </div>
-                </motion.div>
-            </div>
+                  </div>
+                </Link>
+              </motion.div>
+            );
+          })}
         </div>
-    );
+      </section>
+
+      {/* Quick Stats */}
+      <section className="container-main mt-20 pb-20">
+        <motion.div
+          className="glass-card p-10 bg-gradient-to-br from-gray-900/50 to-black/50"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+        >
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="text-4xl font-bold text-gradient mb-2">6</div>
+              <div className="text-sm text-gray-500 uppercase tracking-widest">AI Studios</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-gradient mb-2">2</div>
+              <div className="text-sm text-gray-500 uppercase tracking-widest">Active Now</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-gradient mb-2">12+</div>
+              <div className="text-sm text-gray-500 uppercase tracking-widest">AI Agents</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-gradient mb-2">∞</div>
+              <div className="text-sm text-gray-500 uppercase tracking-widest">Possibilities</div>
+            </div>
+          </div>
+        </motion.div>
+      </section>
+    </div>
+  );
 }

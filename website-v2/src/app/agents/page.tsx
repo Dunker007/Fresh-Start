@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import PageBackground from '@/components/PageBackground';
 
 interface Agent {
     id: string;
@@ -106,7 +107,9 @@ export default function AgentsPage() {
     const activeCount = agents.filter(a => a.status === 'active').length;
 
     return (
-        <div className="min-h-screen pt-8">
+        <div className="min-h-screen pt-8 relative overflow-hidden">
+            <PageBackground color="emerald" />
+
             {/* Header */}
             <section className="section-padding pb-12">
                 <div className="container-main">

@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import PageBackground from '@/components/PageBackground';
 
 const labs = [
     { id: 'aura', icon: '✨', name: 'AURA Interface', desc: 'Advanced user response architecture for natural AI interactions.', status: 'active', color: 'cyan', href: null },
@@ -29,7 +30,9 @@ export default function LabsPage() {
     const previewLabs = labs.filter(l => l.status === 'preview').length;
 
     return (
-        <div className="min-h-screen pt-8">
+        <div className="min-h-screen pt-8 relative overflow-hidden">
+            <PageBackground color="indigo" />
+
             {/* Header */}
             <section className="section-padding pb-12">
                 <div className="container-main">

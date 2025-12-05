@@ -1,61 +1,43 @@
 # DLX Studio - Master Status & Next Steps
 
-**Last Updated:** 2025-12-05 11:20 CST  
+**Last Updated:** 2025-12-05 15:30 CST  
 **Status:** Active Development 🚀
 
 ---
 
 ## ✅ COMPLETED (This Session)
 
-### Core Features Built
+### Core Integration & Polish
+- [x] **Dashboard Connectivity** 🔌
+  - Connected **System Status** to LuxRig Bridge (`/system`)
+  - Connected **News Widget** to real RSS feeds (Alpha News + The Blaze) via client-side fetcher
+  - Implemented data persistence for **Revenue Agent** prices
+
+- [x] **Lux Persona Deployment** 🎨
+  - **Chat Page:** Rebranded to "Lux Chat", updated prompt to Lux persona ("runs locally on LuxRig"), added avatar.
+  - **Lux Helper:** Connected to `LuxRig Bridge` LLM for non-canned responses. Reads user settings.
+
+- [x] **Settings System** ⚙️
+  - Implemented `localStorage` persistence for attributes (Theme, Model, Provider).
+  - Connected **Chat Page** & **Lux Helper** to respect default provider/model settings.
+
+- [x] **Visual Polish** ✨
+  - **Global Backgrounds:** Implemented "Radiant Floodlight" effect (conic+radial gradients) to replace flat backgrounds.
+  - **Dynamic Themes:** Applied specific light colors to key pages:
+    - **Dashboard:** Cyan
+    - **Chat:** Cyan (fixed layering)
+    - **News:** Red
+    - **Agents:** Emerald
+    - **Labs:** Indigo
+    - **Music:** Purple
+    - **Income:** Green
+
+### Core Features Built (Previous)
 - [x] **News Hub** - Conservative & MN local news aggregator
-  - 20+ sources (Daily Wire, Federalist, Fox, Glenn Beck, Joe Rogan, Alpha News, Walter Hudson, etc.)
-  - Source manager with add/remove/disable
-  - "Discover Sources" like NotebookLM
-  - Fact checker integration
-  - Breaking news ticker
-  - Bias labels & filtering
-
 - [x] **Music Studio** - Songwriter agents pipeline
-  - Lyricist, Composer, Critic, Producer agents
-  - **Newsician** (Explicit Political Rap)
-  - **Midwest Sentinel** (Platform-Friendly Boom Bap)
-  - Theme/genre/mood selection
-  - Suno prompt generation
-  - Copy to clipboard
-  - Next steps guidance
-
-- [x] **AI Studios Hub** (`/studios`) 🎨
-  - Central launcher for all creative tools
-  - Music, Dev, Video, Blog, Art, Podcast cards
-  - Live/Beta/Coming Soon status indicators
-  - Premium glassmorphism UI
-
-
-- [x] **Dashboard Redesign** - Personal start page
-  - News widget (links to News Hub)
-  - Calendar widget
-  - Email widget
-  - Weather (Minneapolis)
-  - Project board
-  - Daily inspiration
-  - Subtle system specs
-
-- [x] **Global Lux AI Helper** 🎨
-  - **Available on EVERY page** (Clippy-style!)
-  - Context-aware tips per page
-  - Chat interface
-  - Animated avatar with status
-  - Click to open/close
-
-- [x] **Lux Renamed** - Kai → Lux globally (D + Lux = DLX)
-
-- [x] **AI Income Guides** - Full rollout plan
-  - `docs/AI_INCOME_GUIDE.md`
-  - `docs/AI_INCOME_ROLLOUT_PLAN.md`
-  - 12-week execution plan
-
-- [x] **Navigation Updated** - Added News & Music to nav
+- [x] **AI Studios Hub** (`/studios`)
+- [x] **Dashboard Redesign**
+- [x] **Lux Renamed**
 
 ---
 
@@ -105,23 +87,16 @@
 
 ## 🎯 IMMEDIATE NEXT STEPS
 
-### Priority 1: Complete Main Tabs
-1. [ ] **Chat Page** - Modern chat UI with Lux
-2. [ ] **Labs Page** - Lab launcher grid
-3. [ ] **Income Page** - Consolidated money dashboard
-4. [ ] **Settings Page** - User preferences
+### Priority 1: Finish & Verify Income
+1. [ ] **Income Page** - Verify Revenue Agent Widget connection implies complete "Income Page" readiness?
+   - _Note: Revenue Widget is connected and persisting state._
+2. [ ] **Google Integration** - **BLOCKER:** Missing `.env` with Google Keys.
+   - Action: Create `.env` in `luxrig-bridge` with clients IDs.
+3. [ ] **Calendar/Email Widgets** - Wire up to Google Service once keys are present.
 
-### Priority 2: Connect Everything
-5. [ ] Make Lux helper available on ALL pages
-6. [ ] Link Dashboard widgets to real data
-7. [ ] Connect News to live RSS feeds
-8. [ ] Add Google Calendar API to Dashboard
-
-### Priority 3: Polish & Cleanup
-9. [ ] Remove/consolidate redundant pages
-10. [ ] Consistent styling across all pages
-11. [ ] Add 404 page
-12. [ ] Mobile responsive check
+### Priority 2: Cleanup & Optimization
+4. [ ] **Labs Page** - Final check of functionality.
+5. [ ] **Consolidate Pages** - Remove redundant routes (analytics, finance, budget -> Income).
 
 ---
 
@@ -131,56 +106,17 @@
 | Service | Port | Status |
 |---------|------|--------|
 | Next.js Frontend | 3000 | ✅ Running |
-| LuxRig Bridge | 3458 | ✅ Running |
+| LuxRig Bridge | 3456 | ✅ Running (Port Confirmed) |
 | LM Studio | 1234 | ✅ (external) |
 | Ollama | 11434 | ✅ (external) |
 
 ### API Endpoints Working
 - [x] `/health` - Server health
-- [x] `/llm/*` - LLM proxy
-- [x] `/music/create` - Songwriter room
-- [x] `/music/political` - Newsician agent
-- [x] `/music/sentinel` - Midwest Sentinel agent
-- [x] `/music/agents` - Get songwriter agents
-- [x] `/agents/meeting` - Staff meeting
-- [ ] `/news/fetch` - RSS aggregator (TODO)
-
----
-
-## 📋 CONSOLIDATED TODO
-
-### This Week
-- [ ] Finish top nav tabs (Chat, Labs, Income, Settings)
-- [ ] Global Lux helper component
-- [ ] Connect Calendar to Google API
-- [ ] Connect Email to Gmail API
-- [ ] Weather API integration (OpenWeatherMap free)
-
-### Next Week
-- [ ] Start YouTube channel
-- [ ] Create first Suno song
-- [ ] Sign up Amuse (music distribution)
-- [ ] 5 videos uploaded
-
-### This Month
-- [ ] Music Pipeline Phase 2 (Neural Frames)
-- [ ] YouTube monetization progress
-- [ ] Etsy shop setup
-
----
-
-## 🏗️ ARCHITECTURE
-
-```
-Fresh-Start/
-├── website-v2/          # Next.js 14 frontend
-│   └── src/app/         # 56 page routes
-├── luxrig-bridge/       # Express backend
-│   ├── services/        # Agent services
-│   └── config/          # Swagger, security
-├── docs/                # Documentation
-└── poe-canvas/          # Legacy (can archive)
-```
+- [x] `/llm/*` - LLM proxy (Chat Page connected)
+- [x] `/system` - System Metrics (Dashboard connected)
+- [x] `/agents/revenue` - Revenue Agent state persistence
+- [x] `/music/*` - Music pipeline
+- [ ] `/google/*` - Waiting on API Keys
 
 ---
 
@@ -189,9 +125,12 @@ Fresh-Start/
 - **Theme:** Dark cyberpunk with cyan/purple accents
 - **Cards:** `glass-card` class (blur, border)
 - **Gradients:** `text-gradient` (cyan → purple)
-- **AI Helper:** Lux (🎨) - fixed bottom-right
-- **Font:** System + monospace for code
+- **AI Helper:** Lux (🎨) - Connected & Context Aware
 
 ---
 
-**Next Action:** Start consolidating the remaining pages one by one, beginning with Chat → Labs → Income → Settings.
+**Next Action:** 
+1. **Follow `docs/GOOGLE_SETUP.md`** to configure Google Keys.
+2. Restart `luxrig-bridge`.
+3. Verify "Connect Google" flow on Settings Page.
+4. Verify Calendar/Email widgets on Dashboard.

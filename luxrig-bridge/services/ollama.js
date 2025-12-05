@@ -3,7 +3,7 @@
  * Connects to Ollama's local API
  */
 
-const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
+const OLLAMA_URL = process.env.OLLAMA_URL || 'http://127.0.0.1:11434';
 
 export const ollamaService = {
 
@@ -52,8 +52,14 @@ export const ollamaService = {
      */
     async listModels() {
         try {
+            console.log(`[Ollama] Fetching models from ${OLLAMA_URL}/api/tags...`);
             const response = await fetch(`${OLLAMA_URL}/api/tags`);
+            if (!response.ok) {
+                console.error(`[Ollama] Response not OK: ${response.status} ${response.statusText}`);
+                throw new Error(`HTTP ${response.status}`);
+            }
             const data = await response.json();
+            console.log(`[Ollama] Found ${data.models?.length || 0} models.`);
 
             return (data.models || []).map(model => ({
                 id: model.name,
@@ -63,7 +69,8 @@ export const ollamaService = {
                 details: model.details
             }));
         } catch (error) {
-            console.error('Ollama listModels error:', error.message);
+            console.error('Ollama listModels error:', error);
+            if (error.cause) console.error('Cause:', error.cause);
             return [];
         }
     },

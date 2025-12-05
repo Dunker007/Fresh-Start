@@ -1,8 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import { LUXRIG_BRIDGE_URL } from '@/lib/utils';
+import {
+  Music, Mic, Radio, Play, Pause, SkipForward, SkipBack,
+  Volume2, Heart, Share2, Download, Disc, Activity
+} from 'lucide-react';
+import PageBackground from '@/components/PageBackground';
 
+// --- Types ---
 interface Agent {
   id: string;
   name: string;
@@ -12,947 +19,280 @@ interface Agent {
   style: string;
 }
 
-interface TranscriptEntry {
-  agent: string;
-  message: string;
-  emoji: string;
-}
-
 interface SongResult {
   theme: string;
   genre: string;
   mood: string;
-  transcript: TranscriptEntry[];
   sunoPrompt: {
     fullPrompt: string;
     copyToSuno: string;
-    instructions: string[];
-    styleTags: string;
   };
   ready: boolean;
-  // Political mode extras
-  mode?: string;
-  title?: string;
-  voices?: any;
-  structure?: any;
-  production?: any;
 }
 
-const genres = [
-  { value: 'pop', label: '🎤 Pop', color: '#EC4899' },
-  { value: 'edm', label: '🎛️ EDM', color: '#8B5CF6' },
-  { value: 'indie', label: '🎸 Indie', color: '#F59E0B' },
-  { value: 'rnb', label: '🎷 R&B', color: '#3B82F6' },
-  { value: 'rock', label: '🤘 Rock', color: '#EF4444' },
+const MODES = [
+  { id: 'standard', name: 'Standard Mode', desc: 'Collaborative AI songwriting', icon: Music, color: 'purple' },
+  { id: 'political', name: 'Newsician', desc: 'Political rap duo (Explicit)', icon: Mic, color: 'red' },
+  { id: 'sentinel', name: 'Midwest Sentinel', desc: 'Boom Bap storytelling (Clean)', icon: Radio, color: 'blue' }
 ];
 
-const moods = [
-  { value: 'uplifting', label: '✨ Uplifting' },
-  { value: 'energetic', label: '⚡ Energetic' },
-  { value: 'chill', label: '🌙 Chill' },
-  { value: 'emotional', label: '💔 Emotional' },
-  { value: 'dark', label: '🖤 Dark' },
-];
-
-// Creative modes
-const modes = [
-  { value: 'standard', label: '🎵 Standard', desc: 'Lyricist + Composer + Critic + Producer', color: '#8B5CF6' },
-  { value: 'political', label: '🎤 Newsician', desc: 'Political Rap Duo - Explicit, Aggressive', color: '#DC2626' },
-  { value: 'sentinel', label: '🎧 Midwest Sentinel', desc: 'Platform-Safe Boom Bap - Grandma Approved', color: '#1E40AF' },
-];
+const GENRES = ['Pop', 'EDM', 'Indie', 'R&B', 'Rock', 'Hip Hop', 'Synthwave', 'Jazz'];
+const MOODS = ['Uplifting', 'Energetic', 'Chill', 'Emotional', 'Dark', 'Aggressive', 'Dreamy'];
 
 export default function MusicStudioPage() {
   const [mode, setMode] = useState('standard');
   const [theme, setTheme] = useState('');
-  const [genre, setGenre] = useState('pop');
-  const [mood, setMood] = useState('uplifting');
-  const [focusArea, setFocusArea] = useState('minnesota');
+  const [genre, setGenre] = useState('Pop');
+  const [mood, setMood] = useState('Uplifting');
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<SongResult | null>(null);
   const [agents, setAgents] = useState<Agent[]>([]);
-  const [copied, setCopied] = useState(false);
-  const [error, setError] = useState('');
 
-  // Fetch agents on mount
-  useState(() => {
+  useEffect(() => {
     fetch(`${LUXRIG_BRIDGE_URL}/music/agents`)
       .then(res => res.json())
       .then(data => setAgents(data.agents || []))
-      .catch(err => console.error('Failed to fetch agents:', err));
-  });
+      .catch(console.error);
+  }, []);
 
   const handleGenerate = async () => {
-    // For standard mode, require theme
-    if (mode === 'standard' && !theme.trim()) {
-      setError('Please enter a theme for your song');
-      return;
-    }
-
+    if (!theme && mode === 'standard') return;
     setIsGenerating(true);
-    setError('');
     setResult(null);
 
     try {
-      // Choose endpoint based on mode
-      let endpoint = `${LUXRIG_BRIDGE_URL}/music/create`;
-      let payload: any = { theme, genre, mood };
+      const endpoint = mode === 'standard'
+        ? `${LUXRIG_BRIDGE_URL}/music/create`
+        : mode === 'political'
+          ? `${LUXRIG_BRIDGE_URL}/music/political`
+          : `${LUXRIG_BRIDGE_URL}/music/sentinel`;
 
-      if (mode === 'political') {
-        endpoint = `${LUXRIG_BRIDGE_URL}/music/political`;
-        payload = { focusArea, headlines: [] };
-      } else if (mode === 'sentinel') {
-        endpoint = `${LUXRIG_BRIDGE_URL}/music/sentinel`;
-        payload = { focusArea, headlines: [] };
-      }
+      const body = mode === 'standard'
+        ? { theme, genre, mood }
+        : { focusArea: 'minnesota' }; // Default for now
 
-      const response = await fetch(endpoint, {
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(body)
       });
 
-      if (!response.ok) throw new Error('Failed to generate song');
-
-      const data = await response.json();
+      const data = await res.json();
       setResult(data);
-    } catch (err) {
-      setError('Failed to generate song. Is the backend running?');
-      console.error(err);
+    } catch (e) {
+      console.error(e);
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const copyToClipboard = async () => {
-    const textToCopy = result?.sunoPrompt?.copyToSuno || result?.sunoPrompt?.fullPrompt;
-    if (textToCopy) {
-      await navigator.clipboard.writeText(textToCopy);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
   return (
-    <div className="music-studio">
-      <style jsx>{`
-        .music-studio {
-          min-height: 100vh;
-          background: linear-gradient(135deg, #0a0a12 0%, #0f0f23 25%, #1a1a3e 50%, #0f0f23 75%, #0a0a12 100%);
-          padding: 2rem;
-          color: white;
-          position: relative;
-        }
-
-        .music-studio::before {
-          content: '';
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: radial-gradient(ellipse at 30% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
-                      radial-gradient(ellipse at 70% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 50%);
-          pointer-events: none;
-          z-index: 0;
-        }
-
-        .container {
-          max-width: 1300px;
-          margin: 0 auto;
-          position: relative;
-          z-index: 1;
-        }
-
-        .header {
-          text-align: center;
-          margin-bottom: 2.5rem;
-        }
-
-        .header h1 {
-          font-size: 3.5rem;
-          font-weight: 800;
-          background: linear-gradient(135deg, #EC4899, #8B5CF6, #06B6D4);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          margin-bottom: 0.5rem;
-          text-shadow: 0 0 60px rgba(139, 92, 246, 0.3);
-        }
-
-        .header p {
-          color: #8888aa;
-          font-size: 1.1rem;
-        }
-
-        .main-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 2rem;
-          align-items: start;
-        }
-
-        @media (max-width: 1000px) {
-          .main-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .card {
-          background: linear-gradient(145deg, rgba(20, 20, 35, 0.9), rgba(15, 15, 30, 0.95));
-          border: 1px solid rgba(139, 92, 246, 0.15);
-          border-radius: 1.25rem;
-          padding: 2rem;
-          backdrop-filter: blur(20px);
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
-                      inset 0 1px 0 rgba(255, 255, 255, 0.05);
-        }
-
-        .card-title {
-          font-size: 1.35rem;
-          font-weight: 700;
-          margin-bottom: 1.75rem;
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          color: #fff;
-        }
-
-        .form-group {
-          margin-bottom: 1.75rem;
-        }
-
-        .form-label {
-          display: block;
-          margin-bottom: 0.75rem;
-          color: #9090b0;
-          font-size: 0.85rem;
-          font-weight: 500;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-
-        .form-input {
-          width: 100%;
-          padding: 1rem 1.25rem;
-          background: rgba(0, 0, 0, 0.4);
-          border: 1px solid rgba(139, 92, 246, 0.2);
-          border-radius: 0.75rem;
-          color: white;
-          font-size: 1rem;
-          transition: all 0.3s ease;
-        }
-
-        .form-input:focus {
-          outline: none;
-          border-color: #8B5CF6;
-          box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2),
-                      0 0 20px rgba(139, 92, 246, 0.1);
-        }
-
-        .form-input::placeholder {
-          color: #555;
-        }
-
-        /* Mode Selector Grid - Special styling for large buttons */
-        .mode-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 0.75rem;
-        }
-
-        /* Genre Grid */
-        .genre-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-          gap: 0.6rem;
-        }
-
-        .genre-btn {
-          padding: 1rem 0.75rem;
-          background: rgba(0, 0, 0, 0.4);
-          border: 2px solid rgba(255, 255, 255, 0.08);
-          border-radius: 0.75rem;
-          color: #8888aa;
-          font-size: 0.9rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          text-align: center;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .genre-btn::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: linear-gradient(135deg, var(--genre-color, #8B5CF6) 0%, transparent 100%);
-          opacity: 0;
-          transition: opacity 0.3s ease;
-        }
-
-        .genre-btn:hover {
-          background: rgba(255, 255, 255, 0.08);
-          border-color: rgba(255, 255, 255, 0.15);
-          transform: translateY(-2px);
-        }
-
-        .genre-btn.active {
-          border-color: var(--genre-color, #8B5CF6);
-          color: white;
-          background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.05));
-          box-shadow: 0 0 20px rgba(139, 92, 246, 0.15),
-                      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        }
-
-        .genre-btn.active::before {
-          opacity: 0.15;
-        }
-
-        .mood-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-          gap: 0.6rem;
-        }
-
-        .mood-btn {
-          padding: 0.875rem 0.5rem;
-          background: rgba(0, 0, 0, 0.4);
-          border: 2px solid rgba(255, 255, 255, 0.08);
-          border-radius: 0.75rem;
-          color: #8888aa;
-          font-size: 0.85rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          text-align: center;
-        }
-
-        .mood-btn:hover {
-          background: rgba(255, 255, 255, 0.08);
-          border-color: rgba(255, 255, 255, 0.15);
-          transform: translateY(-2px);
-        }
-
-        .mood-btn.active {
-          border-color: #8B5CF6;
-          color: white;
-          background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.05));
-          box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
-        }
-
-        .generate-btn {
-          width: 100%;
-          padding: 1.15rem;
-          background: linear-gradient(135deg, #EC4899 0%, #8B5CF6 50%, #06B6D4 100%);
-          background-size: 200% 200%;
-          border: none;
-          border-radius: 0.75rem;
-          color: white;
-          font-size: 1.1rem;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.75rem;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-          box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
-        }
-
-        .generate-btn:hover:not(:disabled) {
-          background-position: 100% 100%;
-          transform: translateY(-3px);
-          box-shadow: 0 8px 30px rgba(139, 92, 246, 0.5);
-        }
-
-        .generate-btn:disabled {
-          opacity: 0.7;
-          cursor: not-allowed;
-        }
-
-        .agents-row {
-          display: flex;
-          gap: 0.75rem;
-          margin-bottom: 1.5rem;
-          flex-wrap: wrap;
-        }
-
-        .agent-chip {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.6rem 1rem;
-          background: rgba(139, 92, 246, 0.1);
-          border: 1px solid rgba(139, 92, 246, 0.2);
-          border-radius: 2rem;
-          font-size: 0.85rem;
-          font-weight: 500;
-        }
-
-        .agent-emoji {
-          font-size: 1.2rem;
-        }
-
-        .transcript {
-          max-height: 280px;
-          overflow-y: auto;
-          margin-bottom: 1.5rem;
-          padding-right: 0.5rem;
-        }
-
-        .transcript::-webkit-scrollbar {
-          width: 6px;
-        }
-
-        .transcript::-webkit-scrollbar-track {
-          background: rgba(0, 0, 0, 0.2);
-          border-radius: 3px;
-        }
-
-        .transcript::-webkit-scrollbar-thumb {
-          background: rgba(139, 92, 246, 0.4);
-          border-radius: 3px;
-        }
-
-        .transcript-entry {
-          display: flex;
-          gap: 1rem;
-          padding: 1rem;
-          background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(139, 92, 246, 0.05));
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 0.75rem;
-          margin-bottom: 0.6rem;
-          animation: slideIn 0.4s ease-out;
-        }
-
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateX(-20px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-
-        .transcript-emoji {
-          font-size: 1.5rem;
-        }
-
-        .transcript-content {
-          flex: 1;
-        }
-
-        .transcript-agent {
-          font-weight: 600;
-          margin-bottom: 0.25rem;
-          color: #fff;
-        }
-
-        .transcript-message {
-          color: #9090b0;
-          font-size: 0.9rem;
-          line-height: 1.4;
-        }
-
-        .prompt-box {
-          background: linear-gradient(145deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.1));
-          border: 1px solid rgba(139, 92, 246, 0.25);
-          border-radius: 1rem;
-          padding: 1.5rem;
-          margin-bottom: 1rem;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .prompt-box::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 2px;
-          background: linear-gradient(90deg, #EC4899, #8B5CF6, #06B6D4);
-        }
-
-        .prompt-label {
-          font-size: 0.75rem;
-          color: #8888aa;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          margin-bottom: 0.75rem;
-          font-weight: 600;
-        }
-
-        .prompt-text {
-          font-size: 1.05rem;
-          line-height: 1.7;
-          color: white;
-        }
-
-        .copy-btn {
-          width: 100%;
-          padding: 1rem;
-          background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
-          border: 1px solid rgba(16, 185, 129, 0.3);
-          border-radius: 0.75rem;
-          color: #10B981;
-          font-size: 1rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.75rem;
-        }
-
-        .copy-btn:hover {
-          background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(16, 185, 129, 0.2));
-          transform: translateY(-2px);
-          box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
-        }
-
-        .copy-btn.copied {
-          background: linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(16, 185, 129, 0.3));
-          color: white;
-        }
-
-        .instructions {
-          margin-top: 1.5rem;
-        }
-
-        .instructions-title {
-          font-weight: 600;
-          margin-bottom: 0.75rem;
-          color: #9090b0;
-          font-size: 0.9rem;
-        }
-
-        .instructions-list {
-          list-style: none;
-          padding: 0;
-        }
-
-        .instructions-list li {
-          padding: 0.6rem 0;
-          color: #8888aa;
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          font-size: 0.9rem;
-        }
-
-        .instructions-list li::before {
-          content: '→';
-          color: #8B5CF6;
-          font-weight: bold;
-        }
-
-        .error-message {
-          background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
-          border: 1px solid rgba(239, 68, 68, 0.3);
-          color: #F87171;
-          padding: 1rem 1.25rem;
-          border-radius: 0.75rem;
-          margin-bottom: 1.25rem;
-          font-weight: 500;
-        }
-
-        .loading-dots {
-          display: inline-flex;
-          gap: 0.3rem;
-        }
-
-        .loading-dots span {
-          width: 8px;
-          height: 8px;
-          background: white;
-          border-radius: 50%;
-          animation: bounce 1.4s infinite ease-in-out both;
-        }
-
-        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
-        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
-
-        @keyframes bounce {
-          0%, 80%, 100% { transform: scale(0); }
-          40% { transform: scale(1); }
-        }
-
-        .empty-state {
-          text-align: center;
-          padding: 3rem 2rem;
-          color: #666;
-        }
-
-        .empty-state-icon {
-          font-size: 4rem;
-          margin-bottom: 1rem;
-          opacity: 0.5;
-        }
-
-        .instructions-list a {
-          color: #8B5CF6;
-          text-decoration: none;
-          font-weight: 600;
-          padding: 0.25rem 0.5rem;
-          background: rgba(139, 92, 246, 0.1);
-          border-radius: 0.25rem;
-          transition: all 0.2s;
-        }
-
-        .instructions-list a:hover {
-          background: rgba(139, 92, 246, 0.2);
-        }
-
-        .nav-links {
-          display: flex;
-          justify-content: center;
-          gap: 0.75rem;
-          margin-bottom: 2rem;
-          flex-wrap: wrap;
-        }
-
-        .nav-link {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.7rem 1.25rem;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 0.6rem;
-          color: #8888aa;
-          text-decoration: none;
-          transition: all 0.3s ease;
-          font-size: 0.9rem;
-        }
-
-        .nav-link:hover {
-          background: rgba(255, 255, 255, 0.08);
-          color: white;
-          border-color: rgba(139, 92, 246, 0.3);
-          transform: translateY(-2px);
-        }
-      `}</style>
-
-      <div className="container">
-        <header className="header">
-          <h1>🎵 Music Studio</h1>
-          <p>AI Songwriter Agents collaborate to create your next hit</p>
-        </header>
-
-        <nav className="nav-links">
-          <a href="/" className="nav-link">🏠 Home</a>
-          <a href="/meeting" className="nav-link">🤖 Staff Meeting</a>
-          <a href="/voice" className="nav-link">🎤 Voice Control</a>
-          <a href="https://suno.com" target="_blank" rel="noopener noreferrer" className="nav-link">🎵 Suno</a>
-          <a href="https://neuralframes.com" target="_blank" rel="noopener noreferrer" className="nav-link">🎬 Neural Frames</a>
-        </nav>
-
-        <div className="main-grid">
-          {/* Left: Input Form */}
-          <div className="card">
-            <h2 className="card-title">🎤 Create Your Song</h2>
-
-            {error && <div className="error-message">{error}</div>}
-
-            {/* Mode Selector */}
-            <div className="form-group">
-              <label className="form-label">Creative Mode</label>
-              <div className="genre-grid">
-                {modes.map((m) => (
-                  <button
-                    key={m.value}
-                    className={`genre-btn ${mode === m.value ? 'active' : ''}`}
-                    style={{ '--genre-color': m.color } as React.CSSProperties}
-                    onClick={() => setMode(m.value)}
-                  >
-                    {m.label}
-                    <span style={{ fontSize: '0.7rem', display: 'block', opacity: 0.8 }}>{m.desc}</span>
-                  </button>
+    <div className="min-h-screen relative overflow-hidden text-white">
+      <PageBackground color="purple" />
+
+      <div className="container-main pt-8 pb-20 relative z-10">
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-3">
+              <Music className="text-purple-400" size={32} />
+              <span>Tone<span className="text-purple-400">Lab</span></span>
+            </h1>
+            <p className="text-gray-400 text-sm mt-1">AI-Powered Music Production Suite</p>
+          </div>
+
+          <div className="flex bg-white/5 rounded-lg p-1">
+            {MODES.map(m => (
+              <button
+                key={m.id}
+                onClick={() => setMode(m.id)}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${mode === m.id
+                  ? `bg-${m.color}-500/20 text-${m.color}-400 shadow-sm border border-${m.color}-500/30`
+                  : 'text-gray-400 hover:text-white'
+                  }`}
+              >
+                <m.icon size={14} />
+                {m.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-8">
+
+          {/* Left: Controls */}
+          <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="glass-card p-6"
+            >
+              <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <Activity size={18} className="text-cyan-400" />
+                Configuration
+              </h2>
+
+              {mode === 'standard' ? (
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Theme / Prompt</label>
+                    <input
+                      type="text"
+                      value={theme}
+                      onChange={e => setTheme(e.target.value)}
+                      placeholder="e.g. Neon city nights..."
+                      className="w-full bg-[#0a0a0f] border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-400 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Genre</label>
+                    <div className="flex flex-wrap gap-2">
+                      {GENRES.map(g => (
+                        <button
+                          key={g}
+                          onClick={() => setGenre(g)}
+                          className={`px-3 py-1.5 rounded text-xs transition-all ${genre === g
+                            ? 'bg-purple-500 text-white shadow-[0_0_10px_rgba(168,85,247,0.4)]'
+                            : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                            }`}
+                        >
+                          {g}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Mood</label>
+                    <div className="flex flex-wrap gap-2">
+                      {MOODS.map(m => (
+                        <button
+                          key={m}
+                          onClick={() => setMood(m)}
+                          className={`px-3 py-1.5 rounded text-xs transition-all ${mood === m
+                            ? 'bg-cyan-500 text-black font-semibold shadow-[0_0_10px_rgba(6,182,212,0.4)]'
+                            : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                            }`}
+                        >
+                          {m}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-sm text-red-200">
+                  <div className="font-bold mb-2 flex items-center gap-2">
+                    <Radio size={16} /> Autonomous Mode
+                  </div>
+                  This agent operates autonomously. It will scan news sources, select topics, and generate lyrics automatically.
+                </div>
+              )}
+
+              <div className="mt-8">
+                <button
+                  onClick={handleGenerate}
+                  disabled={isGenerating || (mode === 'standard' && !theme)}
+                  className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold text-white shadow-lg shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isGenerating ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Composing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Disc className="animate-spin-slow" />
+                      <span>Generate Track</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+
+            {/* Agents Status */}
+            <div className="glass-card p-6">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Active Agents</h3>
+              <div className="space-y-3">
+                {agents.map(agent => (
+                  <div key={agent.id} className="flex items-center gap-3 p-2 rounded-lg bg-white/5 border border-white/5">
+                    <div className="text-xl">{agent.emoji}</div>
+                    <div>
+                      <div className="font-medium text-sm">{agent.name}</div>
+                      <div className="text-xs text-gray-500">{agent.style}</div>
+                    </div>
+                    <div className="ml-auto w-2 h-2 rounded-full bg-green-500 shadow-[0_0_5px_#22c55e]" />
+                  </div>
                 ))}
               </div>
             </div>
-
-            {/* Standard Mode Fields */}
-            {mode === 'standard' && (
-              <>
-                <div className="form-group">
-                  <label className="form-label">Theme / Concept</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="e.g., chasing dreams, midnight city, summer love..."
-                    value={theme}
-                    onChange={(e) => setTheme(e.target.value)}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Genre</label>
-                  <div className="genre-grid">
-                    {genres.map((g) => (
-                      <button
-                        key={g.value}
-                        className={`genre-btn ${genre === g.value ? 'active' : ''}`}
-                        style={{ '--genre-color': g.color } as React.CSSProperties}
-                        onClick={() => setGenre(g.value)}
-                      >
-                        {g.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Mood</label>
-                  <div className="mood-grid">
-                    {moods.map((m) => (
-                      <button
-                        key={m.value}
-                        className={`mood-btn ${mood === m.value ? 'active' : ''}`}
-                        onClick={() => setMood(m.value)}
-                      >
-                        {m.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* Political Mode (Newsician) Fields */}
-            {mode === 'political' && (
-              <>
-                <div style={{
-                  background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(180, 30, 30, 0.1))',
-                  padding: '1rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid rgba(220, 38, 38, 0.3)',
-                  marginBottom: '1.5rem'
-                }}>
-                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                    <span style={{ fontSize: '2rem' }}>🎤</span>
-                    <div>
-                      <h3 style={{ margin: 0, color: '#EF4444' }}>Newsician - Political Rap Duo</h3>
-                      <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#ccc' }}>
-                        <strong>The Truth Teller</strong> (MacDonald/Webby style) + <strong>The Outlaw</strong> (Yelawolf/Williams style)
-                      </p>
-                      <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', opacity: 0.7 }}>
-                        Pulling from Alpha News, Walter Hudson, and conservative sources to expose corruption.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Focus Area</label>
-                  <div className="genre-grid">
-                    <button
-                      className={`genre-btn ${focusArea === 'minnesota' ? 'active' : ''}`}
-                      style={{ '--genre-color': '#DC2626' } as React.CSSProperties}
-                      onClick={() => setFocusArea('minnesota')}
-                    >
-                      🏔️ Minnesota
-                      <span style={{ fontSize: '0.7rem', display: 'block', opacity: 0.8 }}>DFL, Walz, Twin Cities</span>
-                    </button>
-                    <button
-                      className={`genre-btn ${focusArea === 'national' ? 'active' : ''}`}
-                      style={{ '--genre-color': '#1E40AF' } as React.CSSProperties}
-                      onClick={() => setFocusArea('national')}
-                    >
-                      🇺🇸 National
-                      <span style={{ fontSize: '0.7rem', display: 'block', opacity: 0.8 }}>Federal, Congress, DC</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div style={{
-                  background: 'rgba(0,0,0,0.3)',
-                  padding: '1rem',
-                  borderRadius: '0.5rem',
-                  marginBottom: '1rem',
-                  fontSize: '0.85rem',
-                  color: '#a0a0c0'
-                }}>
-                  <strong>📰 News Sources Used:</strong><br />
-                  Alpha News MN • Walter Hudson • Bring Me The News • The Blaze • Daily Wire • Fox News
-                </div>
-              </>
-            )}
-
-            {/* Sentinel Mode (Midwest Sentinel) Fields */}
-            {mode === 'sentinel' && (
-              <>
-                <div style={{
-                  background: 'linear-gradient(135deg, rgba(30, 64, 175, 0.2), rgba(20, 50, 150, 0.1))',
-                  padding: '1rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid rgba(30, 64, 175, 0.3)',
-                  marginBottom: '1.5rem'
-                }}>
-                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                    <span style={{ fontSize: '2rem' }}>🎧</span>
-                    <div>
-                      <h3 style={{ margin: 0, color: '#60A5FA' }}>Midwest Sentinel - Platform-Friendly</h3>
-                      <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#ccc' }}>
-                        <strong>Boom Bap</strong> storytelling • USMC vet voice • Grandma-approved
-                      </p>
-                      <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', opacity: 0.7 }}>
-                        Metaphorical political themes. Clean enough to share, sharp enough to matter.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Focus Area</label>
-                  <div className="genre-grid">
-                    <button
-                      className={`genre-btn ${focusArea === 'minnesota' ? 'active' : ''}`}
-                      style={{ '--genre-color': '#1E40AF' } as React.CSSProperties}
-                      onClick={() => setFocusArea('minnesota')}
-                    >
-                      🏔️ Minnesota
-                      <span style={{ fontSize: '0.7rem', display: 'block', opacity: 0.8 }}>Iron Range, Twin Cities, Rural</span>
-                    </button>
-                    <button
-                      className={`genre-btn ${focusArea === 'national' ? 'active' : ''}`}
-                      style={{ '--genre-color': '#7C3AED' } as React.CSSProperties}
-                      onClick={() => setFocusArea('national')}
-                    >
-                      🇺🇸 National
-                      <span style={{ fontSize: '0.7rem', display: 'block', opacity: 0.8 }}>Heartland, Working Class</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div style={{
-                  background: 'rgba(0,0,0,0.3)',
-                  padding: '1rem',
-                  borderRadius: '0.5rem',
-                  marginBottom: '1rem',
-                  fontSize: '0.85rem',
-                  color: '#a0a0c0'
-                }}>
-                  <strong>🎵 Style:</strong> Boom Bap, Soul Samples, Storytelling Hip-Hop<br />
-                  <strong>📜 Disclaimer:</strong> Fictional narrative for entertainment only
-                </div>
-              </>
-            )}
-
-            <button
-              className="generate-btn"
-              onClick={handleGenerate}
-              disabled={isGenerating}
-            >
-              {isGenerating ? (
-                <>
-                  {mode === 'political' ? 'Newsician analyzing' : mode === 'sentinel' ? 'Sentinel gathering stories' : 'Songwriters collaborating'}
-                  <span className="loading-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </span>
-                </>
-              ) : (
-                <>{mode === 'political' ? '🎤 Generate Political Rap (Explicit)' : mode === 'sentinel' ? '🎧 Generate Boom Bap Track (Clean)' : '🎵 Generate Song Prompt'}</>
-              )}
-            </button>
-
-            {/* Agents */}
-            <div style={{ marginTop: '1.5rem' }}>
-              <label className="form-label">Your Songwriting Team</label>
-              <div className="agents-row">
-                <div className="agent-chip">
-                  <span className="agent-emoji">✍️</span>
-                  <span>Lyricist</span>
-                </div>
-                <div className="agent-chip">
-                  <span className="agent-emoji">🎹</span>
-                  <span>Composer</span>
-                </div>
-                <div className="agent-chip">
-                  <span className="agent-emoji">🎯</span>
-                  <span>Critic</span>
-                </div>
-                <div className="agent-chip">
-                  <span className="agent-emoji">🎧</span>
-                  <span>Producer</span>
-                </div>
-              </div>
-            </div>
           </div>
 
-          {/* Right: Results */}
-          <div className="card">
-            <h2 className="card-title">📝 Your Suno Prompt</h2>
+          {/* Center: Output / Visualizer */}
+          <div className="lg:col-span-2 space-y-6">
 
-            {!result && !isGenerating && (
-              <div className="empty-state">
-                <div className="empty-state-icon">🎼</div>
-                <p>Enter a theme and click Generate to create your song prompt</p>
+            {/* Prompt Display */}
+            {result ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="glass-card p-0 overflow-hidden border-purple-500/30"
+              >
+                <div className="bg-gradient-to-r from-purple-900/40 to-pink-900/40 p-4 border-b border-white/10 flex items-center justify-between">
+                  <h3 className="font-bold flex items-center gap-2">
+                    <Disc className="text-purple-400" />
+                    Ready for Suno
+                  </h3>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(result.sunoPrompt.copyToSuno);
+                      // Show toast
+                    }}
+                    className="text-xs bg-purple-500 hover:bg-purple-400 text-white px-3 py-1.5 rounded transition-colors"
+                  >
+                    Copy Prompt
+                  </button>
+                </div>
+                <div className="p-6">
+                  <div className="bg-[#0a0a0f] rounded-xl p-4 font-mono text-sm text-gray-300 whitespace-pre-wrap border border-white/10 max-h-[400px] overflow-y-auto custom-scrollbar">
+                    {result.sunoPrompt.copyToSuno}
+                  </div>
+
+                  <div className="mt-6 flex gap-4">
+                    <a
+                      href="https://suno.com/create"
+                      target="_blank"
+                      className="flex-1 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-center font-medium transition-all flex items-center justify-center gap-2 group"
+                    >
+                      <Music className="text-purple-400 group-hover:scale-110 transition-transform" />
+                      Open Suno
+                    </a>
+                    <a
+                      href="https://neuralframes.com"
+                      target="_blank"
+                      className="flex-1 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-center font-medium transition-all flex items-center justify-center gap-2 group"
+                    >
+                      <Share2 className="text-cyan-400 group-hover:scale-110 transition-transform" />
+                      Create Video
+                    </a>
+                  </div>
+                </div>
+              </motion.div>
+            ) : (
+              <div className="h-full min-h-[400px] glass-card flex flex-col items-center justify-center text-center p-8 border-dashed border-2 border-white/10 bg-white/5">
+                <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
+                  <Music size={40} className="text-gray-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-300 mb-2">Studio Ready</h3>
+                <p className="text-gray-500 max-w-sm">
+                  Select a mode and generate your next hit properly engineered prompt for Suno.
+                </p>
               </div>
-            )}
-
-            {isGenerating && (
-              <div className="transcript">
-                <div className="transcript-entry">
-                  <span className="transcript-emoji">✍️</span>
-                  <div className="transcript-content">
-                    <div className="transcript-agent">Lyricist</div>
-                    <div className="transcript-message">Brainstorming lyrics for "{theme}"...</div>
-                  </div>
-                </div>
-                <div className="transcript-entry">
-                  <span className="transcript-emoji">🎹</span>
-                  <div className="transcript-content">
-                    <div className="transcript-agent">Composer</div>
-                    <div className="transcript-message">Designing {genre} style and arrangement...</div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {result && (
-              <>
-                <div className="transcript">
-                  {result.transcript?.map((entry, i) => (
-                    <div key={i} className="transcript-entry">
-                      <span className="transcript-emoji">{entry.emoji}</span>
-                      <div className="transcript-content">
-                        <div className="transcript-agent">{entry.agent}</div>
-                        <div className="transcript-message">{entry.message}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="prompt-box">
-                  <div className="prompt-label">Copy this to Suno</div>
-                  <div className="prompt-text">
-                    {result.sunoPrompt?.fullPrompt || result.sunoPrompt?.copyToSuno}
-                  </div>
-                </div>
-
-                <button className={`copy-btn ${copied ? 'copied' : ''}`} onClick={copyToClipboard}>
-                  {copied ? '✅ Copied!' : '📋 Copy Prompt to Clipboard'}
-                </button>
-
-                <div className="instructions">
-                  <div className="instructions-title">Next Steps</div>
-                  <ul className="instructions-list">
-                    <li>Go to <a href="https://suno.com" target="_blank" rel="noopener noreferrer">suno.com</a></li>
-                    <li>Paste the prompt and generate 2-3 variations</li>
-                    <li>Pick your favorite and download the audio</li>
-                    <li>Upload to <a href="https://neuralframes.com" target="_blank" rel="noopener noreferrer">Neural Frames</a> for video</li>
-                    <li>Publish to <a href="https://studio.youtube.com" target="_blank" rel="noopener noreferrer">YouTube Studio</a></li>
-                  </ul>
-                </div>
-              </>
             )}
           </div>
+
         </div>
       </div>
     </div>
