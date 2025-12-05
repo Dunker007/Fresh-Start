@@ -57,7 +57,7 @@ const defaultSettings: Settings = {
 export default function SettingsPage() {
     const [settings, setSettings] = useState<Settings>(defaultSettings);
     const [saved, setSaved] = useState(false);
-    const [activeTab, setActiveTab] = useState<'general' | 'ai' | 'privacy' | 'bridge' | 'notifications'>('general');
+    const [activeTab, setActiveTab] = useState<'general' | 'ai' | 'privacy' | 'bridge' | 'google' | 'notifications'>('general');
 
     function updateSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
         setSettings(prev => ({ ...prev, [key]: value }));
@@ -79,6 +79,7 @@ export default function SettingsPage() {
         { id: 'ai', label: 'AI', icon: '🤖' },
         { id: 'privacy', label: 'Privacy', icon: '🔒' },
         { id: 'bridge', label: 'Bridge', icon: '🌉' },
+        { id: 'google', label: 'Google', icon: '🔐' },
         { id: 'notifications', label: 'Notifications', icon: '🔔' },
     ];
 
@@ -351,6 +352,31 @@ export default function SettingsPage() {
 
                                     <div className="pt-4 border-t border-gray-700">
                                         <button className="btn-primary">Test Connection</button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Google Integration */}
+                            {activeTab === 'google' && (
+                                <div className="space-y-6">
+                                    <h2 className="text-xl font-bold">🔐 Google Integration</h2>
+
+                                    <div className="p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
+                                        <p className="text-cyan-400 mb-2">✨ Connect your Google account to access:</p>
+                                        <ul className="list-disc list-inside text-gray-400 space-y-1">
+                                            <li>Google Calendar events</li>
+                                            <li>Google Drive files</li>
+                                            <li>Gmail integration (coming soon)</li>
+                                        </ul>
+                                    </div>
+
+                                    <div className="pt-4 border-t border-gray-700">
+                                        <Link
+                                            href="/google-test"
+                                            className="btn-primary inline-block"
+                                        >
+                                            Test Google Integration →
+                                        </Link>
                                     </div>
                                 </div>
                             )}

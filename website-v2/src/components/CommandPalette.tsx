@@ -149,9 +149,7 @@ export default function CommandPalette() {
     }, [open, selectedIndex, flatCommands]);
 
     // Reset selection when search changes
-    useEffect(() => {
-        setSelectedIndex(0);
-    }, [search]);
+
 
     return (
         <AnimatePresence>
@@ -182,7 +180,10 @@ export default function CommandPalette() {
                                     type="text"
                                     placeholder="Search commands..."
                                     value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
+                                    onChange={(e) => {
+                                        setSearch(e.target.value);
+                                        setSelectedIndex(0);
+                                    }}
                                     className="flex-1 bg-transparent focus:outline-none text-lg"
                                     autoFocus
                                 />

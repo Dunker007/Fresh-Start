@@ -27,12 +27,6 @@ export default function StatusPage() {
     const [lastChecked, setLastChecked] = useState<Date>(new Date());
     const [overallStatus, setOverallStatus] = useState<'operational' | 'degraded' | 'down'>('operational');
 
-    useEffect(() => {
-        checkAllServices();
-        const interval = setInterval(checkAllServices, 30000); // Check every 30s
-        return () => clearInterval(interval);
-    }, []);
-
     async function checkAllServices() {
         const startTime = Date.now();
 
@@ -98,6 +92,12 @@ export default function StatusPage() {
         setLastChecked(new Date());
         updateOverallStatus();
     }
+
+    useEffect(() => {
+        checkAllServices();
+        const interval = setInterval(checkAllServices, 30000); // Check every 30s
+        return () => clearInterval(interval);
+    }, []);
 
     function updateService(name: string, status: ServiceStatus['status'], latency?: number) {
         setServices(prev => prev.map(s =>

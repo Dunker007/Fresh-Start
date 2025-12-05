@@ -53,6 +53,17 @@ export default function SystemStatus() {
     const [connected, setConnected] = useState(false);
 
     useEffect(() => {
+        async function fetchStatus() {
+            try {
+                const res = await fetch(`${LUXRIG_BRIDGE_URL}/status`);
+                const data = await res.json();
+                setStatus(data);
+                setError(null);
+            } catch {
+                setError('Failed to connect to LuxRig');
+            }
+        }
+
         // Initial fetch
         fetchStatus();
 
@@ -83,17 +94,6 @@ export default function SystemStatus() {
 
         return () => ws.close();
     }, []);
-
-    async function fetchStatus() {
-        try {
-            const res = await fetch(`${LUXRIG_BRIDGE_URL}/status`);
-            const data = await res.json();
-            setStatus(data);
-            setError(null);
-        } catch {
-            setError('Failed to connect to LuxRig');
-        }
-    }
 
     if (error && !status) {
         return (

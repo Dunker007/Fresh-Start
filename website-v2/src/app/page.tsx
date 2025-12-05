@@ -334,8 +334,8 @@ export default function Home() {
                 </h2>
 
                 <p className="text-lg text-gray-400 mb-6">
-                  The industry learned from 2025's vibe coding hangover. Now we're building
-                  AI that's <span className="text-cyan-400">reliable</span>, <span className="text-green-400">accountable</span>,
+                  The industry learned from 2025&apos;s vibe coding hangover. Now we&apos;re building
+                  AI that&apos;s <span className="text-cyan-400">reliable</span>, <span className="text-green-400">accountable</span>,
                   and <span className="text-purple-400">truly helpful</span>.
                 </p>
 

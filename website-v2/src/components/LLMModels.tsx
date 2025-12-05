@@ -27,20 +27,20 @@ export default function LLMModels() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        async function fetchModels() {
+            try {
+                const res = await fetch(`${BRIDGE_URL}/llm/models`);
+                const data = await res.json();
+                setModels(data);
+            } catch (e) {
+                console.error('Failed to fetch models');
+            } finally {
+                setLoading(false);
+            }
+        }
+
         fetchModels();
     }, []);
-
-    async function fetchModels() {
-        try {
-            const res = await fetch(`${BRIDGE_URL}/llm/models`);
-            const data = await res.json();
-            setModels(data);
-        } catch (e) {
-            console.error('Failed to fetch models');
-        } finally {
-            setLoading(false);
-        }
-    }
 
     if (loading) {
         return (

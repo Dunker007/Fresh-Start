@@ -50,37 +50,37 @@ export default function PlaygroundPage() {
     const [stats, setStats] = useState<{ tokens?: number; time?: number }>({});
 
     useEffect(() => {
+        async function fetchModels() {
+            try {
+                const [lmRes, ollamaRes] = await Promise.all([
+                    fetch(`${BRIDGE_URL}/llm/lmstudio/models`).catch(() => ({ ok: false })),
+                    fetch(`${BRIDGE_URL}/llm/ollama/models`).catch(() => ({ ok: false })),
+                ]);
+
+                const allModels: Model[] = [];
+
+                if (lmRes.ok) {
+                    const lmData = await (lmRes as Response).json();
+                    allModels.push(...lmData.map((m: any) => ({ ...m, provider: 'lmstudio' as const, name: m.id })));
+                }
+
+                if (ollamaRes.ok) {
+                    const ollamaData = await (ollamaRes as Response).json();
+                    allModels.push(...ollamaData.map((m: any) => ({ ...m, provider: 'ollama' as const, name: m.id })));
+                }
+
+                setModels(allModels);
+                if (allModels.length > 0) {
+                    setSelectedModel(allModels[0].id);
+                    setSelectedProvider(allModels[0].provider);
+                }
+            } catch (e) {
+                console.error('Failed to fetch models');
+            }
+        }
+
         fetchModels();
     }, []);
-
-    async function fetchModels() {
-        try {
-            const [lmRes, ollamaRes] = await Promise.all([
-                fetch(`${BRIDGE_URL}/llm/lmstudio/models`).catch(() => ({ ok: false })),
-                fetch(`${BRIDGE_URL}/llm/ollama/models`).catch(() => ({ ok: false })),
-            ]);
-
-            const allModels: Model[] = [];
-
-            if (lmRes.ok) {
-                const lmData = await (lmRes as Response).json();
-                allModels.push(...lmData.map((m: any) => ({ ...m, provider: 'lmstudio' as const, name: m.id })));
-            }
-
-            if (ollamaRes.ok) {
-                const ollamaData = await (ollamaRes as Response).json();
-                allModels.push(...ollamaData.map((m: any) => ({ ...m, provider: 'ollama' as const, name: m.id })));
-            }
-
-            setModels(allModels);
-            if (allModels.length > 0) {
-                setSelectedModel(allModels[0].id);
-                setSelectedProvider(allModels[0].provider);
-            }
-        } catch (e) {
-            console.error('Failed to fetch models');
-        }
-    }
 
     async function sendMessage() {
         if (!input.trim() || !selectedModel) return;
