@@ -4,7 +4,9 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
-const BRIDGE_URL = 'http://localhost:3456';
+import { LUXRIG_BRIDGE_URL } from '@/lib/utils';
+
+const BRIDGE_URL = LUXRIG_BRIDGE_URL;
 
 interface Message {
     role: 'user' | 'assistant' | 'system';
@@ -201,8 +203,8 @@ export default function PlaygroundPage() {
                                         key={sp.name}
                                         onClick={() => setSystemPrompt(sp.prompt)}
                                         className={`px-2 py-1 rounded text-xs ${systemPrompt === sp.prompt
-                                                ? 'bg-cyan-500 text-black'
-                                                : 'bg-white/10 hover:bg-white/20'
+                                            ? 'bg-cyan-500 text-black'
+                                            : 'bg-white/10 hover:bg-white/20'
                                             }`}
                                     >
                                         {sp.name}
@@ -319,8 +321,8 @@ export default function PlaygroundPage() {
                                         <div
                                             key={i}
                                             className={`p-4 rounded-lg ${msg.role === 'user'
-                                                    ? 'bg-cyan-500/10 border border-cyan-500/30'
-                                                    : 'bg-white/5'
+                                                ? 'bg-cyan-500/10 border border-cyan-500/30'
+                                                : 'bg-white/5'
                                                 }`}
                                         >
                                             <div className="text-xs text-gray-500 mb-1">

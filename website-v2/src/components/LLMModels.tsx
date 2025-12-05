@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { LUXRIG_BRIDGE_URL } from '@/lib/utils';
 
 interface Model {
     id: string;
@@ -19,7 +20,7 @@ interface ModelsResponse {
     total: number;
 }
 
-const BRIDGE_URL = 'http://localhost:3456';
+const BRIDGE_URL = LUXRIG_BRIDGE_URL;
 
 export default function LLMModels() {
     const [models, setModels] = useState<ModelsResponse | null>(null);

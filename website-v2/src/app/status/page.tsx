@@ -3,8 +3,9 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { LUXRIG_BRIDGE_URL } from '@/lib/utils';
 
-const BRIDGE_URL = 'http://localhost:3456';
+const BRIDGE_URL = LUXRIG_BRIDGE_URL;
 
 interface ServiceStatus {
     name: string;
@@ -153,7 +154,7 @@ export default function StatusPage() {
             <section className="container-main pb-12">
                 <motion.div
                     className={`glass-card text-center py-8 border-2 ${overallStatus === 'operational' ? 'border-green-500/30' :
-                            overallStatus === 'degraded' ? 'border-yellow-500/30' : 'border-red-500/30'
+                        overallStatus === 'degraded' ? 'border-yellow-500/30' : 'border-red-500/30'
                         }`}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}

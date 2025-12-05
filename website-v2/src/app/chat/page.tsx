@@ -4,7 +4,9 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 
-const BRIDGE_URL = 'http://localhost:3456';
+import { LUXRIG_BRIDGE_URL } from '@/lib/utils';
+
+const BRIDGE_URL = LUXRIG_BRIDGE_URL;
 
 interface Message {
     id: string;
@@ -194,8 +196,8 @@ export default function ChatPage() {
                             animate={{ opacity: 1, y: 0 }}
                         >
                             <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === 'user'
-                                    ? 'bg-cyan-500 text-black'
-                                    : 'glass-card'
+                                ? 'bg-cyan-500 text-black'
+                                : 'glass-card'
                                 }`}>
                                 {message.role === 'assistant' && message.model && (
                                     <div className="text-xs text-gray-500 mb-2">

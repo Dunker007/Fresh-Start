@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useState } from 'react';
+import { LUXRIG_BRIDGE_URL } from '@/lib/utils';
 
 interface Settings {
     // General
@@ -45,7 +46,7 @@ const defaultSettings: Settings = {
     saveHistory: true,
     analytics: false,
     sendCrashReports: true,
-    bridgeUrl: 'http://localhost:3456',
+    bridgeUrl: LUXRIG_BRIDGE_URL,
     autoConnect: true,
     reconnectInterval: 5000,
     notifyOnComplete: true,
@@ -115,8 +116,8 @@ export default function SettingsPage() {
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id as typeof activeTab)}
                                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${activeTab === tab.id
-                                            ? 'bg-cyan-500/20 text-cyan-400'
-                                            : 'hover:bg-white/10'
+                                        ? 'bg-cyan-500/20 text-cyan-400'
+                                        : 'hover:bg-white/10'
                                         }`}
                                 >
                                     <span>{tab.icon}</span>

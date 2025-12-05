@@ -202,8 +202,8 @@ export default function DocsPage() {
                             key={sdk.lang}
                             onClick={() => setSelectedSdk(i)}
                             className={`px-4 py-2 rounded-lg transition-all ${selectedSdk === i
-                                    ? 'bg-cyan-500 text-black font-medium'
-                                    : 'bg-white/10 hover:bg-white/20'
+                                ? 'bg-cyan-500 text-black font-medium'
+                                : 'bg-white/10 hover:bg-white/20'
                                 }`}
                         >
                             {sdk.icon} {sdk.lang}
@@ -287,10 +287,10 @@ export default function DocsPage() {
                     <h2 className="text-2xl font-bold mb-6">🔌 WebSocket (Real-time)</h2>
                     <div className="glass-card">
                         <p className="text-gray-400 mb-4">
-                            Connect to <code className="text-cyan-400">ws://localhost:3456</code> for real-time updates.
+                            Connect to <code className="text-cyan-400">{LUXRIG_BRIDGE_URL.replace('http', 'ws')}</code> for real-time updates.
                         </p>
                         <pre className="p-4 bg-[#0a0e1a] rounded-lg overflow-x-auto">
-                            <code className="text-sm text-cyan-400 font-mono">{`const ws = new WebSocket('ws://localhost:3456');
+                            <code className="text-sm text-cyan-400 font-mono">{`const ws = new WebSocket('${LUXRIG_BRIDGE_URL.replace('http', 'ws')}');
 
 ws.onmessage = (event) => {
   const data = JSON.parse(event.data);

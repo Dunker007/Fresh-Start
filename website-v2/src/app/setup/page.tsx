@@ -4,7 +4,9 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
-const BRIDGE_URL = 'http://localhost:3456';
+import { LUXRIG_BRIDGE_URL } from '@/lib/utils';
+
+const BRIDGE_URL = LUXRIG_BRIDGE_URL;
 
 interface Tool {
     name: string;
