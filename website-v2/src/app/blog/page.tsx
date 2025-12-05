@@ -47,7 +47,7 @@ const articles = [
         date: 'Dec 1, 2024',
         image: '✨',
         featured: false,
-        author: 'Kai (AI)'
+        author: 'Lux (AI)'
     },
     {
         id: 5,
@@ -180,8 +180,8 @@ export default function BlogPage() {
                                 key={cat}
                                 onClick={() => setFilter(cat)}
                                 className={`px-4 py-2 rounded-lg text-sm ${filter === cat
-                                        ? 'bg-cyan-500 text-black'
-                                        : 'bg-white/10 hover:bg-white/20'
+                                    ? 'bg-cyan-500 text-black'
+                                    : 'bg-white/10 hover:bg-white/20'
                                     }`}
                             >
                                 {cat}

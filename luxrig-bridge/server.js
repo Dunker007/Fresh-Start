@@ -8,7 +8,6 @@ import { WebSocketServer } from 'ws';
 import cors from 'cors';
 import { createServer } from 'http';
 import dotenv from 'dotenv';
-import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 
 // Load environment
@@ -19,41 +18,27 @@ import { lmstudioService } from './services/lmstudio.js';
 import { ollamaService } from './services/ollama.js';
 import { systemService } from './services/system.js';
 import { googleService } from './services/google.js';
-import { createAgent } from './services/agents.js';
+import { createAgent, SongwriterRoom } from './services/agents.js';
 import { errorHandler, errorLogger, rateLimiter, asyncHandler, validate } from './services/errors.js';
 import { performanceMonitor, cache } from './services/performance.js';
+// Security and swagger imports - commented out temporarily for debugging
+// import { security, securityHeaders, sessionMiddleware } from './services/security.js';
+// import { swaggerSpec } from './config/swagger.js';
+// import { StaffMeetingAgent } from './services/agents-staff-meeting.js';
 
 const app = express();
 const PORT = process.env.PORT || 3456;
 
-// Swagger configuration
-const swaggerOptions = {
-    definition: {
-        openapi: '3.0.0',
-        info: {
-            title: 'LuxRig Bridge API',
-            version: '1.0.0',
-            description: 'Production-ready Agentic AI Platform API - Aggregates LM Studio, Ollama, Google Services, and autonomous AI agents',
-        },
-        servers: [
-            {
-                url: `http://localhost:${PORT}`,
-                description: 'Development server',
-            },
-        ],
-    },
-    apis: ['./server.js'], // Path to the API docs
-};
-
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
+// Staff Meeting instance - commented out temporarily
+// const staffMeetingAgent = new StaffMeetingAgent();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(performanceMonitor.middleware()); // Track all request performance
 
-// Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Swagger UI - commented out temporarily
+// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Create HTTP server for both Express and WebSocket
 const server = createServer(app);
@@ -411,6 +396,98 @@ app.post('/agents/:type/reset', async (req, res) => {
     }
 });
 
+// ============ Staff Meeting Routes ============
+
+// Start AI Staff Meeting
+app.post('/agents/meeting', async (req, res) => {
+    try {
+        const { topic, participants = ['architect', 'security', 'qa'], rounds = 2 } = req.body;
+
+        if (!topic) {
+            return res.status(400).json({ error: 'Topic is required' });
+        }
+
+        const startTime = Date.now();
+
+        // Run the meeting
+        const meetingId = `meeting-${Date.now()}`;
+        const transcript = [];
+
+        // Generate meeting transcript with mock responses for now
+        // In production, this would call the actual LLM
+        for (let round = 1; round <= rounds; round++) {
+            for (const participant of participants) {
+                const message = {
+                    id: `${meetingId}-${round}-${participant}`,
+                    agent: participant,
+                    round,
+                    message: generateAgentMessage(participant, topic, round),
+                    timestamp: new Date().toISOString(),
+                    type: round === 1 ? 'brainstorm' : 'debate'
+                };
+                transcript.push(message);
+            }
+        }
+
+        // Generate consensus
+        const consensus = `The team agrees on a ${topic} approach with: microservices architecture, end-to-end encryption, and comprehensive testing.`;
+        const actionItems = [
+            `Architect to create detailed system design for ${topic}`,
+            'Security to perform threat modeling and security review',
+            'QA to define test strategy and acceptance criteria',
+            'DevOps to prepare deployment pipeline'
+        ];
+
+        const result = {
+            meetingId,
+            topic,
+            participants,
+            transcript,
+            consensus,
+            actionItems,
+            duration: Date.now() - startTime
+        };
+
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Helper function to generate agent messages
+function generateAgentMessage(agent, topic, round) {
+    const messages = {
+        architect: {
+            1: `For "${topic}", I recommend a microservices architecture with clear domain boundaries. We should use event-driven communication for scalability and implement a robust API gateway for security and rate limiting.`,
+            2: `I've considered the security concerns. We can implement defense-in-depth: API gateway validation, service-level authorization, and encrypted inter-service communication. This addresses the attack surface concerns.`
+        },
+        security: {
+            1: `I'm analyzing "${topic}" for security implications. Key concerns: authentication flows, data encryption at rest and in transit, audit logging, and rate limiting. We need to prevent OWASP Top 10 vulnerabilities.`,
+            2: `The proposed architecture still has some concerns. The API gateway is a single point of failure for auth. I recommend implementing PKCE for OAuth flows and ensuring all secrets are vault-managed, not environment variables.`
+        },
+        qa: {
+            1: `Testing strategy for "${topic}": unit tests with 80%+ coverage, integration tests for all API endpoints, E2E tests for critical user journeys, and load testing for performance baselines under 200ms latency.`,
+            2: `We also need chaos engineering to test resilience. I recommend implementing circuit breakers and testing failure scenarios. Automated regression tests should run on every PR.`
+        },
+        devops: {
+            1: `Infrastructure for "${topic}": Kubernetes for orchestration, GitOps for deployments, observability with Prometheus/Grafana, and automated scaling based on load patterns.`,
+            2: `For reliability, we need multi-region deployment with automatic failover. Blue-green deployments will minimize downtime during releases.`
+        }
+    };
+
+    return messages[agent]?.[round] || `I have valuable insights on ${topic} from a ${agent} perspective. Let's ensure we follow best practices.`;
+}
+
+// Get meeting status
+app.get('/agents/meeting/:meetingId', (req, res) => {
+    try {
+        const status = staffMeetingAgent.getMeetingStatus();
+        res.json(status);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // ============ Monitoring & Health Routes ============
 
 // Health check with detailed status
@@ -507,6 +584,105 @@ app.get('/monitoring/performance', async (req, res) => {
             cache: cache.getStats()
         });
     } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============ Songwriter Room (Music Pipeline) ============
+
+// Create songwriter room instance
+const songwriterRoom = new SongwriterRoom();
+
+// Get songwriter agent personas
+app.get('/music/agents', (req, res) => {
+    res.json({
+        agents: songwriterRoom.getAgentPersonas(),
+        description: 'Songwriter agents for collaborative music creation'
+    });
+});
+
+// Create a song with the songwriter room
+app.post('/music/create', async (req, res) => {
+    try {
+        const { theme, genre = 'pop', mood = 'uplifting', rounds = 2 } = req.body;
+
+        if (!theme) {
+            return res.status(400).json({ error: 'Theme is required' });
+        }
+
+        const result = await songwriterRoom.createSong(theme, { genre, mood, rounds });
+        res.json(result);
+    } catch (error) {
+        console.error('Songwriter error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get Suno prompt directly (quick mode)
+app.post('/music/prompt', async (req, res) => {
+    try {
+        const { theme, genre = 'pop', mood = 'uplifting' } = req.body;
+
+        if (!theme) {
+            return res.status(400).json({ error: 'Theme is required' });
+        }
+
+        // Quick prompt generation without full collaboration
+        const producer = createAgent('producer');
+        const composer = createAgent('composer');
+
+        const style = await composer.processTask({
+            action: 'suggest-style',
+            theme,
+            genre,
+            mood
+        });
+
+        const prompt = await producer.processTask({
+            action: 'generate-suno-prompt',
+            content: { theme, genre, mood, style }
+        });
+
+        res.json({
+            theme,
+            genre,
+            mood,
+            sunoPrompt: prompt.fullPrompt,
+            styleTags: prompt.styleTags,
+            instructions: prompt.instructions
+        });
+    } catch (error) {
+        console.error('Prompt generation error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Create political rap with Newsician
+app.post('/music/political', async (req, res) => {
+    try {
+        const { focusArea = 'minnesota', headlines = [] } = req.body;
+
+        console.log(`🎤 Newsician creating political rap for ${focusArea}...`);
+
+        const result = await songwriterRoom.createPoliticalRap(headlines, focusArea);
+        res.json(result);
+    } catch (error) {
+        console.error('Newsician error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Create platform-friendly political track with Midwest Sentinel
+app.post('/music/sentinel', async (req, res) => {
+    try {
+        const { focusArea = 'minnesota', headlines = [] } = req.body;
+
+        console.log(`🎧 Midwest Sentinel creating boom bap track for ${focusArea}...`);
+
+        const result = await songwriterRoom.createSentinelTrack(headlines, focusArea);
+        res.json(result);
+    } catch (error) {
+        console.error('Sentinel error:', error);
         res.status(500).json({ error: error.message });
     }
 });

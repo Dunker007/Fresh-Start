@@ -7,6 +7,7 @@ import { Agent } from './agent-core.js';
 import { RevenueAgent } from './agents-revenue.js';
 import { IntentAgent } from './agents-intent.js';
 import { StaffMeetingAgent } from './agents-staff-meeting.js';
+import { LyricistAgent, ComposerAgent, CriticAgent, ProducerAgent, SongwriterRoom } from './agents-songwriter.js';
 
 export { Agent };
 
@@ -705,10 +706,18 @@ export const agentRegistry = {
     qa: QAAgent,
     security: SecurityAgent,
     devops: DevOpsAgent,
-    revenue: RevenueAgent, // Added Revenue Agent (Vision 2026)
-    intent: IntentAgent, // Added Intent Agent (Vision 2026)
-    'staff-meeting': StaffMeetingAgent // Added Staff Meeting Agent (Vision 2026)
+    revenue: RevenueAgent,
+    intent: IntentAgent,
+    'staff-meeting': StaffMeetingAgent,
+    // Songwriter agents (Music Pipeline)
+    lyricist: LyricistAgent,
+    composer: ComposerAgent,
+    critic: CriticAgent,
+    producer: ProducerAgent
 };
+
+// Export SongwriterRoom for music pipeline
+export { SongwriterRoom };
 
 export function createAgent(type) {
     const AgentClass = agentRegistry[type];

@@ -2,46 +2,74 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import SystemStatus from '@/components/SystemStatus';
-import LLMModels from '@/components/LLMModels';
 import { useState, useEffect } from 'react';
 
-interface Activity {
-    id: string;
-    type: 'chat' | 'task' | 'system' | 'agent';
-    title: string;
-    timestamp: string;
-    icon: string;
-}
+// ===== SAMPLE DATA =====
 
-const recentActivities: Activity[] = [
-    { id: '1', type: 'chat', title: 'Chat with gemma-3n', timestamp: '2 min ago', icon: '💬' },
-    { id: '2', type: 'agent', title: 'Guardian health check', timestamp: '5 min ago', icon: '🛡️' },
-    { id: '3', type: 'system', title: 'GPU temp: 48°C', timestamp: '10 min ago', icon: '🌡️' },
-    { id: '4', type: 'task', title: 'Code review completed', timestamp: '15 min ago', icon: '✅' },
-    { id: '5', type: 'chat', title: 'Brainstorm session', timestamp: '30 min ago', icon: '🧠' },
+// News headlines (would pull from News Hub)
+const NEWS_HEADLINES = [
+    { title: 'Minneapolis City Council Passes New Public Safety Measure', source: 'Alpha News', time: '2h ago' },
+    { title: 'Governor Walz Signs Executive Order on Energy Policy', source: 'Bring Me The News', time: '4h ago' },
+    { title: 'Glenn Beck: The Media Won\'t Tell You This', source: 'The Blaze', time: '5h ago' },
 ];
 
-const quickActions = [
-    { icon: '💬', label: 'New Chat', href: '/chat', color: 'cyan' },
-    { icon: '🚀', label: 'Launch Lab', href: '/labs', color: 'purple' },
-    { icon: '🤖', label: 'Agents', href: '/agents', color: 'green' },
-    { icon: '💸', label: 'Income', href: '/income', color: 'yellow' },
-    { icon: '📊', label: 'Analytics', href: '/analytics', color: 'pink' },
-    { icon: '⚙️', label: 'Settings', href: '/settings', color: 'gray' },
+// Calendar events
+const CALENDAR_EVENTS = [
+    { title: 'Team standup', time: '10:00 AM', type: 'meeting' },
+    { title: 'Music pipeline review', time: '2:00 PM', type: 'work' },
+    { title: 'AI research session', time: '4:30 PM', type: 'personal' },
 ];
+
+// Project tasks
+const PROJECT_TASKS = [
+    { title: 'Finish News Hub UI polish', status: 'done', priority: 'high' },
+    { title: 'Set up YouTube channel', status: 'in-progress', priority: 'high' },
+    { title: 'Create first Suno song', status: 'todo', priority: 'medium' },
+    { title: 'Connect Neural Frames API', status: 'todo', priority: 'low' },
+];
+
+// Daily inspiration/fun
+const DAILY_FUN = [
+    { type: 'quote', content: '"The best way to predict the future is to create it."', author: 'Peter Drucker' },
+    { type: 'quote', content: '"Move fast and break things. Unless you are breaking stuff, you are not moving fast enough."', author: 'Mark Zuckerberg' },
+    { type: 'quote', content: '"The only way to do great work is to love what you do."', author: 'Steve Jobs' },
+    { type: 'fact', content: 'The first computer programmer was Ada Lovelace in the 1840s.' },
+    { type: 'tip', content: 'Tip: Use Ctrl+K to open the command palette in most apps.' },
+];
+
 
 export default function DashboardPage() {
     const [time, setTime] = useState(new Date());
+    const [greeting, setGreeting] = useState('');
+    const [dailyFun, setDailyFun] = useState(DAILY_FUN[0]);
 
+    // Initialize on mount
     useEffect(() => {
+        // Set greeting based on time
+        const hour = new Date().getHours();
+        if (hour < 12) setGreeting('Good morning');
+        else if (hour < 17) setGreeting('Good afternoon');
+        else setGreeting('Good evening');
+
+        // Random daily fun
+        setDailyFun(DAILY_FUN[Math.floor(Math.random() * DAILY_FUN.length)]);
+
+        // Update time every second
         const timer = setInterval(() => setTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
 
+    const getTaskStatusStyle = (status: string) => {
+        switch (status) {
+            case 'done': return 'bg-green-500/20 text-green-400';
+            case 'in-progress': return 'bg-yellow-500/20 text-yellow-400';
+            default: return 'bg-gray-500/20 text-gray-400';
+        }
+    };
+
     return (
-        <div className="min-h-screen pt-8">
-            {/* Header */}
+        <div className="min-h-screen pb-24">
+            {/* Header with greeting */}
             <section className="container-main py-8">
                 <motion.div
                     className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6"
@@ -50,138 +78,242 @@ export default function DashboardPage() {
                 >
                     <div>
                         <h1 className="text-4xl font-bold mb-2">
-                            Welcome back, <span className="text-gradient">Dunker</span>
+                            {greeting}, <span className="text-gradient">Dunker</span> 👋
                         </h1>
                         <p className="text-gray-400">
-                            {time.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} •
-                            <span className="ml-2 font-mono text-cyan-400">
-                                {time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                            {time.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                            <span className="mx-2">•</span>
+                            <span className="font-mono text-cyan-400">
+                                {time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                             </span>
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <Link href="/chat" className="btn-primary flex items-center gap-2">
-                            <span>💬</span> New Chat
-                        </Link>
-                        <Link href="/deals" className="btn-outline flex items-center gap-2">
-                            <span>🔥</span> Free AI Deals
-                        </Link>
+                    {/* Quick System Status */}
+                    <div className="flex items-center gap-4 text-sm">
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 rounded-full border border-green-500/30">
+                            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                            <span className="text-green-400">LuxRig Online</span>
+                        </div>
+                        <div className="hidden md:flex items-center gap-3 text-gray-400">
+                            <span>🖥️ RTX 3060</span>
+                            <span>•</span>
+                            <span>🌡️ 45°C</span>
+                            <span>•</span>
+                            <span>💾 18GB free</span>
+                        </div>
                     </div>
                 </motion.div>
             </section>
 
-            {/* Quick Actions */}
-            <section className="container-main pb-8">
-                <motion.div
-                    className="grid grid-cols-3 md:grid-cols-6 gap-4"
-                    initial="initial"
-                    animate="animate"
-                    variants={{ animate: { transition: { staggerChildren: 0.05 } } }}
-                >
-                    {quickActions.map((action) => (
+            {/* Main Grid */}
+            <section className="container-main">
+                <div className="grid lg:grid-cols-3 gap-6">
+
+                    {/* Left Column */}
+                    <div className="space-y-6">
+                        {/* News Widget */}
                         <motion.div
-                            key={action.label}
-                            variants={{ initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } }}
+                            className="glass-card"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 }}
                         >
-                            <Link
-                                href={action.href}
-                                className="glass-card flex flex-col items-center justify-center py-6 hover:border-cyan-500/50 transition-colors group"
-                            >
-                                <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">{action.icon}</div>
-                                <span className="text-sm text-gray-400 group-hover:text-white transition-colors">{action.label}</span>
-                            </Link>
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="font-bold flex items-center gap-2">
+                                    📰 News
+                                </h3>
+                                <Link href="/news" className="text-xs text-cyan-400 hover:underline">
+                                    View all →
+                                </Link>
+                            </div>
+                            <div className="space-y-3">
+                                {NEWS_HEADLINES.map((news, i) => (
+                                    <div key={i} className="border-b border-white/5 last:border-0 pb-3 last:pb-0">
+                                        <p className="text-sm font-medium hover:text-cyan-400 cursor-pointer transition-colors line-clamp-2">
+                                            {news.title}
+                                        </p>
+                                        <p className="text-xs text-gray-500 mt-1">{news.source} • {news.time}</p>
+                                    </div>
+                                ))}
+                            </div>
                         </motion.div>
-                    ))}
-                </motion.div>
-            </section>
 
-            {/* System Status */}
-            <section className="container-main pb-8">
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                    Live System Status
-                </h2>
-                <SystemStatus />
-            </section>
-
-            {/* Main Content Grid */}
-            <section className="container-main pb-16">
-                <div className="grid lg:grid-cols-3 gap-8">
-                    {/* Activity Feed */}
-                    <div className="lg:col-span-1">
-                        <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
-                        <div className="glass-card divide-y divide-gray-800">
-                            {recentActivities.map((activity, i) => (
-                                <motion.div
-                                    key={activity.id}
-                                    className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: i * 0.1 }}
-                                >
-                                    <span className="text-xl">{activity.icon}</span>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm truncate">{activity.title}</p>
-                                        <p className="text-xs text-gray-500">{activity.timestamp}</p>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </div>
-
-                        {/* Agent Status */}
-                        <h2 className="text-xl font-bold mb-4 mt-8">Agent Status</h2>
-                        <div className="space-y-3">
-                            {[
-                                { name: 'Kai', status: 'active', task: 'Idle', icon: '🎨' },
-                                { name: 'Guardian', status: 'active', task: 'Monitoring', icon: '🛡️' },
-                                { name: 'ByteBot', status: 'idle', task: 'Queued', icon: '⚡' },
-                            ].map((agent) => (
-                                <div key={agent.name} className="glass-card py-3 flex items-center gap-3">
-                                    <span className="text-2xl">{agent.icon}</span>
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-medium">{agent.name}</span>
-                                            <span className={`w-2 h-2 rounded-full ${agent.status === 'active' ? 'bg-green-400' : 'bg-gray-400'}`}></span>
-                                        </div>
-                                        <p className="text-xs text-gray-500">{agent.task}</p>
-                                    </div>
+                        {/* Weather Widget */}
+                        <motion.div
+                            className="glass-card"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2 }}
+                        >
+                            <h3 className="font-bold flex items-center gap-2 mb-4">
+                                🌤️ Minneapolis Weather
+                            </h3>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <div className="text-4xl font-bold">28°F</div>
+                                    <div className="text-gray-400 text-sm">Partly Cloudy</div>
                                 </div>
-                            ))}
-                        </div>
+                                <div className="text-6xl">❄️</div>
+                            </div>
+                            <div className="mt-4 flex gap-4 text-xs text-gray-400">
+                                <span>H: 32°</span>
+                                <span>L: 18°</span>
+                                <span>💨 8 mph</span>
+                            </div>
+                        </motion.div>
+
+                        {/* Daily Fun */}
+                        <motion.div
+                            className="glass-card bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3 }}
+                        >
+                            <h3 className="font-bold flex items-center gap-2 mb-3">
+                                ✨ Daily Inspiration
+                            </h3>
+                            <p className="text-sm italic text-gray-300">"{dailyFun.content}"</p>
+                            {dailyFun.author && (
+                                <p className="text-xs text-gray-500 mt-2">— {dailyFun.author}</p>
+                            )}
+                        </motion.div>
                     </div>
 
-                    {/* LLM Models */}
-                    <div className="lg:col-span-2">
-                        <h2 className="text-xl font-bold mb-4">Available Models</h2>
-                        <LLMModels />
+                    {/* Center Column */}
+                    <div className="space-y-6">
+                        {/* Calendar Widget */}
+                        <motion.div
+                            className="glass-card"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.15 }}
+                        >
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="font-bold flex items-center gap-2">
+                                    📅 Today's Schedule
+                                </h3>
+                                <span className="text-xs text-gray-500">
+                                    {CALENDAR_EVENTS.length} events
+                                </span>
+                            </div>
+                            <div className="space-y-3">
+                                {CALENDAR_EVENTS.map((event, i) => (
+                                    <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                                        <div className="text-cyan-400 font-mono text-sm w-20">{event.time}</div>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-medium">{event.title}</p>
+                                        </div>
+                                        <div className={`w-2 h-2 rounded-full ${event.type === 'meeting' ? 'bg-blue-400' :
+                                            event.type === 'work' ? 'bg-green-400' : 'bg-purple-400'
+                                            }`}></div>
+                                    </div>
+                                ))}
+                            </div>
+                            <button className="w-full mt-4 text-sm text-gray-400 hover:text-cyan-400 transition-colors">
+                                + Add event
+                            </button>
+                        </motion.div>
 
-                        {/* Quick Stats */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-                            {[
-                                { label: 'Chats Today', value: '12', icon: '💬', change: '+3' },
-                                { label: 'Tokens Used', value: '45.2K', icon: '🔤', change: '+8.1K' },
-                                { label: 'Tasks Done', value: '7', icon: '✅', change: '+2' },
-                                { label: 'GPU Hours', value: '3.4h', icon: '🖥️', change: '+0.5h' },
-                            ].map((stat) => (
-                                <div key={stat.label} className="glass-card text-center py-4">
-                                    <div className="text-2xl mb-1">{stat.icon}</div>
-                                    <div className="text-2xl font-bold text-cyan-400">{stat.value}</div>
-                                    <div className="text-xs text-gray-500">{stat.label}</div>
-                                    <div className="text-xs text-green-400 mt-1">{stat.change}</div>
+                        {/* Email Widget */}
+                        <motion.div
+                            className="glass-card"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.25 }}
+                        >
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="font-bold flex items-center gap-2">
+                                    📧 Email
+                                    <span className="px-2 py-0.5 bg-red-500/20 text-red-400 rounded-full text-xs">3</span>
+                                </h3>
+                                <a href="https://mail.google.com" target="_blank" className="text-xs text-cyan-400 hover:underline">
+                                    Open Gmail →
+                                </a>
+                            </div>
+                            <div className="space-y-3">
+                                <div className="p-2 rounded-lg bg-white/5 border-l-2 border-cyan-500">
+                                    <p className="text-sm font-medium">DistroKid: Your release is live!</p>
+                                    <p className="text-xs text-gray-500">10 min ago</p>
                                 </div>
-                            ))}
-                        </div>
+                                <div className="p-2 rounded-lg bg-white/5">
+                                    <p className="text-sm">GitHub: PR merged successfully</p>
+                                    <p className="text-xs text-gray-500">1 hour ago</p>
+                                </div>
+                                <div className="p-2 rounded-lg bg-white/5">
+                                    <p className="text-sm">YouTube Studio: New subscriber!</p>
+                                    <p className="text-xs text-gray-500">3 hours ago</p>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+
+                    {/* Right Column */}
+                    <div className="space-y-6">
+                        {/* Project Board */}
+                        <motion.div
+                            className="glass-card"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 }}
+                        >
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="font-bold flex items-center gap-2">
+                                    📋 Project Board
+                                </h3>
+                                <Link href="/labs" className="text-xs text-cyan-400 hover:underline">
+                                    Full board →
+                                </Link>
+                            </div>
+                            <div className="space-y-2">
+                                {PROJECT_TASKS.map((task, i) => (
+                                    <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-white/5">
+                                        <span className={`px-2 py-0.5 rounded text-xs ${getTaskStatusStyle(task.status)}`}>
+                                            {task.status === 'done' ? '✓' : task.status === 'in-progress' ? '→' : '○'}
+                                        </span>
+                                        <span className={`flex-1 text-sm ${task.status === 'done' ? 'line-through text-gray-500' : ''}`}>
+                                            {task.title}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                            <button className="w-full mt-4 text-sm text-gray-400 hover:text-cyan-400 transition-colors">
+                                + Add task
+                            </button>
+                        </motion.div>
+
+                        {/* Quick Links */}
+                        <motion.div
+                            className="glass-card"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2 }}
+                        >
+                            <h3 className="font-bold mb-4">🚀 Quick Links</h3>
+                            <div className="grid grid-cols-2 gap-2">
+                                {[
+                                    { icon: '🎵', label: 'Music Studio', href: '/music' },
+                                    { icon: '📰', label: 'News Hub', href: '/news' },
+                                    { icon: '🤖', label: 'Agents', href: '/agents' },
+                                    { icon: '💬', label: 'Chat', href: '/chat' },
+                                    { icon: '🔬', label: 'Labs', href: '/labs' },
+                                    { icon: '💸', label: 'Income', href: '/income' },
+                                ].map((link) => (
+                                    <Link
+                                        key={link.label}
+                                        href={link.href}
+                                        className="flex items-center gap-2 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-sm"
+                                    >
+                                        <span>{link.icon}</span>
+                                        <span>{link.label}</span>
+                                    </Link>
+                                ))}
+                            </div>
+                        </motion.div>
                     </div>
                 </div>
             </section>
-
-            {/* Back link */}
-            <div className="container-main pb-8">
-                <Link href="/" className="text-gray-400 hover:text-cyan-400 transition-colors">
-                    ← Back to Home
-                </Link>
-            </div>
         </div>
     );
 }
+

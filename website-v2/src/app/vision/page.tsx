@@ -38,7 +38,7 @@ const visions = [
             },
             {
                 title: 'Multi-Agent Workflows',
-                desc: 'Kai, Guardian, ByteBot work in parallel - planning, coding, testing, deployment',
+                desc: 'Lux, Guardian, ByteBot work in parallel - planning, coding, testing, deployment',
                 status: 'live'
             },
             {
@@ -77,7 +77,7 @@ const visions = [
         items: [
             {
                 title: 'Personality & Memory',
-                desc: 'Kai remembers your preferences, Guardian knows your system patterns',
+                desc: 'Lux remembers your preferences, Guardian knows your system patterns',
                 status: 'building'
             },
             {

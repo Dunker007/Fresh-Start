@@ -1,264 +1,674 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-const voices = [
-    { id: 'alloy', name: 'Alloy', desc: 'Neutral and balanced', preview: '🔊' },
-    { id: 'echo', name: 'Echo', desc: 'Warm and engaging', preview: '🔊' },
-    { id: 'nova', name: 'Nova', desc: 'Friendly and upbeat', preview: '🔊' },
-    { id: 'shimmer', name: 'Shimmer', desc: 'Expressive and dynamic', preview: '🔊' },
-    { id: 'onyx', name: 'Onyx', desc: 'Deep and authoritative', preview: '🔊' },
-];
+// Type declarations for Web Speech API
+interface SpeechRecognitionEvent extends Event {
+    resultIndex: number;
+    results: SpeechRecognitionResultList;
+}
 
-const voiceCommands = [
-    { command: 'Hey DLX, start a chat', action: 'Opens new AI conversation' },
-    { command: 'Hey DLX, what\'s the status?', action: 'Reads system status' },
-    { command: 'Hey DLX, turn on the lights', action: 'Activates Govee lights' },
-    { command: 'Hey DLX, read my notifications', action: 'Reads unread notifications' },
-    { command: 'Hey DLX, run code review', action: 'Starts Code Review agent' },
-    { command: 'Hey DLX, what\'s Bitcoin at?', action: 'Reads current BTC price' },
-];
+interface SpeechRecognitionErrorEvent extends Event {
+    error: string;
+}
 
-const audioHistory = [
-    { type: 'tts', text: 'Your daily market analysis is ready...', time: '10 min ago' },
-    { type: 'command', text: 'Hey DLX, turn on office lights', time: '45 min ago' },
-    { type: 'tts', text: 'Trading bot executed a buy order...', time: '2 hours ago' },
-    { type: 'command', text: 'Hey DLX, what\'s the GPU temp', time: '3 hours ago' },
-];
+interface SpeechRecognitionResult {
+    isFinal: boolean;
+    [index: number]: SpeechRecognitionAlternative;
+}
 
-export default function VoicePage() {
+interface SpeechRecognitionAlternative {
+    transcript: string;
+    confidence: number;
+}
+
+interface SpeechRecognitionResultList {
+    length: number;
+    [index: number]: SpeechRecognitionResult;
+}
+
+interface ISpeechRecognition extends EventTarget {
+    continuous: boolean;
+    interimResults: boolean;
+    lang: string;
+    onstart: (() => void) | null;
+    onresult: ((event: SpeechRecognitionEvent) => void) | null;
+    onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+    onend: (() => void) | null;
+    start: () => void;
+    stop: () => void;
+}
+
+// Type casting helper for browser compatibility
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getSpeechRecognition = (): (new () => ISpeechRecognition) | undefined => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+};
+
+// Voice command intents
+const COMMAND_INTENTS = {
+    // Navigation
+    go_to: /^(go to|navigate to|open|show)\s+(.+)$/i,
+    back: /^(go back|back|previous)$/i,
+
+    // Agent commands
+    execute_agent: /^(ask|run|execute|start)\s+(research|code|architect|security|qa|devops)\s*(.*)$/i,
+    meeting: /^(start|begin|hold)\s+(a\s+)?meeting\s*(about|on)?\s*(.*)$/i,
+
+    // System commands
+    status: /^(show|get|what('?s|\s+is))\s+(the\s+)?(status|health)$/i,
+    help: /^(help|what can you do|commands)$/i,
+
+    // Chat
+    chat: /^(chat|talk|ask)\s+(.+)$/i,
+};
+
+interface VoiceCommand {
+    intent: string;
+    params: Record<string, string>;
+    raw: string;
+    confidence: number;
+    timestamp: Date;
+}
+
+export default function VoiceControlPage() {
     const [isListening, setIsListening] = useState(false);
-    const [selectedVoice, setSelectedVoice] = useState('alloy');
-    const [speechRate, setSpeechRate] = useState(1.0);
-    const [ttsEnabled, setTtsEnabled] = useState(true);
-    const [wakeWordEnabled, setWakeWordEnabled] = useState(true);
-    const [testText, setTestText] = useState('Hello, I am your DLX Studio AI assistant. How can I help you today?');
+    const [isSupported, setIsSupported] = useState(true);
+    const [transcript, setTranscript] = useState('');
+    const [interimTranscript, setInterimTranscript] = useState('');
+    const [commands, setCommands] = useState<VoiceCommand[]>([]);
+    const [status, setStatus] = useState<'idle' | 'listening' | 'processing' | 'error'>('idle');
+    const [lastResult, setLastResult] = useState<string | null>(null);
+    const [voiceVisualization, setVoiceVisualization] = useState<number>(0);
+
+    const recognitionRef = useRef<ISpeechRecognition | null>(null);
+    const audioContextRef = useRef<AudioContext | null>(null);
+    const analyserRef = useRef<AnalyserNode | null>(null);
+    const animationRef = useRef<number | null>(null);
+
+    // Check for Web Speech API support
+    useEffect(() => {
+        const SpeechRecognition = getSpeechRecognition();
+        if (!SpeechRecognition) {
+            setIsSupported(false);
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            setStatus('listening');
+        };
+
+        recognition.onresult = (event: SpeechRecognitionEvent) => {
+            let interim = '';
+            let final = '';
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const result = event.results[i];
+                if (result.isFinal) {
+                    final += result[0].transcript;
+                } else {
+                    interim += result[0].transcript;
+                }
+            }
+
+            setInterimTranscript(interim);
+
+            if (final) {
+                setTranscript(prev => prev + ' ' + final);
+                processCommand(final.trim(), event.results[event.resultIndex][0].confidence);
+            }
+        };
+
+        recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+            console.error('Speech recognition error:', event.error);
+            setStatus('error');
+            if (event.error === 'not-allowed') {
+                setIsSupported(false);
+            }
+        };
+
+        recognition.onend = () => {
+            if (isListening) {
+                // Restart if still listening
+                recognition.start();
+            } else {
+                setStatus('idle');
+            }
+        };
+
+        recognitionRef.current = recognition;
+
+        return () => {
+            recognition.stop();
+            if (animationRef.current) {
+                cancelAnimationFrame(animationRef.current);
+            }
+        };
+    }, [isListening]);
+
+    // Voice visualization using Web Audio API
+    const startVisualization = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const audioContext = new AudioContext();
+            const analyser = audioContext.createAnalyser();
+            const source = audioContext.createMediaStreamSource(stream);
+
+            analyser.fftSize = 256;
+            source.connect(analyser);
+
+            audioContextRef.current = audioContext;
+            analyserRef.current = analyser;
+
+            const visualize = () => {
+                if (!analyserRef.current) return;
+
+                const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+                analyserRef.current.getByteFrequencyData(dataArray);
+
+                const average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+                setVoiceVisualization(average);
+
+                animationRef.current = requestAnimationFrame(visualize);
+            };
+
+            visualize();
+        } catch (error) {
+            console.error('Error accessing microphone for visualization:', error);
+        }
+    };
+
+    const stopVisualization = () => {
+        if (animationRef.current) {
+            cancelAnimationFrame(animationRef.current);
+        }
+        if (audioContextRef.current) {
+            audioContextRef.current.close();
+        }
+        setVoiceVisualization(0);
+    };
+
+    // Parse command intent
+    const parseIntent = (text: string): { intent: string; params: Record<string, string> } | null => {
+        for (const [intent, pattern] of Object.entries(COMMAND_INTENTS)) {
+            const match = text.match(pattern);
+            if (match) {
+                const params: Record<string, string> = {};
+
+                switch (intent) {
+                    case 'go_to':
+                        params.destination = match[2];
+                        break;
+                    case 'execute_agent':
+                        params.agentType = match[2].toLowerCase();
+                        params.task = match[3] || '';
+                        break;
+                    case 'meeting':
+                        params.topic = match[4] || '';
+                        break;
+                    case 'chat':
+                        params.message = match[2];
+                        break;
+                }
+
+                return { intent, params };
+            }
+        }
+        return null;
+    };
+
+    // Process recognized command
+    const processCommand = async (text: string, confidence: number) => {
+        setStatus('processing');
+
+        const parsed = parseIntent(text);
+
+        const command: VoiceCommand = {
+            intent: parsed?.intent || 'unknown',
+            params: parsed?.params || {},
+            raw: text,
+            confidence,
+            timestamp: new Date()
+        };
+
+        setCommands(prev => [command, ...prev].slice(0, 10));
+
+        // Execute command
+        try {
+            let result = '';
+
+            if (parsed) {
+                switch (parsed.intent) {
+                    case 'go_to':
+                        result = `Navigating to ${parsed.params.destination}...`;
+                        // In real implementation: router.push(`/${parsed.params.destination}`);
+                        break;
+
+                    case 'execute_agent':
+                        result = `Running ${parsed.params.agentType} agent...`;
+                        // Call agent API
+                        break;
+
+                    case 'meeting':
+                        result = `Starting staff meeting about "${parsed.params.topic}"...`;
+                        break;
+
+                    case 'status':
+                        result = 'Fetching system status...';
+                        break;
+
+                    case 'help':
+                        result = 'Available commands: Go to [page], Ask [agent] [task], Start meeting about [topic], Show status';
+                        break;
+
+                    case 'chat':
+                        result = `Processing: "${parsed.params.message}"`;
+                        break;
+
+                    default:
+                        result = `Command not recognized: "${text}"`;
+                }
+            } else {
+                result = `I heard: "${text}" - Try saying "help" for available commands`;
+            }
+
+            setLastResult(result);
+
+            // Speak response
+            speakResponse(result);
+
+        } catch (error) {
+            console.error('Command execution error:', error);
+            setLastResult('Error executing command');
+        }
+
+        setStatus('listening');
+    };
+
+    // Text-to-speech response
+    const speakResponse = (text: string) => {
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1;
+            utterance.pitch = 1;
+            utterance.volume = 0.8;
+            window.speechSynthesis.speak(utterance);
+        }
+    };
+
+    // Toggle listening
+    const toggleListening = useCallback(() => {
+        if (isListening) {
+            recognitionRef.current?.stop();
+            stopVisualization();
+            setIsListening(false);
+        } else {
+            recognitionRef.current?.start();
+            startVisualization();
+            setIsListening(true);
+            setTranscript('');
+        }
+    }, [isListening]);
+
+    // Keyboard shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.code === 'Space' && e.ctrlKey) {
+                e.preventDefault();
+                toggleListening();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [toggleListening]);
+
+    if (!isSupported) {
+        return (
+            <div className="voice-not-supported">
+                <style jsx>{`
+          .voice-not-supported {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            text-align: center;
+            padding: 2rem;
+          }
+          h1 { color: #ef4444; margin-bottom: 1rem; }
+          p { color: #888; max-width: 400px; }
+        `}</style>
+                <h1>🎤 Voice Control Unavailable</h1>
+                <p>
+                    Your browser doesn't support the Web Speech API, or microphone access was denied.
+                    Please try Chrome, Edge, or Safari and ensure microphone permissions are granted.
+                </p>
+            </div>
+        );
+    }
 
     return (
-        <div className="min-h-screen pt-8">
-            {/* Header */}
-            <section className="section-padding pb-8">
-                <div className="container-main">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                    >
-                        <h1 className="text-4xl md:text-5xl font-bold mb-2">
-                            <span className="text-gradient">Voice & Audio</span>
-                        </h1>
-                        <p className="text-gray-400">Control DLX Studio with your voice</p>
-                    </motion.div>
+        <div className="voice-control-container">
+            <style jsx>{`
+        .voice-control-container {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+          color: #e0e0e0;
+          padding: 2rem;
+        }
+
+        .header {
+          text-align: center;
+          margin-bottom: 2rem;
+        }
+
+        .header h1 {
+          font-size: 2.5rem;
+          background: linear-gradient(90deg, #06b6d4, #3b82f6, #8b5cf6);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          margin-bottom: 0.5rem;
+        }
+
+        .header p {
+          color: #888;
+        }
+
+        .shortcut-hint {
+          display: inline-block;
+          background: rgba(255, 255, 255, 0.1);
+          padding: 0.25rem 0.5rem;
+          border-radius: 0.25rem;
+          font-family: monospace;
+          font-size: 0.85rem;
+          margin-top: 0.5rem;
+        }
+
+        .mic-section {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          margin-bottom: 2rem;
+        }
+
+        .mic-button {
+          width: 120px;
+          height: 120px;
+          border-radius: 50%;
+          border: none;
+          cursor: pointer;
+          position: relative;
+          transition: all 0.3s ease;
+          background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        }
+
+        .mic-button:hover {
+          transform: scale(1.05);
+        }
+
+        .mic-button.listening {
+          animation: pulse ${isListening ? '2s' : '0s'} infinite;
+          box-shadow: 0 0 ${voiceVisualization}px rgba(139, 92, 246, 0.6);
+        }
+
+        @keyframes pulse {
+          0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
+          50% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.8); }
+        }
+
+        .mic-icon {
+          font-size: 3rem;
+        }
+
+        .status-badge {
+          margin-top: 1rem;
+          padding: 0.5rem 1rem;
+          border-radius: 2rem;
+          font-size: 0.9rem;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .status-idle { background: rgba(107, 114, 128, 0.3); }
+        .status-listening { background: rgba(34, 197, 94, 0.3); color: #22c55e; }
+        .status-processing { background: rgba(59, 130, 246, 0.3); color: #3b82f6; }
+        .status-error { background: rgba(239, 68, 68, 0.3); color: #ef4444; }
+
+        .visualizer {
+          display: flex;
+          gap: 4px;
+          height: 60px;
+          align-items: center;
+          margin-top: 1.5rem;
+        }
+
+        .visualizer-bar {
+          width: 4px;
+          background: linear-gradient(to top, #3b82f6, #8b5cf6);
+          border-radius: 2px;
+          transition: height 0.1s ease;
+        }
+
+        .transcript-section {
+          max-width: 600px;
+          margin: 0 auto 2rem;
+          text-align: center;
+        }
+
+        .transcript-box {
+          background: rgba(0, 0, 0, 0.3);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 0.5rem;
+          padding: 1rem;
+          min-height: 60px;
+        }
+
+        .interim {
+          color: #666;
+          font-style: italic;
+        }
+
+        .result-box {
+          margin-top: 1rem;
+          padding: 1rem;
+          background: rgba(34, 197, 94, 0.1);
+          border: 1px solid rgba(34, 197, 94, 0.3);
+          border-radius: 0.5rem;
+        }
+
+        .commands-section {
+          max-width: 600px;
+          margin: 0 auto;
+        }
+
+        .commands-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+        }
+
+        .commands-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .command-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: rgba(255, 255, 255, 0.05);
+          padding: 0.75rem 1rem;
+          border-radius: 0.5rem;
+          animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateX(-10px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+
+        .command-content {
+          flex: 1;
+        }
+
+        .command-raw {
+          font-size: 0.9rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .command-intent {
+          font-size: 0.75rem;
+          color: #888;
+        }
+
+        .command-confidence {
+          font-size: 0.75rem;
+          padding: 0.25rem 0.5rem;
+          border-radius: 1rem;
+          background: rgba(59, 130, 246, 0.2);
+          color: #3b82f6;
+        }
+
+        .help-section {
+          max-width: 600px;
+          margin: 2rem auto 0;
+          padding: 1.5rem;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 0.5rem;
+        }
+
+        .help-section h3 {
+          margin-bottom: 1rem;
+          color: #888;
+        }
+
+        .help-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 0.75rem;
+        }
+
+        .help-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem;
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 0.25rem;
+          font-size: 0.9rem;
+        }
+      `}</style>
+
+            <header className="header">
+                <h1>🎤 God Mode Voice Control</h1>
+                <p>Control the entire platform with your voice</p>
+                <div className="shortcut-hint">Press Ctrl + Space to toggle</div>
+            </header>
+
+            <div className="mic-section">
+                <button
+                    className={`mic-button ${isListening ? 'listening' : ''}`}
+                    onClick={toggleListening}
+                    style={{
+                        boxShadow: isListening ? `0 0 ${20 + voiceVisualization}px rgba(139, 92, 246, ${0.4 + voiceVisualization / 200})` : undefined
+                    }}
+                >
+                    <span className="mic-icon">{isListening ? '🎙️' : '🎤'}</span>
+                </button>
+
+                <div className={`status-badge status-${status}`}>
+                    {status === 'idle' && 'Ready'}
+                    {status === 'listening' && '● Listening...'}
+                    {status === 'processing' && '⏳ Processing...'}
+                    {status === 'error' && '⚠️ Error'}
                 </div>
-            </section>
 
-            {/* Main Voice Control */}
-            <section className="container-main pb-8">
-                <motion.div
-                    className="glass-card text-center py-12"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                >
-                    {/* Microphone Button */}
-                    <button
-                        onClick={() => setIsListening(!isListening)}
-                        className={`w-32 h-32 rounded-full mx-auto flex items-center justify-center text-5xl transition-all ${isListening
-                                ? 'bg-red-500 animate-pulse shadow-lg shadow-red-500/50'
-                                : 'bg-gradient-to-br from-cyan-500 to-purple-500 hover:scale-105'
-                            }`}
-                    >
-                        {isListening ? '🎙️' : '🎤'}
-                    </button>
-
-                    <h2 className="text-2xl font-bold mt-6">
-                        {isListening ? 'Listening...' : 'Tap to Speak'}
-                    </h2>
-                    <p className="text-gray-400 mt-2">
-                        {isListening
-                            ? 'Say a command or ask a question'
-                            : 'Or say "Hey DLX" to activate voice control'
-                        }
-                    </p>
-
-                    {/* Wake Word Status */}
-                    <div className="mt-6 flex items-center justify-center gap-2">
-                        <span className={`w-2 h-2 rounded-full ${wakeWordEnabled ? 'bg-green-500' : 'bg-gray-500'}`}></span>
-                        <span className="text-sm text-gray-400">
-                            Wake word {wakeWordEnabled ? 'enabled' : 'disabled'}
-                        </span>
-                    </div>
-                </motion.div>
-            </section>
-
-            <div className="container-main pb-16 grid lg:grid-cols-2 gap-6">
-                {/* Text to Speech */}
-                <motion.div
-                    className="glass-card"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                >
-                    <h3 className="text-xl font-bold mb-4">🔊 Text to Speech</h3>
-
-                    <div className="space-y-4">
-                        {/* Voice Selection */}
-                        <div>
-                            <label className="text-sm text-gray-400 mb-2 block">Voice</label>
-                            <div className="grid grid-cols-2 gap-2">
-                                {voices.map((voice) => (
-                                    <button
-                                        key={voice.id}
-                                        onClick={() => setSelectedVoice(voice.id)}
-                                        className={`p-3 rounded-lg text-left ${selectedVoice === voice.id
-                                                ? 'bg-cyan-500/20 ring-2 ring-cyan-500'
-                                                : 'bg-white/5 hover:bg-white/10'
-                                            }`}
-                                    >
-                                        <div className="font-medium">{voice.name}</div>
-                                        <div className="text-xs text-gray-500">{voice.desc}</div>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Speed */}
-                        <div>
-                            <label className="text-sm text-gray-400 mb-2 block">
-                                Speed: {speechRate}x
-                            </label>
-                            <input
-                                type="range"
-                                min="0.5"
-                                max="2"
-                                step="0.1"
-                                value={speechRate}
-                                onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
-                                className="w-full"
+                {isListening && (
+                    <div className="visualizer">
+                        {[...Array(20)].map((_, i) => (
+                            <div
+                                key={i}
+                                className="visualizer-bar"
+                                style={{
+                                    height: `${Math.min(60, Math.random() * voiceVisualization * 2)}px`
+                                }}
                             />
-                        </div>
-
-                        {/* Test */}
-                        <div>
-                            <label className="text-sm text-gray-400 mb-2 block">Test Text</label>
-                            <textarea
-                                value={testText}
-                                onChange={(e) => setTestText(e.target.value)}
-                                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 h-20 resize-none"
-                            />
-                        </div>
-
-                        <button className="w-full py-3 bg-cyan-500 text-black rounded-lg font-medium hover:bg-cyan-400">
-                            ▶️ Play Test
-                        </button>
-                    </div>
-                </motion.div>
-
-                {/* Voice Commands */}
-                <motion.div
-                    className="glass-card"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                >
-                    <h3 className="text-xl font-bold mb-4">🗣️ Voice Commands</h3>
-
-                    <div className="space-y-3">
-                        {voiceCommands.map((cmd, i) => (
-                            <div key={i} className="p-3 bg-white/5 rounded-lg">
-                                <div className="font-mono text-sm text-cyan-400">"{cmd.command}"</div>
-                                <div className="text-xs text-gray-500 mt-1">{cmd.action}</div>
-                            </div>
                         ))}
                     </div>
-
-                    <button className="w-full mt-4 py-2 bg-white/10 rounded-lg text-sm hover:bg-white/20">
-                        + Add Custom Command
-                    </button>
-                </motion.div>
-
-                {/* Settings */}
-                <motion.div
-                    className="glass-card"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                >
-                    <h3 className="text-xl font-bold mb-4">⚙️ Settings</h3>
-
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <div className="font-medium">Text-to-Speech</div>
-                                <div className="text-xs text-gray-500">AI responses read aloud</div>
-                            </div>
-                            <button
-                                onClick={() => setTtsEnabled(!ttsEnabled)}
-                                className={`w-12 h-6 rounded-full relative ${ttsEnabled ? 'bg-cyan-500' : 'bg-gray-600'}`}
-                            >
-                                <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${ttsEnabled ? 'right-1' : 'left-1'
-                                    }`}></span>
-                            </button>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <div className="font-medium">Wake Word Detection</div>
-                                <div className="text-xs text-gray-500">"Hey DLX" activation</div>
-                            </div>
-                            <button
-                                onClick={() => setWakeWordEnabled(!wakeWordEnabled)}
-                                className={`w-12 h-6 rounded-full relative ${wakeWordEnabled ? 'bg-cyan-500' : 'bg-gray-600'}`}
-                            >
-                                <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${wakeWordEnabled ? 'right-1' : 'left-1'
-                                    }`}></span>
-                            </button>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <div className="font-medium">Notification Sounds</div>
-                                <div className="text-xs text-gray-500">Audio alerts</div>
-                            </div>
-                            <button className="w-12 h-6 bg-cyan-500 rounded-full relative">
-                                <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></span>
-                            </button>
-                        </div>
-                    </div>
-                </motion.div>
-
-                {/* History */}
-                <motion.div
-                    className="glass-card"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                >
-                    <h3 className="text-xl font-bold mb-4">📜 Audio History</h3>
-
-                    <div className="space-y-3">
-                        {audioHistory.map((item, i) => (
-                            <div key={i} className="flex items-center gap-3 p-2 bg-white/5 rounded-lg">
-                                <span className={item.type === 'tts' ? 'text-cyan-400' : 'text-purple-400'}>
-                                    {item.type === 'tts' ? '🔊' : '🎤'}
-                                </span>
-                                <div className="flex-1">
-                                    <div className="text-sm truncate">{item.text}</div>
-                                    <div className="text-xs text-gray-500">{item.time}</div>
-                                </div>
-                                <button className="text-xs text-gray-400 hover:text-white">
-                                    ▶️
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                </motion.div>
+                )}
             </div>
 
-            {/* Back link */}
-            <div className="container-main pb-8">
-                <Link href="/" className="text-gray-400 hover:text-cyan-400 transition-colors">
-                    ← Back to Dashboard
-                </Link>
+            <div className="transcript-section">
+                <div className="transcript-box">
+                    {transcript && <p>{transcript}</p>}
+                    {interimTranscript && <p className="interim">{interimTranscript}</p>}
+                    {!transcript && !interimTranscript && (
+                        <p style={{ color: '#666' }}>Start speaking to see your words here...</p>
+                    )}
+                </div>
+
+                {lastResult && (
+                    <div className="result-box">
+                        <strong>🤖 Response:</strong> {lastResult}
+                    </div>
+                )}
+            </div>
+
+            {commands.length > 0 && (
+                <div className="commands-section">
+                    <div className="commands-header">
+                        <h3>📜 Recent Commands</h3>
+                        <button
+                            onClick={() => setCommands([])}
+                            style={{ background: 'none', border: 'none', color: '#666', cursor: 'pointer' }}
+                        >
+                            Clear
+                        </button>
+                    </div>
+                    <div className="commands-list">
+                        {commands.map((cmd, i) => (
+                            <div key={i} className="command-item">
+                                <div className="command-content">
+                                    <div className="command-raw">"{cmd.raw}"</div>
+                                    <div className="command-intent">
+                                        Intent: {cmd.intent}
+                                        {Object.keys(cmd.params).length > 0 && (
+                                            <> | Params: {JSON.stringify(cmd.params)}</>
+                                        )}
+                                    </div>
+                                </div>
+                                <span className="command-confidence">
+                                    {(cmd.confidence * 100).toFixed(0)}%
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            <div className="help-section">
+                <h3>💡 Example Commands</h3>
+                <div className="help-grid">
+                    <div className="help-item">🗺️ "Go to dashboard"</div>
+                    <div className="help-item">🔍 "Ask research about AI trends"</div>
+                    <div className="help-item">💻 "Run code create React component"</div>
+                    <div className="help-item">👥 "Start meeting about security"</div>
+                    <div className="help-item">📊 "Show status"</div>
+                    <div className="help-item">❓ "Help"</div>
+                </div>
             </div>
         </div>
     );
 }
+

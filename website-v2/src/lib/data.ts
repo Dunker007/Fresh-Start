@@ -22,11 +22,11 @@ export const SYSTEM_SPECS = {
 // AI Agents
 export const AGENTS = [
     {
-        id: 'kai',
+        id: 'lux',
         emoji: '🎨',
-        name: 'Kai',
+        name: 'Lux',
         role: 'Creative Brainstorming',
-        desc: 'Generates ideas, explores possibilities, and helps you think outside the box.',
+        desc: 'The original DLX agent. Generates ideas, explores possibilities, and helps you think outside the box.',
         gradient: 'from-cyan-500 to-blue-500',
         status: 'active' as const,
     },
@@ -53,11 +53,12 @@ export const AGENTS = [
 // Navigation items for header
 export const NAV_ITEMS = [
     { href: '/dashboard', label: 'Dashboard', icon: '📊' },
+    { href: '/news', label: 'News', icon: '📰' },
+    { href: '/music', label: 'Music', icon: '🎵' },
     { href: '/chat', label: 'Chat', icon: '💬' },
     { href: '/agents', label: 'Agents', icon: '🤖' },
     { href: '/labs', label: 'Labs', icon: '🔬' },
     { href: '/income', label: 'Income', icon: '💸' },
-    { href: '/finance', label: 'Finance', icon: '💰' },
 ];
 
 // Quick action shortcuts

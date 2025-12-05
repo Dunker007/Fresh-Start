@@ -46,7 +46,7 @@ const links = [
 
 const contributors = [
     { name: 'Dunker007', role: 'Creator', avatar: '👨‍💻' },
-    { name: 'Kai (AI)', role: 'Creative Partner', avatar: '🎨' },
+    { name: 'Lux (AI)', role: 'Creative Partner', avatar: '🎨' },
     { name: 'Guardian (AI)', role: 'System Monitor', avatar: '🛡️' },
     { name: 'Claude', role: 'Code Review', avatar: '🧠' },
     { name: 'Gemini', role: 'Research', avatar: '✨' },

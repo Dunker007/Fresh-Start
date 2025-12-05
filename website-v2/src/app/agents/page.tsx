@@ -22,11 +22,11 @@ interface Agent {
 
 const agents: Agent[] = [
     {
-        id: 'kai',
+        id: 'lux',
         emoji: '🎨',
-        name: 'Kai',
+        name: 'Lux',
         role: 'Creative Brainstorming',
-        desc: 'Generates ideas, explores possibilities, and helps you think outside the box. Kai specializes in creative problem-solving and content ideation.',
+        desc: 'The original DLX agent. Generates ideas, explores possibilities, and helps you think outside the box. Lux specializes in creative problem-solving and content ideation.',
         gradient: 'from-cyan-500 to-blue-500',
         status: 'active',
         capabilities: ['Content ideation', 'Brainstorming sessions', 'Creative writing', 'Mind mapping'],
@@ -150,14 +150,14 @@ export default function AgentsPage() {
                                 {/* Status badge */}
                                 <div className="absolute top-4 right-4 z-10">
                                     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${agent.status === 'active'
-                                            ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                                            : agent.status === 'queued'
-                                                ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-                                                : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+                                        ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                                        : agent.status === 'queued'
+                                            ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                                            : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
                                         }`}>
                                         <span className={`w-1.5 h-1.5 rounded-full ${agent.status === 'active' ? 'bg-green-400 animate-pulse'
-                                                : agent.status === 'queued' ? 'bg-yellow-400 animate-pulse'
-                                                    : 'bg-gray-400'
+                                            : agent.status === 'queued' ? 'bg-yellow-400 animate-pulse'
+                                                : 'bg-gray-400'
                                             }`}></span>
                                         {agent.status}
                                     </span>

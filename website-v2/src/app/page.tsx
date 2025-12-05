@@ -38,7 +38,7 @@ const tools = [
 ];
 
 const agents = [
-  { emoji: '🎨', name: 'Kai', role: 'Creative Brainstorming', desc: 'Generates ideas, explores possibilities, and helps you think outside the box.', gradient: 'from-cyan-500 to-blue-500', status: 'active' },
+  { emoji: '🎨', name: 'Lux', role: 'Creative Brainstorming', desc: 'The original DLX agent. Generates ideas, explores possibilities, and helps you think outside the box.', gradient: 'from-cyan-500 to-blue-500', status: 'active' },
   { emoji: '🛡️', name: 'Guardian', role: 'System Monitoring', desc: 'Watches over your systems, alerts issues, and keeps everything running smoothly.', gradient: 'from-green-500 to-teal-500', status: 'active' },
   { emoji: '⚡', name: 'ByteBot', role: 'Task Automation', desc: 'Executes repetitive tasks, manages workflows, and boosts your productivity.', gradient: 'from-purple-500 to-pink-500', status: 'queued' },
 ];

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import CommandPalette from "@/components/CommandPalette";
+import LuxHelper from "@/components/LuxHelper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -32,8 +33,10 @@ export default function RootLayout({
           </main>
           <VibeController />
           <VoiceControl />
+          <LuxHelper />
         </VibeProvider>
       </body>
     </html>
   );
 }
+
