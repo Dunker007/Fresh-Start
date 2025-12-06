@@ -93,8 +93,12 @@ const agents: Agent[] = [
 ];
 
 // Animated avatar ring based on status
-function AgentAvatar({ agent, size = 'lg' }: { agent: Agent; size?: 'sm' | 'lg' }) {
-    const sizeClasses = size === 'lg' ? 'w-24 h-24 text-5xl' : 'w-16 h-16 text-3xl';
+function AgentAvatar({ agent, size = 'lg' }: { agent: Agent; size?: 'sm' | 'md' | 'lg' }) {
+    const sizeClasses = {
+        sm: 'w-16 h-16 text-3xl',
+        md: 'w-20 h-20 text-4xl',
+        lg: 'w-24 h-24 text-5xl'
+    }[size];
 
     return (
         <div className="relative">
@@ -198,125 +202,210 @@ export default function AgentsPage() {
                 </motion.div>
             </section>
 
-            {/* Quick Deploy Bar */}
-            <section className="container-main mb-8">
-                <motion.div
-                    className="glass-card flex items-center gap-4"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                >
-                    <div className="flex -space-x-3">
-                        {agentsList.filter(a => a.status === 'active').slice(0, 4).map(agent => (
-                            <div key={agent.id} className={`w-10 h-10 rounded-full bg-gradient-to-br ${agent.gradient} flex items-center justify-center text-lg border-2 border-[#0a0a0f]`}>
-                                {agent.emoji}
-                            </div>
-                        ))}
-                    </div>
-                    <div className="flex-1">
-                        <input
-                            type="text"
-                            placeholder="Describe a task to deploy agents..."
-                            value={deployTask}
-                            onChange={(e) => setDeployTask(e.target.value)}
-                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 focus:border-cyan-500/50 focus:outline-none"
-                        />
-                    </div>
-                    <button
-                        onClick={() => setShowDeployModal(true)}
-                        disabled={!deployTask.trim()}
-                        className="btn-primary flex items-center gap-2 disabled:opacity-50"
-                    >
-                        <Zap size={18} />
-                        Deploy
-                    </button>
-                </motion.div>
-            </section>
+            {/* Main Layout Grid */}
+            <div className="w-full max-w-[1800px] mx-auto px-4 md:px-6 mt-8">
+                <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr_280px] gap-6 items-start">
 
-            {/* Agents Grid */}
-            <section className="container-main">
-                <motion.div
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                    initial="hidden"
-                    animate="visible"
-                    variants={{
-                        visible: { transition: { staggerChildren: 0.1 } }
-                    }}
-                >
-                    {agentsList.map((agent) => (
+                    {/* Left Sidebar: Group Chat */}
+                    <div className="hidden xl:block sticky top-24">
+                        <Link href="/meeting">
+                            <motion.div
+                                className="glass-card relative overflow-hidden p-6 cursor-pointer group h-full border border-indigo-500/30 hover:border-indigo-500/50"
+                                initial={{ opacity: 0, x: -50 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                whileHover={{ scale: 1.02 }}
+                            >
+                                {/* Hover Glow Effect */}
+                                <div className={`absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`}></div>
+
+                                <div className="relative z-10 flex flex-col items-center text-center gap-4 mb-2">
+                                    <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform shadow-lg shadow-indigo-900/20">
+                                        👥
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold group-hover:text-indigo-400 transition-colors">Group Chat</h3>
+                                        <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Choose your agents</p>
+                                    </div>
+                                </div>
+                                <p className="text-gray-400 text-xs text-center relative z-10 mt-4 leading-relaxed">
+                                    Convene a meeting with Architect, Security, and QA agents to debate topics.
+                                </p>
+                            </motion.div>
+                        </Link>
+                    </div>
+
+                    {/* Center Column: Deploy & Agents */}
+                    <div className="space-y-6 min-w-0">
+                        {/* Quick Deploy Bar */}
                         <motion.div
-                            key={agent.id}
-                            className="glass-card relative overflow-hidden group cursor-pointer"
-                            variants={{
-                                hidden: { opacity: 0, y: 20 },
-                                visible: { opacity: 1, y: 0 }
-                            }}
-                            whileHover={{ y: -5 }}
-                            onClick={() => setSelectedAgent(agent)}
+                            className="glass-card flex items-center gap-4 p-4"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
                         >
-                            {/* Gradient border effect on hover */}
-                            <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${agent.gradient} opacity-0 group-hover:opacity-20 transition-opacity`} />
-
-                            <div className="relative z-10">
-                                {/* Agent avatar */}
-                                <div className="flex justify-center mb-4">
-                                    <AgentAvatar agent={agent} />
-                                </div>
-
-                                <h3 className="text-2xl font-bold text-center mb-1">{agent.name}</h3>
-                                <p className="text-cyan-400 text-sm text-center mb-3">{agent.role}</p>
-                                <p className="text-gray-400 text-sm text-center mb-4 line-clamp-2">{agent.desc}</p>
-
-                                {/* Capabilities preview */}
-                                <div className="flex flex-wrap justify-center gap-1 mb-4">
-                                    {agent.capabilities.slice(0, 2).map((cap) => (
-                                        <span key={cap} className="px-2 py-0.5 bg-white/5 rounded text-xs text-gray-400">
-                                            {cap}
-                                        </span>
-                                    ))}
-                                    {agent.capabilities.length > 2 && (
-                                        <span className="px-2 py-0.5 bg-white/5 rounded text-xs text-gray-500">
-                                            +{agent.capabilities.length - 2}
-                                        </span>
-                                    )}
-                                </div>
-
-                                {/* Stats */}
-                                <div className="grid grid-cols-3 gap-2 pt-4 border-t border-white/5">
-                                    <div className="text-center">
-                                        <p className="text-lg font-bold text-cyan-400">{agent.stats.tasksCompleted}</p>
-                                        <p className="text-xs text-gray-500">Tasks</p>
+                            <div className="flex -space-x-3 shrink-0">
+                                {agentsList.filter(a => a.status === 'active').slice(0, 4).map(agent => (
+                                    <div key={agent.id} className={`w-10 h-10 rounded-full bg-gradient-to-br ${agent.gradient} flex items-center justify-center text-lg border-2 border-[#0a0a0f]`}>
+                                        {agent.emoji}
                                     </div>
-                                    <div className="text-center">
-                                        <p className="text-lg font-bold text-purple-400">{agent.stats.uptime}</p>
-                                        <p className="text-xs text-gray-500">Uptime</p>
-                                    </div>
-                                    <div className="text-center">
-                                        <p className="text-sm font-medium text-gray-300">{agent.stats.lastActive}</p>
-                                        <p className="text-xs text-gray-500">Last Active</p>
-                                    </div>
-                                </div>
-
-                                {/* Quick actions on hover */}
-                                <div className="mt-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); setSelectedAgent(agent); setShowDeployModal(true); }}
-                                        className="flex-1 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 rounded-lg text-cyan-400 text-sm flex items-center justify-center gap-1"
-                                    >
-                                        <Play size={14} /> Deploy
-                                    </button>
-                                    <button
-                                        onClick={(e) => e.stopPropagation()}
-                                        className="py-2 px-3 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400"
-                                    >
-                                        <MessageCircle size={14} />
-                                    </button>
-                                </div>
+                                ))}
                             </div>
+                            <div className="flex-1">
+                                <input
+                                    type="text"
+                                    placeholder="Describe a task to deploy agents..."
+                                    value={deployTask}
+                                    onChange={(e) => setDeployTask(e.target.value)}
+                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-cyan-500/50 focus:outline-none"
+                                />
+                            </div>
+                            <button
+                                onClick={() => setShowDeployModal(true)}
+                                disabled={!deployTask.trim()}
+                                className="btn-primary flex items-center gap-2 disabled:opacity-50 text-sm px-4 py-2"
+                            >
+                                <Zap size={16} />
+                                Deploy
+                            </button>
                         </motion.div>
-                    ))}
-                </motion.div>
-            </section>
+
+                        {/* Agents Grid */}
+                        <motion.div
+                            className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5"
+                            initial="hidden"
+                            animate="visible"
+                            variants={{
+                                visible: { transition: { staggerChildren: 0.1 } }
+                            }}
+                        >
+                            {agentsList.map((agent) => (
+                                <motion.div
+                                    key={agent.id}
+                                    className="glass-card relative overflow-hidden group cursor-pointer flex flex-col"
+                                    variants={{
+                                        hidden: { opacity: 0, y: 20 },
+                                        visible: { opacity: 1, y: 0 }
+                                    }}
+                                    whileHover={{ y: -5 }}
+                                    onClick={() => setSelectedAgent(agent)}
+                                >
+                                    {/* Hover Glow Effect */}
+                                    <div className={`absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`}></div>
+
+                                    <div className="relative z-10 flex flex-col flex-1">
+                                        {/* Agent avatar */}
+                                        <div className="flex justify-center mb-4 mt-2">
+                                            <AgentAvatar agent={agent} size="md" />
+                                        </div>
+
+                                        <h3 className="text-xl font-bold text-center mb-1">{agent.name}</h3>
+                                        <p className="text-cyan-400 text-xs text-center mb-3 uppercase tracking-wider">{agent.role}</p>
+                                        <p className="text-gray-400 text-xs text-center mb-4 line-clamp-2 px-2 h-8">{agent.desc}</p>
+
+                                        {/* Capabilities preview */}
+                                        <div className="flex flex-wrap justify-center gap-1.5 mb-4 px-2">
+                                            {agent.capabilities.slice(0, 3).map((cap) => (
+                                                <span key={cap} className="px-2 py-0.5 bg-white/5 border border-white/5 rounded text-[10px] text-gray-400">
+                                                    {cap}
+                                                </span>
+                                            ))}
+                                        </div>
+
+                                        {/* Stats */}
+                                        <div className="grid grid-cols-3 gap-2 pt-4 border-t border-white/5 mt-auto">
+                                            <div className="text-center">
+                                                <p className="text-base font-bold text-cyan-400">{agent.stats.tasksCompleted}</p>
+                                                <p className="text-[10px] text-gray-500 uppercase">Tasks</p>
+                                            </div>
+                                            <div className="text-center">
+                                                <p className="text-base font-bold text-purple-400">{agent.stats.uptime}</p>
+                                                <p className="text-[10px] text-gray-500 uppercase">Uptime</p>
+                                            </div>
+                                            <div className="text-center">
+                                                <p className="text-xs font-medium text-gray-300 mt-1">{agent.stats.lastActive}</p>
+                                                <p className="text-[10px] text-gray-500 uppercase">Active</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Quick actions on hover */}
+                                        <div className="mt-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-4 left-4 right-4 bg-[#0a0a0f]/90 backdrop-blur-md p-1 rounded-lg border border-white/10">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); setSelectedAgent(agent); setShowDeployModal(true); }}
+                                                className="flex-1 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 rounded text-cyan-400 text-xs font-bold flex items-center justify-center gap-1"
+                                            >
+                                                <Play size={12} /> DEPLOY
+                                            </button>
+                                            <button
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="py-1.5 px-3 bg-white/10 hover:bg-white/20 rounded text-gray-300"
+                                            >
+                                                <MessageCircle size={12} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+
+                        {/* Mobile Special Ops (Only on < XL) */}
+                        <div className="xl:hidden grid grid-cols-1 md:grid-cols-2 gap-6 pt-8">
+                            <Link href="/meeting">
+                                <motion.div className="glass-card relative overflow-hidden p-6 hover:border-indigo-500/50 group h-full">
+                                    <div className="flex items-center gap-4 mb-2">
+                                        <div className="w-12 h-12 rounded-lg bg-indigo-500/20 flex items-center justify-center text-2xl">👥</div>
+                                        <div>
+                                            <h3 className="text-lg font-bold">Group Chat</h3>
+                                            <p className="text-xs text-gray-500 uppercase">Choose your agents</p>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm text-gray-400">Convene a meeting with Architect, Security, and QA agents.</p>
+                                </motion.div>
+                            </Link>
+                            <Link href="/voice">
+                                <motion.div className="glass-card relative overflow-hidden p-6 hover:border-red-500/50 group h-full">
+                                    <div className="flex items-center gap-4 mb-2">
+                                        <div className="w-12 h-12 rounded-lg bg-red-500/20 flex items-center justify-center text-2xl">🎙️</div>
+                                        <div>
+                                            <h3 className="text-lg font-bold">Voice Control</h3>
+                                            <p className="text-xs text-gray-500 uppercase">God Mode</p>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm text-gray-400">Execute system commands using voice control.</p>
+                                </motion.div>
+                            </Link>
+                        </div>
+                    </div>
+
+                    {/* Right Sidebar: Voice Control */}
+                    <div className="hidden xl:block sticky top-24">
+                        <Link href="/voice">
+                            <motion.div
+                                className="glass-card relative overflow-hidden p-6 cursor-pointer group h-full border border-red-500/30 hover:border-red-500/50"
+                                initial={{ opacity: 0, x: 50 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                whileHover={{ scale: 1.02 }}
+                            >
+                                {/* Hover Glow Effect */}
+                                <div className={`absolute inset-0 bg-gradient-to-br from-red-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`}></div>
+
+                                <div className="relative z-10 flex flex-col items-center text-center gap-4 mb-2">
+                                    <div className="w-16 h-16 rounded-2xl bg-red-500/20 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform shadow-lg shadow-red-900/20">
+                                        🎙️
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold group-hover:text-red-400 transition-colors">Voice Control</h3>
+                                        <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">God Mode</p>
+                                    </div>
+                                </div>
+                                <p className="text-gray-400 text-xs text-center relative z-10 mt-4 leading-relaxed">
+                                    Execute system commands, launch studios, and control the rig using voice commands.
+                                </p>
+                            </motion.div>
+                        </Link>
+                    </div>
+
+                </div>
+            </div>
 
             {/* Agent Detail Modal */}
             <AnimatePresence>
@@ -444,56 +533,6 @@ export default function AgentsPage() {
                     </motion.div>
                 )}
             </AnimatePresence>
-
-
-            {/* Special Operations */}
-            <section className="container-main mt-12 mb-8">
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                    <span className="w-2 h-8 bg-cyan-500 rounded-full"></span>
-                    Special Operations
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Link href="/meeting">
-                        <motion.div
-                            className="glass-card hover:border-indigo-500/50 transition-colors p-6 cursor-pointer group h-full"
-                            whileHover={{ y: -5 }}
-                        >
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className="w-12 h-12 rounded-lg bg-indigo-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                                    👥
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold group-hover:text-indigo-400 transition-colors">Staff Meeting</h3>
-                                    <p className="text-xs text-gray-500 uppercase tracking-widest">Multi-Agent Debate</p>
-                                </div>
-                            </div>
-                            <p className="text-gray-400 text-sm">
-                                Convene a meeting with Architect, Security, and QA agents to debate topics and reach consensus.
-                            </p>
-                        </motion.div>
-                    </Link>
-
-                    <Link href="/voice">
-                        <motion.div
-                            className="glass-card hover:border-red-500/50 transition-colors p-6 cursor-pointer group h-full"
-                            whileHover={{ y: -5 }}
-                        >
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className="w-12 h-12 rounded-lg bg-red-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                                    🎙️
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold group-hover:text-red-400 transition-colors">Voice Control</h3>
-                                    <p className="text-xs text-gray-500 uppercase tracking-widest">God Mode</p>
-                                </div>
-                            </div>
-                            <p className="text-gray-400 text-sm">
-                                Execute system commands, launch studios, and control the rig using voice commands.
-                            </p>
-                        </motion.div>
-                    </Link>
-                </div>
-            </section>
 
             {/* Back link */}
             <div className="container-main pt-8">

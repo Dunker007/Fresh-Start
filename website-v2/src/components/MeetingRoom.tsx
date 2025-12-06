@@ -155,10 +155,9 @@ export default function MeetingRoom() {
                         </div>
 
                         {/* Agents */}
-                        {Object.values(state.personas).map((persona, i) => {
-                            const isSpeaking = state.currentSpeaker === persona.id; // persona.id is undefined in the map value if not added to PERSONAS object correctly, but here we iterate values. Wait, PERSONAS keys are ids.
-                            // Actually PERSONAS in backend has id inside the object.
-                            // Let's position them in a circle
+                        {Object.entries(state.personas).map(([id, persona], i) => {
+                            const isSpeaking = state.currentSpeaker === id; // use the key (id) from entries as the speaker identifier
+                            // Position avatars in a circle
                             const angle = (i * (360 / Object.keys(state.personas).length)) - 90;
                             const radius = 160; // Distance from center
                             const x = Math.cos((angle * Math.PI) / 180) * radius;

@@ -1,0 +1,94 @@
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\luxrig-bridge\jest.config.js[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Assign object to a variable before exporting as module default  [2mimport/no-anonymous-default-export[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\poe-canvas\src\js\calendar.js[24m[0m
+[0m  [2m180:1[22m  [33mwarning[39m  Assign object to a variable before exporting as module default  [2mimport/no-anonymous-default-export[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\poe-canvas\src\js\commands.js[24m[0m
+[0m  [2m380:1[22m  [33mwarning[39m  Assign object to a variable before exporting as module default  [2mimport/no-anonymous-default-export[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\poe-canvas\src\js\filesystem.js[24m[0m
+[0m  [2m245:1[22m  [33mwarning[39m  Assign object to a variable before exporting as module default  [2mimport/no-anonymous-default-export[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\poe-canvas\src\js\gemini-client.js[24m[0m
+[0m  [2m78:1[22m  [33mwarning[39m  Assign object to a variable before exporting as module default  [2mimport/no-anonymous-default-export[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\poe-canvas\src\js\layout.js[24m[0m
+[0m  [2m225:1[22m  [33mwarning[39m  Assign object to a variable before exporting as module default  [2mimport/no-anonymous-default-export[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\poe-canvas\src\js\llm.js[24m[0m
+[0m  [2m143:1[22m  [33mwarning[39m  Assign object to a variable before exporting as module default  [2mimport/no-anonymous-default-export[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\poe-canvas\src\js\notes.js[24m[0m
+[0m  [2m96:1[22m  [33mwarning[39m  Assign object to a variable before exporting as module default  [2mimport/no-anonymous-default-export[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\poe-canvas\src\js\projects.js[24m[0m
+[0m  [2m108:1[22m  [33mwarning[39m  Assign object to a variable before exporting as module default  [2mimport/no-anonymous-default-export[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\poe-canvas\src\js\state.js[24m[0m
+[0m  [2m170:1[22m  [33mwarning[39m  Assign object to a variable before exporting as module default  [2mimport/no-anonymous-default-export[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\poe-canvas\src\js\tasks.js[24m[0m
+[0m  [2m125:1[22m  [33mwarning[39m  Assign object to a variable before exporting as module default  [2mimport/no-anonymous-default-export[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\poe-canvas\src\js\timer.js[24m[0m
+[0m  [2m88:1[22m  [33mwarning[39m  Assign object to a variable before exporting as module default  [2mimport/no-anonymous-default-export[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\poe-canvas\src\js\ui.js[24m[0m
+[0m  [2m146:1[22m  [33mwarning[39m  Assign object to a variable before exporting as module default  [2mimport/no-anonymous-default-export[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\poe-canvas\src\js\workspaces.js[24m[0m
+[0m  [2m145:1[22m  [33mwarning[39m  Assign object to a variable before exporting as module default  [2mimport/no-anonymous-default-export[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\website-v2\src\app\auth\github\callback\page.tsx[24m[0m
+[0m  [2m22:8[22m  [33mwarning[39m  React Hook useEffect has a missing dependency: 'exchangeCodeForTokens'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\website-v2\src\app\auth\google\callback\page.tsx[24m[0m
+[0m  [2m22:8[22m  [33mwarning[39m  React Hook useEffect has a missing dependency: 'exchangeCodeForTokens'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\website-v2\src\app\chat\page.tsx[24m[0m
+[0m  [2m165:8[22m  [33mwarning[39m  React Hook useEffect has a missing dependency: 'fetchAllModels'. Either include it or remove the dependency array   [2mreact-hooks/exhaustive-deps[22m[0m
+[0m  [2m177:8[22m  [33mwarning[39m  React Hook useEffect has a missing dependency: 'messages.length'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\website-v2\src\app\dashboard\page.tsx[24m[0m
+[0m  [2m148:8[22m  [33mwarning[39m  React Hook useEffect has a missing dependency: 'fetchDashboardNews'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\website-v2\src\app\google-test\page.tsx[24m[0m
+[0m   [2m39:8[22m   [33mwarning[39m  React Hook useEffect has missing dependencies: 'fetchCalendarEvents', 'fetchDriveFiles', and 'fetchUserInfo'. Either include them or remove the dependency array                                                                                                [2mreact-hooks/exhaustive-deps[22m[0m
+[0m  [2m184:33[22m  [33mwarning[39m  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  [2m@next/next/no-img-element[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\website-v2\src\app\integrations\page.tsx[24m[0m
+[0m  [2m178:8[22m  [33mwarning[39m  React Hook useEffect has a missing dependency: 'statuses'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\website-v2\src\app\setup\page.tsx[24m[0m
+[0m  [2m73:8[22m  [33mwarning[39m  React Hook useEffect has a missing dependency: 'checkAllTools'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\website-v2\src\app\status\page.tsx[24m[0m
+[0m  [2m100:8[22m  [33mwarning[39m  React Hook useEffect has a missing dependency: 'checkAllServices'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\website-v2\src\app\studios\art\page.tsx[24m[0m
+[0m  [2m207:41[22m  [33mwarning[39m  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  [2m@next/next/no-img-element[22m[0m
+[0m  [2m253:29[22m  [33mwarning[39m  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  [2m@next/next/no-img-element[22m[0m
+[0m  [2m253:29[22m  [33mwarning[39m  img elements must have an alt prop, either with meaningful text, or an empty string for decorative images                                                                                                                                                       [2mjsx-a11y/alt-text[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\website-v2\src\app\voice\page.tsx[24m[0m
+[0m   [2m43:1[22m  [31merror[39m    Definition for rule '@typescript-eslint/no-explicit-any' was not found                                             [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m45:5[22m  [31merror[39m    Definition for rule '@typescript-eslint/no-explicit-any' was not found                                             [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m153:8[22m  [33mwarning[39m  React Hook useEffect has a missing dependency: 'processCommand'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\website-v2\src\components\CommandPalette.tsx[24m[0m
+[0m  [2m174:8[22m  [33mwarning[39m  React Hook useEffect has missing dependencies: 'handleAiQuery' and 'saveRecentCommand'. Either include them or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\website-v2\src\components\PageBackground.tsx[24m[0m
+[0m  [2m15:27[22m  [31merror[39m  React Hook "useVibe" is called conditionally. React Hooks must be called in the exact same order in every component render  [2mreact-hooks/rules-of-hooks[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\website-v2\src\components\StaffMeetingPanel.tsx[24m[0m
+[0m  [2m43:8[22m  [33mwarning[39m  React Hook useEffect has a missing dependency: 'runAudit'. Either include it or remove the dependency array                     [2mreact-hooks/exhaustive-deps[22m[0m
+[0m  [2m53:8[22m  [33mwarning[39m  React Hook useEffect has missing dependencies: 'discussLab' and 'labsData'. Either include them or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mC:\Repos GIT\Fresh-Start\Fresh-Start\website-v2\src\components\ThemeProvider.tsx[24m[0m
+[0m  [2m28:8[22m  [33mwarning[39m  React Hook useEffect has a missing dependency: 'presetThemes'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[31m[1m✖ 35 problems (3 errors, 32 warnings)[22m[39m[0m
+[0m[31m[1m[22m[39m[0m

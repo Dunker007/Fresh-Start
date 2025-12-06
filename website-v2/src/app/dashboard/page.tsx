@@ -443,8 +443,11 @@ export default function DashboardPage() {
                     draggableHandle=".drag-handle"
                 >
                     {widgets.map(widget => (
-                        <div key={widget.i} className={`glass-card overflow-hidden ${editMode ? 'ring-2 ring-cyan-500/30' : ''}`}>
-                            <div className={`flex items-center justify-between mb-3 ${editMode ? 'drag-handle cursor-move' : ''}`}>
+                        <div key={widget.i} className={`glass-card overflow-hidden group relative ${editMode ? 'ring-2 ring-cyan-500/30' : ''}`}>
+                            {/* Hover Glow Effect */}
+                            <div className={`absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`}></div>
+
+                            <div className={`flex items-center justify-between mb-3 relative z-10 ${editMode ? 'drag-handle cursor-move' : ''}`}>
                                 <h3 className="font-bold text-sm flex items-center gap-2">
                                     {editMode && <Move size={14} className="text-cyan-400" />}
                                     {widget.title}
@@ -455,7 +458,7 @@ export default function DashboardPage() {
                                     </button>
                                 )}
                             </div>
-                            <div className="flex-1 overflow-auto custom-scrollbar">
+                            <div className="flex-1 overflow-auto custom-scrollbar relative z-10">
                                 {renderWidgetContent(widget)}
                             </div>
                         </div>

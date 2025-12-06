@@ -638,11 +638,13 @@ export default function NewsPage() {
                         return (
                             <motion.article
                                 key={article.id}
-                                className="news-card glass-card relative overflow-hidden"
+                                className="news-card glass-card relative overflow-hidden group"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.05 }}
                             >
+                                {/* Hover Glow Effect */}
+                                <div className={`absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`}></div>
                                 {/* Top bar */}
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-2">

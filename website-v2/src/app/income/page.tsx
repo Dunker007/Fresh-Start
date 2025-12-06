@@ -347,11 +347,14 @@ export default function IncomeLabPage() {
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         onClick={() => setSelectedStreamId(stream.id)}
-                                        className={`glass-card relative overflow-hidden transition-all cursor-pointer ${isSelected ? 'ring-2 ring-cyan-500/50 bg-white/5' : 'hover:bg-white/5'
+                                        className={`glass-card relative overflow-hidden transition-all cursor-pointer group ${isSelected ? 'ring-2 ring-cyan-500/50 bg-white/5' : 'hover:bg-white/5'
                                             }`}
                                     >
+                                        {/* Hover Glow Effect */}
+                                        <div className={`absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`}></div>
+
                                         {/* Status Strip */}
-                                        <div className={`absolute left-0 top-0 bottom-0 w-1 ${stream.status === 'active' ? 'bg-green-500' : 'bg-gray-700'
+                                        <div className={`absolute left-0 top-0 bottom-0 w-1 z-20 ${stream.status === 'active' ? 'bg-green-500' : 'bg-gray-700'
                                             }`} />
 
                                         <div className="p-6 pl-8">
@@ -537,9 +540,9 @@ export default function IncomeLabPage() {
                                 );
                             })}
                         </div>
-                    </div>
-                </div>
-            </div>
+                    </div >
+                </div >
+            </div >
         </div>
     );
 }

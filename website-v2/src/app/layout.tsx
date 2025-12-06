@@ -6,6 +6,7 @@ import CommandPalette from "@/components/CommandPalette";
 import LuxHelper from "@/components/LuxHelper";
 import KeyboardShortcuts from "@/components/KeyboardShortcuts";
 
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -30,7 +31,7 @@ export default function RootLayout({
           <Navigation />
           <CommandPalette />
           <KeyboardShortcuts />
-          <main className="pt-20">
+          <main className="pt-16 min-h-screen">
             {children}
           </main>
           <VibeController />

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useVibe } from './VibeContext';
+import { VibeContext } from './VibeContext';
 
 interface PageBackgroundProps {
     color?: 'cyan' | 'green' | 'purple' | 'amber' | 'pink' | 'emerald' | 'orange' | 'indigo' | 'red' | 'blue' | 'auto';
@@ -9,14 +9,9 @@ interface PageBackgroundProps {
 }
 
 export default function PageBackground({ color, useTheme = false }: PageBackgroundProps) {
-    // Try to get theme context (might not be available during SSR or initial load)
-    let themeColor: string | undefined;
-    try {
-        const { theme } = useVibe();
-        themeColor = theme?.floodlightColor;
-    } catch {
-        themeColor = undefined;
-    }
+    // Try to get theme context safely
+    const vibeContext = React.useContext(VibeContext);
+    const themeColor = vibeContext?.theme?.floodlightColor;
 
     // Determine final color: explicit prop > theme > default cyan
     const finalColor = color === 'auto' || useTheme ? (themeColor || 'cyan') : (color || 'cyan');

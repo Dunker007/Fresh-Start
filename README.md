@@ -4,12 +4,16 @@
 
 ---
 
-## Active Project: Nexus Workspace
+## Active Project: Nexus Workspace / DLX Studio
+**Location:** `website-v2/` (Modern Next.js App) & `poe-canvas/` (Legacy Prototype)
 
-**Location:** `poe-canvas/`
+**Website V2:** The primary DLX Studio application built with Next.js 15, Tailwind, and React Three Fiber.
+- **Features:** AI Agents, Vibe Coding, Local LLM Integration, Voice Control.
+- **Status:** Active Development.
 
-Desktop productivity app with local LLM integration, Google ecosystem connectivity, and keyboard-driven workflow.
+**Poe Canvas:** Prototype version (see legacy docs).
 
+[→ Go to Website V2 README](./website-v2/README.md)
 [→ Go to Nexus Workspace README](./poe-canvas/README.md)
 
 ---

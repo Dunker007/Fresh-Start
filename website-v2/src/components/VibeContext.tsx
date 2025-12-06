@@ -20,7 +20,7 @@ interface VibeState {
     availableThemes: Theme[];
 }
 
-const VibeContext = createContext<VibeState | undefined>(undefined);
+export const VibeContext = createContext<VibeState | undefined>(undefined);
 
 const LUXRIG_BRIDGE_URL = process.env.NEXT_PUBLIC_BRIDGE_URL || 'http://localhost:3456';
 const WS_URL = LUXRIG_BRIDGE_URL.replace('http', 'ws') + '/stream';

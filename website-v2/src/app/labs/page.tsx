@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, LayoutGrid, List, Kanban, Plus, Lightbulb, Users, ArrowUpRight, MoreHorizontal, MessageSquare, Calendar, ChevronRight, ChevronDown } from 'lucide-react';
+import { Search, Filter, LayoutGrid, List, Kanban, Plus, Lightbulb, Users, ArrowUpRight, MoreHorizontal, MessageSquare, Calendar, ChevronRight, ChevronDown, X } from 'lucide-react';
 import Link from 'next/link';
 import PageBackground from '@/components/PageBackground';
 import StaffMeetingPanel from '@/components/StaffMeetingPanel';
@@ -28,6 +28,7 @@ const INITIAL_LABS_DATA: Lab[] = [
     { id: 'meeting', icon: '👥', name: 'AI Staff Meeting', desc: 'Multi-agent debate room.', status: 'active', category: 'Operations', priority: 'High', agents: ['architect', 'qa'], href: '/meeting', ideas: 3, timeline: { startMonth: 0, durationMonths: 4, progress: 80 }, owner: 'Architect' },
     { id: 'voice', icon: '🎙️', name: 'Voice Command', desc: 'System-wide God Mode.', status: 'active', category: 'Operations', priority: 'High', agents: ['guardian'], href: '/voice', ideas: 1, timeline: { startMonth: 0, durationMonths: 6, progress: 90 }, owner: 'Guardian' },
     { id: 'automation', icon: '⚡', name: 'Automation Lab', desc: 'Workflow builder.', status: 'active', category: 'Operations', priority: 'Medium', agents: ['bytebot'], href: '/workflows', ideas: 5, timeline: { startMonth: 1, durationMonths: 3, progress: 60 }, owner: 'ByteBot' },
+    { id: 'smarthome', icon: '🏠', name: 'Smart Home Control', desc: 'Home automation hub.', status: 'active', category: 'Operations', priority: 'Medium', agents: ['bytebot'], href: '/home', ideas: 2, timeline: { startMonth: 0, durationMonths: 12, progress: 45 }, owner: 'ByteBot' },
 
     // Intelligence
     { id: 'analytics', icon: '📊', name: 'Analytics Hub', desc: 'Performance dashboards.', status: 'active', category: 'Intelligence', priority: 'Medium', agents: ['oracle'], href: '/analytics', ideas: 0, timeline: { startMonth: 2, durationMonths: 4, progress: 40 }, owner: 'Oracle' },
@@ -65,6 +66,34 @@ export default function LabsPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [expandedRows, setExpandedRows] = useState<string[]>([]);
     const [selectedLabId, setSelectedLabId] = useState<string | null>(null);
+    const [isIdeaModalOpen, setIsIdeaModalOpen] = useState(false);
+    const [newIdea, setNewIdea] = useState({ title: '', desc: '', category: 'Operations' });
+
+    const handleAddIdea = () => {
+        if (!newIdea.title) return;
+        const newLab: Lab = {
+            id: Date.now().toString(),
+            icon: '💡',
+            name: newIdea.title,
+            desc: newIdea.desc,
+            status: 'concept',
+            category: newIdea.category as any,
+            priority: 'Medium',
+            agents: ['architect'],
+            href: null,
+            ideas: 0,
+            timeline: { startMonth: new Date().getMonth(), durationMonths: 3, progress: 0 },
+            owner: 'Architect'
+        };
+        setLabsData(prev => [...prev, newLab]);
+        setIsIdeaModalOpen(false);
+        setNewIdea({ title: '', desc: '', category: 'Operations' });
+        // Announce in meeting
+        setTimeout(() => {
+            const event = new CustomEvent('new-lab-idea', { detail: newLab });
+            window.dispatchEvent(event);
+        }, 500);
+    };
 
     // Filter Logic
     const filteredLabs = labsData.filter(lab => {
@@ -87,17 +116,17 @@ export default function LabsPage() {
     const statuses = ['active', 'preview', 'concept'];
 
     return (
-        <div className="min-h-screen bg-[#050508] relative overflow-hidden flex flex-col">
+        <div className="h-[calc(100vh-4rem)] bg-[#050508] relative overflow-hidden flex flex-col items-center">
             <PageBackground color="indigo" />
 
             {/* Split Layout Container */}
-            <div className="flex flex-col lg:flex-row flex-1 pt-20">
+            <div className="flex flex-col lg:flex-row flex-1 w-full">
 
                 {/* Main Content Area (2/3) */}
-                <div className="flex-1 min-w-0 p-4 md:p-8 flex flex-col h-[calc(100vh-5rem)] overflow-y-auto">
+                <div className="flex-1 min-w-0 p-4 md:p-8 flex flex-col h-full overflow-y-auto">
 
                     {/* Header */}
-                    <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-8">
+                    <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-8 mt-4">
                         <div>
                             <h1 className="text-4xl md:text-5xl font-bold mb-2">
                                 Labs <span className="text-indigo-400">Roadmap</span>
@@ -108,6 +137,7 @@ export default function LabsPage() {
                             <button onClick={() => setViewMode('gantt')} className={`p-2 rounded ${viewMode === 'gantt' ? 'bg-indigo-500/20 text-indigo-400' : 'text-gray-400 hover:text-white'}`} title="Roadmap"><Calendar size={20} /></button>
                             <button onClick={() => setViewMode('kanban')} className={`p-2 rounded ${viewMode === 'kanban' ? 'bg-indigo-500/20 text-indigo-400' : 'text-gray-400 hover:text-white'}`} title="Board"><Kanban size={20} /></button>
                             <button onClick={() => setViewMode('grid')} className={`p-2 rounded ${viewMode === 'grid' ? 'bg-indigo-500/20 text-indigo-400' : 'text-gray-400 hover:text-white'}`} title="Grid"><LayoutGrid size={20} /></button>
+                            <button onClick={() => setIsIdeaModalOpen(true)} className="ml-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold flex items-center gap-2"><Plus size={16} /> <span className="hidden md:inline">New Idea</span></button>
                         </div>
                     </div>
 
@@ -196,8 +226,8 @@ export default function LabsPage() {
                                                         {/* Bar */}
                                                         <div
                                                             className={`absolute h-6 rounded flex items-center px-2 text-[10px] font-bold text-white/90 shadow-lg ${lab.status === 'active' ? 'bg-green-500/20 border border-green-500/50' :
-                                                                    lab.status === 'preview' ? 'bg-yellow-500/20 border border-yellow-500/50' :
-                                                                        'bg-blue-500/20 border border-blue-500/50'
+                                                                lab.status === 'preview' ? 'bg-yellow-500/20 border border-yellow-500/50' :
+                                                                    'bg-blue-500/20 border border-blue-500/50'
                                                                 }`}
                                                             style={{
                                                                 left: `${(lab.timeline.startMonth / 12) * 100}%`,
@@ -307,7 +337,7 @@ export default function LabsPage() {
                 </div>
 
                 {/* Staff Meeting Panel (1/3) */}
-                <div className="w-full lg:w-[400px] xl:w-[450px] border-l border-white/10 h-[50vh] lg:h-[calc(100vh-5rem)] flex flex-col bg-[#0a0a0e] relative z-20 shadow-2xl">
+                <div className="w-full lg:w-[400px] xl:w-[450px] border-l border-white/10 h-[50vh] lg:h-full flex flex-col bg-[#0a0a0e] relative z-20 shadow-2xl">
                     <StaffMeetingPanel
                         labsData={labsData}
                         onUpdateLab={handleUpdateLab}
@@ -315,6 +345,71 @@ export default function LabsPage() {
                     />
                 </div>
             </div>
+
+            {/* Idea Modal */}
+            <AnimatePresence>
+                {isIdeaModalOpen && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            className="bg-[#1a1a20] border border-white/10 rounded-xl p-6 w-full max-w-md shadow-2xl relative"
+                        >
+                            <button onClick={() => setIsIdeaModalOpen(false)} className="absolute top-4 right-4 text-gray-500 hover:text-white"><X size={20} /></button>
+                            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                                <Lightbulb className="text-yellow-400" /> New Lab Initiative
+                            </h2>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Project Name</label>
+                                    <input
+                                        type="text"
+                                        value={newIdea.title}
+                                        onChange={(e) => setNewIdea({ ...newIdea, title: e.target.value })}
+                                        className="w-full bg-black/20 border border-white/10 rounded p-2 text-sm focus:border-indigo-500 outline-none"
+                                        placeholder="e.g. Quantum UI"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Description</label>
+                                    <textarea
+                                        value={newIdea.desc}
+                                        onChange={(e) => setNewIdea({ ...newIdea, desc: e.target.value })}
+                                        className="w-full bg-black/20 border border-white/10 rounded p-2 text-sm focus:border-indigo-500 outline-none h-24 resize-none"
+                                        placeholder="What's the goal?"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Category</label>
+                                    <select
+                                        value={newIdea.category}
+                                        onChange={(e) => setNewIdea({ ...newIdea, category: e.target.value })}
+                                        className="w-full bg-black/20 border border-white/10 rounded p-2 text-sm focus:border-indigo-500 outline-none"
+                                    >
+                                        {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Link to Page (Optional)</label>
+                                    <input
+                                        type="text"
+                                        placeholder="/route-to-unfinished-page"
+                                        className="w-full bg-black/20 border border-white/10 rounded p-2 text-sm focus:border-indigo-500 outline-none text-gray-400"
+                                    />
+                                    <p className="text-[10px] text-gray-600 mt-1">If this replaces an existing route, specify it here.</p>
+                                </div>
+
+                                <div className="pt-4 flex justify-end gap-2">
+                                    <button onClick={() => setIsIdeaModalOpen(false)} className="px-4 py-2 rounded text-gray-400 hover:bg-white/5">Cancel</button>
+                                    <button onClick={handleAddIdea} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold">Launch Initiative</button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
@@ -357,8 +452,8 @@ function LabCard({ lab, simple = false }: { lab: Lab, simple?: boolean }) {
                     </button>
                     {!simple && (
                         <span className={`text-[10px] px-2 py-0.5 rounded border ${lab.priority === 'High' ? 'border-red-500/30 text-red-400' :
-                                lab.priority === 'Medium' ? 'border-yellow-500/30 text-yellow-400' :
-                                    'border-blue-500/30 text-blue-400'
+                            lab.priority === 'Medium' ? 'border-yellow-500/30 text-yellow-400' :
+                                'border-blue-500/30 text-blue-400'
                             }`}>
                             {lab.priority}
                         </span>

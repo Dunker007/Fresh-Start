@@ -267,7 +267,7 @@ export default function ChatPage() {
     };
 
     return (
-        <div className="flex min-h-screen pt-20 overflow-hidden text-gray-100">
+        <div className="flex h-[calc(100vh-4rem)] overflow-hidden text-gray-100">
             {/* Background */}
             <div className="fixed inset-0 z-0 pointer-events-none">
                 <PageBackground color="cyan" />
@@ -276,7 +276,7 @@ export default function ChatPage() {
             {/* Sidebar */}
             <motion.div
                 animate={{ width: sidebarOpen ? 300 : 80 }}
-                className="border-r border-white/5 bg-[#0a0a0f]/80 backdrop-blur-md flex flex-col relative z-20 h-[calc(100vh-5rem)]"
+                className="border-r border-white/5 bg-[#0a0a0f]/80 backdrop-blur-md flex flex-col relative z-20 h-full"
             >
                 {/* Brand */}
                 <div className="p-6 flex items-center gap-3">

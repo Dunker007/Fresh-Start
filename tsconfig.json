@@ -1,0 +1,3 @@
+{
+    "extends": "./website-v2/tsconfig.json"
+}

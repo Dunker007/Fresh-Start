@@ -40,9 +40,9 @@ interface ISpeechRecognition extends EventTarget {
 }
 
 // Type casting helper for browser compatibility
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line
 const getSpeechRecognition = (): (new () => ISpeechRecognition) | undefined => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line
     return (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 };
 
