@@ -98,7 +98,7 @@ async function getFullStatus() {
         lmstudioService.getStatus(),
         ollamaService.getStatus(),
         systemService.getMetrics(),
-        errorLogger.getStats()
+        errorLogger.getErrorStats()
     ]);
 
     return {
