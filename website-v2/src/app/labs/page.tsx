@@ -125,19 +125,76 @@ export default function LabsPage() {
                 {/* Main Content Area (2/3) */}
                 <div className="flex-1 min-w-0 p-4 md:p-8 flex flex-col h-full overflow-y-auto">
 
-                    {/* Header */}
-                    <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-8 mt-4">
-                        <div>
-                            <h1 className="text-4xl md:text-5xl font-bold mb-2">
-                                Labs <span className="text-indigo-400">Roadmap</span>
-                            </h1>
-                            <p className="text-gray-400">Strategic timeline and R&D pipeline.</p>
-                        </div>
-                        <div className="flex gap-2 bg-white/5 p-1 rounded-lg border border-white/10">
-                            <button onClick={() => setViewMode('gantt')} className={`p-2 rounded ${viewMode === 'gantt' ? 'bg-indigo-500/20 text-indigo-400' : 'text-gray-400 hover:text-white'}`} title="Roadmap"><Calendar size={20} /></button>
-                            <button onClick={() => setViewMode('kanban')} className={`p-2 rounded ${viewMode === 'kanban' ? 'bg-indigo-500/20 text-indigo-400' : 'text-gray-400 hover:text-white'}`} title="Board"><Kanban size={20} /></button>
-                            <button onClick={() => setViewMode('grid')} className={`p-2 rounded ${viewMode === 'grid' ? 'bg-indigo-500/20 text-indigo-400' : 'text-gray-400 hover:text-white'}`} title="Grid"><LayoutGrid size={20} /></button>
-                            <button onClick={() => setIsIdeaModalOpen(true)} className="ml-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold flex items-center gap-2"><Plus size={16} /> <span className="hidden md:inline">New Idea</span></button>
+                    {/* Epic Header */}
+                    <div className="relative mb-8 mt-4">
+                        {/* Floating Decorative Elements */}
+                        <div className="absolute -top-10 -left-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl animate-pulse pointer-events-none" />
+                        <div className="absolute -top-5 right-20 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl animate-pulse delay-500 pointer-events-none" />
+                        <div className="absolute top-10 right-0 w-16 h-16 bg-cyan-500/10 rounded-full blur-xl animate-pulse delay-1000 pointer-events-none" />
+
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative z-10">
+                            <div>
+                                {/* Main Title with Animated Gradient */}
+                                <div className="flex items-center gap-4 mb-3">
+                                    <div className="relative">
+                                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 rounded-xl blur-lg opacity-50 animate-pulse" />
+                                        <div className="relative p-3 bg-gradient-to-br from-indigo-600/20 to-purple-600/20 rounded-xl border border-white/10 backdrop-blur-sm">
+                                            <span className="text-3xl">🧪</span>
+                                        </div>
+                                    </div>
+                                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight">
+                                        <span className="bg-gradient-to-r from-white via-indigo-200 to-white bg-clip-text text-transparent">
+                                            DLX
+                                        </span>
+                                        <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent animate-gradient bg-300% ml-2">
+                                            Labs
+                                        </span>
+                                    </h1>
+                                </div>
+
+                                {/* Subtitle with Live Stats */}
+                                <p className="text-gray-400 text-lg mb-4 max-w-lg">
+                                    Innovation pipeline & R&D command center.
+                                    <span className="text-indigo-400 ml-1">Where ideas become reality.</span>
+                                </p>
+
+                                {/* Live Stats Badges */}
+                                <div className="flex flex-wrap gap-3">
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-500/20 rounded-full">
+                                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                        <span className="text-xs font-medium text-green-400">{labsData.filter(l => l.status === 'active').length} Active</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-full">
+                                        <div className="w-2 h-2 bg-yellow-500 rounded-full" />
+                                        <span className="text-xs font-medium text-yellow-400">{labsData.filter(l => l.status === 'preview').length} Preview</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full">
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                                        <span className="text-xs font-medium text-blue-400">{labsData.filter(l => l.status === 'concept').length} Concept</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 rounded-full">
+                                        <span className="text-xs font-medium text-purple-400">💡 {labsData.reduce((acc, l) => acc + l.ideas, 0)} Ideas</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* View Mode Switcher */}
+                            <div className="flex gap-2 bg-white/5 p-1.5 rounded-xl border border-white/10 backdrop-blur-md shadow-xl shadow-black/20">
+                                <button onClick={() => setViewMode('gantt')} className={`p-2.5 rounded-lg transition-all ${viewMode === 'gantt' ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-400 shadow-lg shadow-indigo-500/10' : 'text-gray-400 hover:text-white hover:bg-white/5'}`} title="Roadmap">
+                                    <Calendar size={20} />
+                                </button>
+                                <button onClick={() => setViewMode('kanban')} className={`p-2.5 rounded-lg transition-all ${viewMode === 'kanban' ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-400 shadow-lg shadow-indigo-500/10' : 'text-gray-400 hover:text-white hover:bg-white/5'}`} title="Board">
+                                    <Kanban size={20} />
+                                </button>
+                                <button onClick={() => setViewMode('grid')} className={`p-2.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-400 shadow-lg shadow-indigo-500/10' : 'text-gray-400 hover:text-white hover:bg-white/5'}`} title="Grid">
+                                    <LayoutGrid size={20} />
+                                </button>
+                                <div className="w-px bg-white/10 mx-1" />
+                                <button onClick={() => setIsIdeaModalOpen(true)} className="px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg font-bold flex items-center gap-2 shadow-lg shadow-indigo-500/20 transition-all hover:shadow-indigo-500/30 hover:scale-105">
+                                    <Plus size={16} />
+                                    <span className="hidden md:inline">New Idea</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 

@@ -294,53 +294,118 @@ export default function NewsPage() {
                 </div>
             </div>
 
-            {/* Header */}
-            <section className="section-padding pb-8">
-                <div className="container-main">
+            {/* Epic Broadcast Header */}
+            <section className="section-padding pb-8 relative overflow-hidden">
+                {/* Scanline Overlay Effect */}
+                <div className="absolute inset-0 pointer-events-none opacity-5">
+                    <div className="w-full h-full" style={{
+                        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)'
+                    }} />
+                </div>
+
+                <div className="container-main relative z-10">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                     >
-                        <div className="flex items-center gap-3 mb-4">
-                            <span className="text-4xl">📰</span>
-                            <div>
-                                <h1 className="text-4xl font-bold">
-                                    <span className="text-gradient">News Hub</span>
-                                </h1>
-                                <p className="text-gray-400">Conservative & Minnesota Local News Aggregator</p>
-                            </div>
-                        </div>
+                        {/* Main Header Block */}
+                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 mb-6">
+                            {/* Left: Title & Stats */}
+                            <div className="flex-1">
+                                {/* Live Badge + Title */}
+                                <div className="flex items-center gap-4 mb-4">
+                                    {/* Animated Live Indicator */}
+                                    <div className="relative">
+                                        <div className="absolute inset-0 bg-red-500 rounded-full blur-md animate-pulse opacity-50" />
+                                        <div className="relative flex items-center gap-2 px-4 py-2 bg-red-600/20 border border-red-500/50 rounded-full backdrop-blur-sm">
+                                            <div className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
+                                            <span className="text-xs font-bold text-red-400 uppercase tracking-wider">Live Feed</span>
+                                        </div>
+                                    </div>
 
-                        {/* Navigation */}
-                        <div className="flex flex-wrap items-center gap-4 mt-6">
-                            <Link href="/" className="text-gray-400 hover:text-cyan-400 transition-colors">
-                                ← Back
-                            </Link>
-                            <div className="flex-1" />
-                            <button
-                                onClick={() => setShowSourceManager(!showSourceManager)}
-                                className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${showSourceManager
-                                    ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
-                                    : 'bg-white/5 text-gray-400 hover:bg-white/10'
-                                    }`}
-                            >
-                                ⚙️ Manage Sources
-                            </button>
-                            <button
-                                onClick={() => setShowFactChecker(!showFactChecker)}
-                                className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${showFactChecker
-                                    ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                                    : 'bg-white/5 text-gray-400 hover:bg-white/10'
-                                    }`}
-                            >
-                                🔍 Fact Checker
-                            </button>
-                            <button
-                                onClick={() => setShowResearchPanel(true)}
-                                className="px-4 py-2 rounded-lg flex items-center gap-2 transition-colors bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 border border-amber-500/30 hover:from-amber-500/30 hover:to-orange-500/30"
-                            >
-                                📚 Research
-                            </button>
+                                    {/* Article Count Badge */}
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full">
+                                        <span className="text-xs text-gray-400">{articles.length} articles</span>
+                                    </div>
+                                </div>
+
+                                {/* Epic Title */}
+                                <div className="flex items-center gap-4 mb-3">
+                                    <div className="relative">
+                                        <div className="absolute inset-0 bg-gradient-to-r from-red-500 via-orange-500 to-red-500 rounded-xl blur-lg opacity-40 animate-pulse" />
+                                        <div className="relative p-3 bg-gradient-to-br from-red-600/20 to-orange-600/20 rounded-xl border border-white/10 backdrop-blur-sm">
+                                            <span className="text-3xl">📡</span>
+                                        </div>
+                                    </div>
+                                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight">
+                                        <span className="bg-gradient-to-r from-white via-red-100 to-white bg-clip-text text-transparent">
+                                            DLX
+                                        </span>
+                                        <span className="bg-gradient-to-r from-red-400 via-orange-400 to-amber-400 bg-clip-text text-transparent animate-gradient bg-300% ml-2">
+                                            News
+                                        </span>
+                                    </h1>
+                                </div>
+
+                                {/* Subtitle */}
+                                <p className="text-gray-400 text-lg mb-5 max-w-xl">
+                                    Real-time news aggregator with AI fact-checking.
+                                    <span className="text-red-400 ml-1">Stay informed. Stay sharp.</span>
+                                </p>
+
+                                {/* Quick Stats Row */}
+                                <div className="flex flex-wrap gap-3">
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                                        <span className="text-lg">🏠</span>
+                                        <span className="text-xs font-medium text-blue-400">{articles.filter(a => a.category === 'local').length} Local</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+                                        <span className="text-lg">🇺🇸</span>
+                                        <span className="text-xs font-medium text-purple-400">{articles.filter(a => a.category === 'national').length} National</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                                        <span className="text-lg">⭐</span>
+                                        <span className="text-xs font-medium text-yellow-400">{savedArticles.size} Saved</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-500/20 rounded-lg">
+                                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                        <span className="text-xs font-medium text-green-400">{articles.filter(a => a.factCheck?.status === 'verified').length} Verified</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right: Action Buttons */}
+                            <div className="flex flex-col gap-3">
+                                <Link href="/" className="text-gray-400 hover:text-cyan-400 transition-colors text-sm mb-2">
+                                    ← Back to Dashboard
+                                </Link>
+                                <div className="flex flex-wrap gap-2">
+                                    <button
+                                        onClick={() => setShowSourceManager(!showSourceManager)}
+                                        className={`px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all text-sm font-medium ${showSourceManager
+                                            ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/30 shadow-lg shadow-cyan-500/10'
+                                            : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10'
+                                            }`}
+                                    >
+                                        ⚙️ Sources
+                                    </button>
+                                    <button
+                                        onClick={() => setShowFactChecker(!showFactChecker)}
+                                        className={`px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all text-sm font-medium ${showFactChecker
+                                            ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 border border-purple-500/30 shadow-lg shadow-purple-500/10'
+                                            : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10'
+                                            }`}
+                                    >
+                                        🔍 Fact Check
+                                    </button>
+                                    <button
+                                        onClick={() => setShowResearchPanel(true)}
+                                        className="px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all text-sm font-medium bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 border border-amber-500/30 hover:shadow-lg hover:shadow-amber-500/10"
+                                    >
+                                        📚 Research
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </motion.div>
                 </div>

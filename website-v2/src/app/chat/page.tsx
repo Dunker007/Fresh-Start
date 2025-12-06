@@ -422,39 +422,105 @@ export default function ChatPage() {
 
             {/* Main Chat Area */}
             <div className="flex-1 flex flex-col relative z-10">
-                {/* Header */}
-                <header className="h-16 border-b border-white/5 flex items-center justify-between px-6 bg-[#050508]/80 backdrop-blur-md sticky top-0 z-30">
-                    <div className="flex items-center gap-4">
-                        {viewMode === 'agents' ? (
-                            <>
-                                <activeAgent.icon className={activeAgent.color} size={20} />
-                                <span className="font-bold text-lg">{activeAgent.name}</span>
-                                <span className="text-xs bg-white/5 px-2 py-0.5 rounded text-gray-500 uppercase tracking-widest">{activeAgent.role}</span>
-                            </>
-                        ) : (
-                            <>
-                                <Database className="text-purple-400" size={20} />
-                                <div>
-                                    <div className="font-bold text-lg text-gray-200">{selectedModel?.id || 'Select a Model'}</div>
-                                    <div className="text-xs text-gray-500">{selectedModel?.provider?.toUpperCase()}</div>
-                                </div>
-                            </>
-                        )}
+                {/* Neural Interface Header */}
+                <header className="border-b border-white/5 bg-[#050508]/90 backdrop-blur-xl sticky top-0 z-30 overflow-hidden">
+                    {/* Animated Background Wave */}
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/5 to-transparent animate-pulse" />
+                        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        {viewMode === 'models' && selectedModel && (
+                    <div className="relative flex items-center justify-between px-6 py-4">
+                        {/* Left: Agent/Model Info */}
+                        <div className="flex items-center gap-4">
+                            {viewMode === 'agents' ? (
+                                <>
+                                    {/* Agent Avatar with Glow */}
+                                    <div className="relative">
+                                        <div className={`absolute inset-0 rounded-xl blur-md opacity-40 animate-pulse ${activeAgent.color.replace('text-', 'bg-')}`} />
+                                        <div className={`relative p-3 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10`}>
+                                            <activeAgent.icon className={activeAgent.color} size={24} />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div className="flex items-center gap-3">
+                                            <h1 className="text-xl font-bold tracking-tight">
+                                                <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                                                    {activeAgent.name}
+                                                </span>
+                                            </h1>
+                                            <div className="flex items-center gap-2 px-2 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
+                                                <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                                                <span className="text-[10px] font-medium text-green-400 uppercase tracking-wider">Online</span>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-0.5">{activeAgent.description}</p>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    {/* Model Info */}
+                                    <div className="relative">
+                                        <div className="absolute inset-0 bg-purple-500 rounded-xl blur-md opacity-30 animate-pulse" />
+                                        <div className="relative p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-white/10">
+                                            <Database className="text-purple-400" size={24} />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div className="flex items-center gap-3">
+                                            <h1 className="text-xl font-bold tracking-tight text-gray-200">
+                                                {selectedModel?.id?.split('/').pop() || 'Select a Model'}
+                                            </h1>
+                                            {selectedModel && (
+                                                <div className="flex items-center gap-2 px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full">
+                                                    <span className="text-[10px] font-medium text-purple-400 uppercase tracking-wider">
+                                                        {selectedModel.provider}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-0.5">Direct model inference • Custom system prompts</p>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Right: Stats & Actions */}
+                        <div className="flex items-center gap-4">
+                            {/* Quick Stats */}
+                            <div className="hidden md:flex items-center gap-3 mr-4">
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg">
+                                    <MessageSquare size={12} className="text-gray-400" />
+                                    <span className="text-xs text-gray-400">{messages.length} msgs</span>
+                                </div>
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg">
+                                    <Activity size={12} className={loading ? 'text-cyan-400 animate-pulse' : 'text-gray-500'} />
+                                    <span className="text-xs text-gray-400">{loading ? 'Processing' : 'Ready'}</span>
+                                </div>
+                            </div>
+
+                            {/* Actions */}
+                            {viewMode === 'models' && selectedModel && (
+                                <button
+                                    onClick={() => setShowPromptEditor(!showPromptEditor)}
+                                    className={`p-2.5 rounded-lg transition-all ${showPromptEditor
+                                        ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 border border-purple-500/30 shadow-lg shadow-purple-500/10'
+                                        : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 border border-white/10'}`}
+                                    title="Edit System Prompt"
+                                >
+                                    <Settings size={18} />
+                                </button>
+                            )}
                             <button
-                                onClick={() => setShowPromptEditor(!showPromptEditor)}
-                                className={`p-2 rounded-lg transition-colors ${showPromptEditor ? 'bg-purple-500/20 text-purple-400' : 'bg-white/5 text-gray-400 hover:text-white'}`}
-                                title="Edit System Prompt"
+                                onClick={clearChat}
+                                className="p-2.5 bg-white/5 hover:bg-red-500/10 hover:text-red-400 rounded-lg transition-all text-gray-400 border border-white/10 hover:border-red-500/30"
+                                title="Clear Chat"
                             >
-                                <Settings size={18} />
+                                <Trash2 size={18} />
                             </button>
-                        )}
-                        <button onClick={clearChat} className="p-2 hover:bg-red-500/10 hover:text-red-400 rounded-lg transition-colors text-gray-400" title="Clear Chat">
-                            <Trash2 size={18} />
-                        </button>
+                        </div>
                     </div>
                 </header>
 
