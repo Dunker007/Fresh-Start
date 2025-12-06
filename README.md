@@ -39,6 +39,17 @@ We have provided a unified launcher script to start both the backend (**LuxRig B
     ```
 3.  **Access:** The dashboard will automatically open at `http://localhost:3000`.
 
+## 📦 How to Build (.exe)
+
+To create a standalone installer for Windows:
+
+1.  **Run:**
+    ```powershell
+    .\Build-Exe.ps1
+    ```
+2.  **Locate:** The installer will be in `desktop-app/dist/DLX Studio Setup 1.0.0.exe`.
+3.  **Install:** Run the installer to set up **DLX Studio** on your machine.
+
 ---
 
 ## Quick Links

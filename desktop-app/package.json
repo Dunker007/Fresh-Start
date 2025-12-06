@@ -1,0 +1,39 @@
+{
+    "name": "dlx-studio-desktop",
+    "version": "1.0.0",
+    "description": "Desktop wrapper for DLX Studio and LuxRig Bridge",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron .",
+        "pack": "electron-builder --dir",
+        "dist": "electron-builder"
+    },
+    "author": "Dunker007",
+    "license": "MIT",
+    "devDependencies": {
+        "electron": "^28.0.0",
+        "electron-builder": "^24.6.4"
+    },
+    "dependencies": {
+        "express": "^4.18.2",
+        "http-proxy-middleware": "^2.0.6",
+        "tree-kill": "^1.2.2"
+    },
+    "build": {
+        "appId": "com.dlxstudio.app",
+        "productName": "DLX Studio",
+        "win": {
+            "target": "nsis"
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true
+        },
+        "files": [
+            "**/*",
+            "luxrig-bridge/**/*",
+            "website-v2/**/*"
+        ],
+        "asar": true
+    }
+}
