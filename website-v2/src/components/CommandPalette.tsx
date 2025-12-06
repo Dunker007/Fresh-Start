@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Command, Sparkles, Clock, ArrowRight, Mic } from 'lucide-react';
 import { LUXRIG_BRIDGE_URL } from '@/lib/utils';
+import FocusTrap from '@/components/ui/FocusTrap';
 
 interface CommandItem {
     id: string;
@@ -194,175 +195,178 @@ export default function CommandPalette() {
                         exit={{ opacity: 0, y: -20, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
                     >
-                        <div className="bg-[#0a0a0f]/95 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl shadow-cyan-500/10 overflow-hidden">
-                            {/* Header */}
-                            <div className="flex items-center gap-3 p-4 border-b border-white/5">
-                                <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 rounded-lg">
-                                    {mode === 'ai' ? <Sparkles size={20} className="text-cyan-400" /> : <Command size={20} className="text-cyan-400" />}
+                        <FocusTrap isActive={open} onEscape={() => setOpen(false)}>
+                            <div className="bg-[#0a0a0f]/95 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl shadow-cyan-500/10 overflow-hidden">
+                                {/* Header */}
+                                <div className="flex items-center gap-3 p-4 border-b border-white/5">
+                                    <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 rounded-lg">
+                                        {mode === 'ai' ? <Sparkles size={20} className="text-cyan-400" /> : <Command size={20} className="text-cyan-400" />}
+                                    </div>
+                                    <input
+                                        ref={inputRef}
+                                        type="text"
+                                        placeholder={mode === 'ai' ? "Ask Lux anything..." : "Search commands... (? for AI)"}
+                                        value={search}
+                                        onChange={(e) => {
+                                            setSearch(e.target.value);
+                                            setSelectedIndex(0);
+                                        }}
+                                        className="flex-1 bg-transparent focus:outline-none text-lg placeholder-gray-500"
+                                        autoFocus
+                                        aria-label={mode === 'ai' ? "Ask AI query" : "Search commands"}
+                                    />
+                                    <div className="flex items-center gap-2">
+                                        {mode === 'ai' && (
+                                            <span className="px-2 py-1 bg-purple-500/20 rounded text-xs text-purple-400 border border-purple-500/30">
+                                                AI Mode
+                                            </span>
+                                        )}
+                                        <kbd className="px-2 py-1 bg-white/5 rounded text-xs text-gray-500 border border-white/10">ESC</kbd>
+                                    </div>
                                 </div>
-                                <input
-                                    ref={inputRef}
-                                    type="text"
-                                    placeholder={mode === 'ai' ? "Ask Lux anything..." : "Search commands... (? for AI)"}
-                                    value={search}
-                                    onChange={(e) => {
-                                        setSearch(e.target.value);
-                                        setSelectedIndex(0);
-                                    }}
-                                    className="flex-1 bg-transparent focus:outline-none text-lg placeholder-gray-500"
-                                    autoFocus
-                                />
-                                <div className="flex items-center gap-2">
-                                    {mode === 'ai' && (
-                                        <span className="px-2 py-1 bg-purple-500/20 rounded text-xs text-purple-400 border border-purple-500/30">
-                                            AI Mode
-                                        </span>
-                                    )}
-                                    <kbd className="px-2 py-1 bg-white/5 rounded text-xs text-gray-500 border border-white/10">ESC</kbd>
-                                </div>
-                            </div>
 
-                            {/* AI Response */}
-                            {mode === 'ai' && (aiLoading || aiResponse) && (
-                                <div className="p-4 border-b border-white/5 bg-purple-500/5">
-                                    {aiLoading ? (
-                                        <div className="flex items-center gap-2 text-gray-400">
-                                            <motion.div
-                                                animate={{ rotate: 360 }}
-                                                transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                                            >
-                                                <Sparkles size={16} />
-                                            </motion.div>
-                                            <span>Thinking...</span>
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-start gap-3">
-                                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-xs">
-                                                ✨
+                                {/* AI Response */}
+                                {mode === 'ai' && (aiLoading || aiResponse) && (
+                                    <div className="p-4 border-b border-white/5 bg-purple-500/5">
+                                        {aiLoading ? (
+                                            <div className="flex items-center gap-2 text-gray-400">
+                                                <motion.div
+                                                    animate={{ rotate: 360 }}
+                                                    transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                                                >
+                                                    <Sparkles size={16} />
+                                                </motion.div>
+                                                <span>Thinking...</span>
                                             </div>
-                                            <p className="text-gray-300 text-sm">{aiResponse}</p>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Mode switcher */}
-                            <div className="flex gap-1 p-2 border-b border-white/5 bg-white/[0.02]">
-                                <button
-                                    onClick={() => setMode('commands')}
-                                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${mode === 'commands' ? 'bg-cyan-500/20 text-cyan-400' : 'text-gray-500 hover:text-gray-300'
-                                        }`}
-                                >
-                                    Commands
-                                </button>
-                                <button
-                                    onClick={() => { setMode('ai'); inputRef.current?.focus(); }}
-                                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1 ${mode === 'ai' ? 'bg-purple-500/20 text-purple-400' : 'text-gray-500 hover:text-gray-300'
-                                        }`}
-                                >
-                                    <Sparkles size={12} /> Ask AI
-                                </button>
-                            </div>
-
-                            {/* Results */}
-                            {mode === 'commands' && (
-                                <div className="max-h-[350px] overflow-y-auto custom-scrollbar">
-                                    {/* Recent Commands */}
-                                    {!search && recentCommands.length > 0 && (
-                                        <div>
-                                            <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wide flex items-center gap-1">
-                                                <Clock size={12} /> Recent
-                                            </div>
-                                            {recentCommands.map(cmdId => {
-                                                const cmd = commands.find(c => c.id === cmdId);
-                                                if (!cmd) return null;
-                                                return (
-                                                    <button
-                                                        key={`recent-${cmd.id}`}
-                                                        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-white/5 transition-colors text-gray-400"
-                                                        onClick={() => {
-                                                            cmd.action();
-                                                            setOpen(false);
-                                                        }}
-                                                    >
-                                                        <div className="flex items-center gap-3">
-                                                            <span className="text-lg opacity-60">{cmd.icon}</span>
-                                                            <span>{cmd.label}</span>
-                                                        </div>
-                                                        <ArrowRight size={14} className="opacity-40" />
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
-
-                                    {Object.entries(groupedCommands).length === 0 ? (
-                                        <div className="p-8 text-center text-gray-500">
-                                            No commands found. Try asking AI with "?"
-                                        </div>
-                                    ) : (
-                                        Object.entries(groupedCommands).map(([category, cmds]) => (
-                                            <div key={category}>
-                                                <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wide bg-white/[0.02]">
-                                                    {category}
+                                        ) : (
+                                            <div className="flex items-start gap-3">
+                                                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-xs">
+                                                    ✨
                                                 </div>
-                                                {cmds.map((cmd) => {
-                                                    const index = flatCommands.findIndex(c => c.id === cmd.id);
-                                                    const isSelected = index === selectedIndex;
+                                                <p className="text-gray-300 text-sm">{aiResponse}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
+                                {/* Mode switcher */}
+                                <div className="flex gap-1 p-2 border-b border-white/5 bg-white/[0.02]">
+                                    <button
+                                        onClick={() => setMode('commands')}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${mode === 'commands' ? 'bg-cyan-500/20 text-cyan-400' : 'text-gray-500 hover:text-gray-300'
+                                            }`}
+                                    >
+                                        Commands
+                                    </button>
+                                    <button
+                                        onClick={() => { setMode('ai'); inputRef.current?.focus(); }}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1 ${mode === 'ai' ? 'bg-purple-500/20 text-purple-400' : 'text-gray-500 hover:text-gray-300'
+                                            }`}
+                                    >
+                                        <Sparkles size={12} /> Ask AI
+                                    </button>
+                                </div>
+
+                                {/* Results */}
+                                {mode === 'commands' && (
+                                    <div className="max-h-[350px] overflow-y-auto custom-scrollbar">
+                                        {/* Recent Commands */}
+                                        {!search && recentCommands.length > 0 && (
+                                            <div>
+                                                <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wide flex items-center gap-1">
+                                                    <Clock size={12} /> Recent
+                                                </div>
+                                                {recentCommands.map(cmdId => {
+                                                    const cmd = commands.find(c => c.id === cmdId);
+                                                    if (!cmd) return null;
                                                     return (
                                                         <button
-                                                            key={cmd.id}
-                                                            className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors ${isSelected ? 'bg-cyan-500/20 text-white' : 'hover:bg-white/5'
-                                                                }`}
+                                                            key={`recent-${cmd.id}`}
+                                                            className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-white/5 transition-colors text-gray-400"
                                                             onClick={() => {
-                                                                saveRecentCommand(cmd.id);
                                                                 cmd.action();
                                                                 setOpen(false);
                                                             }}
-                                                            onMouseEnter={() => setSelectedIndex(index)}
                                                         >
                                                             <div className="flex items-center gap-3">
-                                                                <span className="text-xl">{cmd.icon}</span>
+                                                                <span className="text-lg opacity-60">{cmd.icon}</span>
                                                                 <span>{cmd.label}</span>
                                                             </div>
-                                                            {cmd.shortcut && (
-                                                                <kbd className="px-2 py-1 bg-white/5 rounded text-xs text-gray-500 border border-white/10">
-                                                                    {cmd.shortcut}
-                                                                </kbd>
-                                                            )}
+                                                            <ArrowRight size={14} className="opacity-40" />
                                                         </button>
                                                     );
                                                 })}
                                             </div>
-                                        ))
-                                    )}
-                                </div>
-                            )}
+                                        )}
 
-                            {/* AI mode instructions */}
-                            {mode === 'ai' && !aiResponse && !aiLoading && (
-                                <div className="p-8 text-center">
-                                    <div className="text-4xl mb-3">✨</div>
-                                    <p className="text-gray-400 mb-2">Ask Lux anything</p>
-                                    <p className="text-xs text-gray-600">
-                                        "How do I deploy an agent?" • "What's my revenue?" • "Help me with..."
-                                    </p>
-                                </div>
-                            )}
+                                        {Object.entries(groupedCommands).length === 0 ? (
+                                            <div className="p-8 text-center text-gray-500">
+                                                No commands found. Try asking AI with "?"
+                                            </div>
+                                        ) : (
+                                            Object.entries(groupedCommands).map(([category, cmds]) => (
+                                                <div key={category}>
+                                                    <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wide bg-white/[0.02]">
+                                                        {category}
+                                                    </div>
+                                                    {cmds.map((cmd) => {
+                                                        const index = flatCommands.findIndex(c => c.id === cmd.id);
+                                                        const isSelected = index === selectedIndex;
 
-                            {/* Footer */}
-                            <div className="flex items-center justify-between px-4 py-2 border-t border-white/5 text-xs text-gray-500 bg-white/[0.02]">
-                                <div className="flex gap-4">
-                                    <span>↑↓ Navigate</span>
-                                    <span>↵ {mode === 'ai' ? 'Ask' : 'Select'}</span>
-                                    <span>? AI Mode</span>
+                                                        return (
+                                                            <button
+                                                                key={cmd.id}
+                                                                className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors ${isSelected ? 'bg-cyan-500/20 text-white' : 'hover:bg-white/5'
+                                                                    }`}
+                                                                onClick={() => {
+                                                                    saveRecentCommand(cmd.id);
+                                                                    cmd.action();
+                                                                    setOpen(false);
+                                                                }}
+                                                                onMouseEnter={() => setSelectedIndex(index)}
+                                                            >
+                                                                <div className="flex items-center gap-3">
+                                                                    <span className="text-xl">{cmd.icon}</span>
+                                                                    <span>{cmd.label}</span>
+                                                                </div>
+                                                                {cmd.shortcut && (
+                                                                    <kbd className="px-2 py-1 bg-white/5 rounded text-xs text-gray-500 border border-white/10">
+                                                                        {cmd.shortcut}
+                                                                    </kbd>
+                                                                )}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* AI mode instructions */}
+                                {mode === 'ai' && !aiResponse && !aiLoading && (
+                                    <div className="p-8 text-center">
+                                        <div className="text-4xl mb-3">✨</div>
+                                        <p className="text-gray-400 mb-2">Ask Lux anything</p>
+                                        <p className="text-xs text-gray-600">
+                                            "How do I deploy an agent?" • "What's my revenue?" • "Help me with..."
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Footer */}
+                                <div className="flex items-center justify-between px-4 py-2 border-t border-white/5 text-xs text-gray-500 bg-white/[0.02]">
+                                    <div className="flex gap-4">
+                                        <span>↑↓ Navigate</span>
+                                        <span>↵ {mode === 'ai' ? 'Ask' : 'Select'}</span>
+                                        <span>? AI Mode</span>
+                                    </div>
+                                    <span className="flex items-center gap-1">
+                                        <Command size={12} />K to toggle
+                                    </span>
                                 </div>
-                                <span className="flex items-center gap-1">
-                                    <Command size={12} />K to toggle
-                                </span>
                             </div>
-                        </div>
+                        </FocusTrap>
                     </motion.div>
                 </>
             )}

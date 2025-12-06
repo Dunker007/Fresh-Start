@@ -8,6 +8,8 @@ import LuxHelper from "@/components/LuxHelper";
 import KeyboardShortcuts from "@/components/KeyboardShortcuts";
 import CollaborationToolbar from "@/components/CollaborationToolbar";
 import ConsentBanner from "@/components/ConsentBanner";
+import VibeController from "@/components/VibeController";
+import VoiceControl from "@/components/VoiceControl";
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -19,8 +21,6 @@ export const metadata: Metadata = {
 };
 
 import { VibeProvider } from "@/components/VibeContext";
-import VibeController from "@/components/VibeController";
-import VoiceControl from "@/components/VoiceControl";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SafetyProvider } from "@/components/SafetyGuard";
 

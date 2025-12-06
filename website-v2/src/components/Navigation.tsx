@@ -39,12 +39,6 @@ export default function Navigation() {
         setTheme(ids[nextIndex]);
     };
 
-    const openInNewWindow = (e: React.MouseEvent, href: string) => {
-        e.preventDefault();
-        e.stopPropagation();
-        window.open(`${href}?mode=popup`, '_blank', 'width=1200,height=800,menubar=no,toolbar=no,location=no,status=no');
-    };
-
     return (
         <nav
             className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 transition-colors duration-300 backdrop-blur-xl bg-[#050508]/60"
@@ -93,7 +87,7 @@ export default function Navigation() {
                             className="relative p-2 rounded-full glass-panel hover:bg-white/10 transition-colors border border-white/5"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            aria-label="Cycle Vibe theme"
+                            aria-label="Cycle vibe mode"
                         >
                             <Palette className={`w-5 h-5 ${mode === 'crisis' ? 'text-red-500' :
                                 mode === 'high-load' ? 'text-yellow-500' :
@@ -104,7 +98,7 @@ export default function Navigation() {
                         <button
                             className="flex items-center gap-2 px-3 py-2 rounded-lg glass-panel hover:bg-white/10 transition-colors border border-white/5 text-gray-400 hover:text-white text-sm"
                             onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-                            aria-label="Open command palette (Cmd+K)"
+                            aria-label="Open command palette"
                         >
                             <Command className="w-4 h-4" />
                             <span>Cmd+K</span>
@@ -121,7 +115,7 @@ export default function Navigation() {
                                 onClick={toggleTheme}
                                 className="p-2 rounded-full glass-panel"
                                 whileTap={{ scale: 0.95 }}
-                                aria-label="Cycle Vibe theme"
+                                aria-label="Cycle vibe mode"
                             >
                                 <Palette className="w-5 h-5 text-purple-400" />
                             </motion.button>
