@@ -4,6 +4,7 @@ import "./globals.css";
 import Navigation from "@/components/Navigation";
 import CommandPalette from "@/components/CommandPalette";
 import LuxHelper from "@/components/LuxHelper";
+import KeyboardShortcuts from "@/components/KeyboardShortcuts";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,7 +29,8 @@ export default function RootLayout({
         <VibeProvider>
           <Navigation />
           <CommandPalette />
-          <main className="pt-16">
+          <KeyboardShortcuts />
+          <main className="pt-20">
             {children}
           </main>
           <VibeController />

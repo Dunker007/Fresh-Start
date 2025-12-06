@@ -29,12 +29,12 @@ const staggerContainer = {
 };
 
 const tools = [
-  { icon: '🧠', name: 'Mind Map', desc: 'WebGL-powered visual brainstorming with voice control and drag & drop nodes.', color: 'cyan' },
-  { icon: '💡', name: 'Idea Lab', desc: 'Kanban-style brainstorming system with 4 status columns.', color: 'yellow' },
-  { icon: '🔬', name: 'Labs Hub', desc: '11 specialized labs including AURA Interface, Agent Forge, and Data Weave.', color: 'purple' },
-  { icon: '💻', name: 'Code Editor', desc: 'Full Monaco IDE with AI assistance for 12+ languages.', color: 'green' },
-  { icon: '📊', name: 'Token Analytics', desc: 'Real-time token tracking, cost calculator, and budget controls.', color: 'blue' },
-  { icon: '🚀', name: 'Nexus Workspace', desc: 'Desktop productivity hub with tasks, notes, calendar, and AI chat.', color: 'pink' },
+  { icon: '👨‍💻', name: 'Dev Studio', desc: 'Manage GitHub repos, track deployments, and monitor local dev environment.', color: 'cyan', href: '/studios/dev' },
+  { icon: '🎨', name: 'Creative Studios', desc: 'AI-powered music, video, and art generation pipelines.', color: 'purple', href: '/studios' },
+  { icon: '📰', name: 'News Hub', desc: 'AI-curated news with bias analysis and research folders.', color: 'blue', href: '/news' },
+  { icon: '🔌', name: 'Integrations', desc: 'Connect GitHub, Google, and local IO to your OS.', color: 'green', href: '/integrations' },
+  { icon: '💬', name: 'AI Chat', desc: 'Multi-model chat interface with context memory.', color: 'pink', href: '/chat' },
+  { icon: '📊', name: 'Dashboard', desc: 'Central command for system metrics and quick actions.', color: 'yellow', href: '/dashboard' },
 ];
 
 const agents = [
@@ -95,8 +95,8 @@ export default function Home() {
               <span className="relative z-10">Launch Dashboard</span>
               <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform rounded-lg"></span>
             </Link>
-            <Link href="/download" className="btn-outline">
-              Download Desktop
+            <Link href="/studios/dev" className="btn-outline">
+              Open Dev Studio
             </Link>
           </motion.div>
 
@@ -213,24 +213,25 @@ export default function Home() {
             viewport={{ once: true }}
           >
             {tools.map((tool, i) => (
-              <motion.div
-                key={tool.name}
-                className="glass-card group cursor-pointer relative overflow-hidden"
-                variants={fadeInUp}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative z-10">
-                  <div className="text-5xl mb-4 transform group-hover:scale-110 transition-transform">{tool.icon}</div>
-                  <h3 className="text-xl font-bold mb-2 group-hover:text-cyan-400 transition-colors">
-                    {tool.name}
-                  </h3>
-                  <p className="text-gray-400 text-sm">
-                    {tool.desc}
-                  </p>
-                </div>
-              </motion.div>
+              <Link key={tool.name} href={tool.href} className="block">
+                <motion.div
+                  className="glass-card group cursor-pointer relative overflow-hidden h-full"
+                  variants={fadeInUp}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="relative z-10">
+                    <div className="text-5xl mb-4 transform group-hover:scale-110 transition-transform">{tool.icon}</div>
+                    <h3 className="text-xl font-bold mb-2 group-hover:text-cyan-400 transition-colors">
+                      {tool.name}
+                    </h3>
+                    <p className="text-gray-400 text-sm">
+                      {tool.desc}
+                    </p>
+                  </div>
+                </motion.div>
+              </Link>
             ))}
           </motion.div>
         </div>

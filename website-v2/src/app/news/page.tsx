@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import PageBackground from '@/components/PageBackground';
+import ResearchPanel from '@/components/ResearchPanel';
 import {
     NEWS_SOURCES,
     BIAS_COLORS,
@@ -117,7 +118,6 @@ const FACT_CHECK_STYLES: Record<FactCheckStatus, { bg: string; text: string; ico
     unverified: { bg: 'bg-gray-500/20', text: 'text-gray-400', icon: '?', label: 'Unverified' }
 };
 
-
 export default function NewsPage() {
     const [articles, setArticles] = useState<NewsArticle[]>(DEMO_ARTICLES);
     const [activeTab, setActiveTab] = useState<FilterTab>('all');
@@ -128,6 +128,10 @@ export default function NewsPage() {
     const [showFactChecker, setShowFactChecker] = useState(false);
     const [factCheckQuery, setFactCheckQuery] = useState('');
     const [factCheckResult, setFactCheckResult] = useState<any>(null);
+
+    // Research Panel
+    const [showResearchPanel, setShowResearchPanel] = useState(false);
+    const [articleToResearch, setArticleToResearch] = useState<{ id: string; title: string; url: string; source: string } | null>(null);
 
     // Source Management
     const [showSourceManager, setShowSourceManager] = useState(false);
@@ -251,7 +255,7 @@ export default function NewsPage() {
     }, []);
 
     return (
-        <div className="min-h-screen relative overflow-hidden">
+        <div className="pb-20 relative overflow-hidden">
             <PageBackground color="red" />
 
             <style jsx>{`
@@ -270,7 +274,7 @@ export default function NewsPage() {
             `}</style>
 
             {/* Breaking News Ticker */}
-            <div className="bg-gradient-to-r from-red-900/80 via-red-800/80 to-red-900/80 border-b border-red-500/30">
+            <div className="bg-gradient-to-r from-red-900/80 via-red-800/80 to-red-900/80 border-b border-red-500/30 pt-2">
                 <div className="container-main py-2">
                     <motion.div
                         key={tickerIndex}
@@ -330,6 +334,12 @@ export default function NewsPage() {
                                     }`}
                             >
                                 🔍 Fact Checker
+                            </button>
+                            <button
+                                onClick={() => setShowResearchPanel(true)}
+                                className="px-4 py-2 rounded-lg flex items-center gap-2 transition-colors bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 border border-amber-500/30 hover:from-amber-500/30 hover:to-orange-500/30"
+                            >
+                                📚 Research
                             </button>
                         </div>
                     </motion.div>
@@ -646,6 +656,21 @@ export default function NewsPage() {
                                             </span>
                                         )}
                                         <button
+                                            onClick={() => {
+                                                setArticleToResearch({
+                                                    id: article.id,
+                                                    title: article.title,
+                                                    url: article.link,
+                                                    source: article.source.name
+                                                });
+                                                setShowResearchPanel(true);
+                                            }}
+                                            className="text-lg transition-transform hover:scale-110 text-amber-500 hover:text-amber-400"
+                                            title="Add to Research"
+                                        >
+                                            📚
+                                        </button>
+                                        <button
                                             onClick={() => toggleSave(article.id)}
                                             className={`text-lg transition-transform hover:scale-110 ${isSaved ? 'text-yellow-400' : 'text-gray-600'
                                                 }`}
@@ -714,6 +739,13 @@ export default function NewsPage() {
                     </div>
                 </div>
             </section>
+
+            <ResearchPanel
+                isOpen={showResearchPanel}
+                onClose={() => setShowResearchPanel(false)}
+                articleToAdd={articleToResearch}
+                onArticleAdded={() => setArticleToResearch(null)}
+            />
         </div>
     );
 }

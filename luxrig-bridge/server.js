@@ -18,6 +18,7 @@ import { lmstudioService } from './services/lmstudio.js';
 import { ollamaService } from './services/ollama.js';
 import { systemService } from './services/system.js';
 import { googleService } from './services/google.js';
+import { githubService } from './services/github.js';
 import { createAgent, SongwriterRoom } from './services/agents.js';
 import { errorHandler, errorLogger, rateLimiter, asyncHandler, validate } from './services/errors.js';
 import { performanceMonitor, cache } from './services/performance.js';
@@ -298,6 +299,66 @@ app.get('/google/drive/files', async (req, res) => {
         const maxResults = parseInt(req.query.maxResults) || 10;
         const files = await googleService.listDriveFiles(accessToken, maxResults);
         res.json(files);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============ GitHub OAuth Routes ============
+
+// Get OAuth URL
+app.get('/auth/github', (req, res) => {
+    try {
+        const authUrl = githubService.getAuthUrl();
+        res.json({ authUrl });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Check system connection status
+app.get('/auth/github/status', (req, res) => {
+    res.json({
+        connected: !!process.env.GITHUB_ACCESS_TOKEN
+    });
+});
+
+// OAuth callback
+app.get('/auth/github/callback', async (req, res) => {
+    try {
+        const { code } = req.query;
+        const tokens = await githubService.getTokens(code);
+
+        // In production, store tokens securely
+        // For now, return them to the client
+        res.json({
+            success: true,
+            tokens,
+            message: 'GitHub connected successfully!'
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get user info
+app.get('/github/user', async (req, res) => {
+    try {
+        const accessToken = req.headers.authorization?.replace('Bearer ', '');
+        const userInfo = await githubService.getUserInfo(accessToken);
+        res.json(userInfo);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// List repos
+app.get('/github/repos', async (req, res) => {
+    try {
+        const accessToken = req.headers.authorization?.replace('Bearer ', '');
+        const limit = parseInt(req.query.limit) || 10;
+        const repos = await githubService.listRepos(accessToken, limit);
+        res.json(repos);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

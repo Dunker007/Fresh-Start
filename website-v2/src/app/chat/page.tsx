@@ -44,12 +44,12 @@ interface DiscoveredModel {
 const AGENTS: AgentProfile[] = [
     {
         id: 'lux',
-        name: 'Cortex',
-        role: 'Orchestrator',
+        name: 'Lux',
+        role: 'Primary Assistant',
         icon: Zap,
         color: 'text-cyan-400',
         description: 'Your primary AI assistant and orchestrator.',
-        systemPrompt: 'You are Cortex, the central nervous system of the DLX Studio platform. You are helpful, precise, and highly intelligent. You orchestrate other agents when needed.'
+        systemPrompt: 'You are Lux, the primary AI interface for the DLX Studio platform. You are helpful, precise, and highly intelligent. You orchestrate other agents when needed.'
     },
     {
         id: 'architect',
@@ -267,7 +267,7 @@ export default function ChatPage() {
     };
 
     return (
-        <div className="flex h-screen overflow-hidden text-gray-100">
+        <div className="flex min-h-screen pt-20 overflow-hidden text-gray-100">
             {/* Background */}
             <div className="fixed inset-0 z-0 pointer-events-none">
                 <PageBackground color="cyan" />
@@ -276,7 +276,7 @@ export default function ChatPage() {
             {/* Sidebar */}
             <motion.div
                 animate={{ width: sidebarOpen ? 300 : 80 }}
-                className="border-r border-white/5 bg-[#0a0a0f]/80 backdrop-blur-md flex flex-col relative z-20"
+                className="border-r border-white/5 bg-[#0a0a0f]/80 backdrop-blur-md flex flex-col relative z-20 h-[calc(100vh-5rem)]"
             >
                 {/* Brand */}
                 <div className="p-6 flex items-center gap-3">

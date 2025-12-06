@@ -2,7 +2,8 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { LUXRIG_BRIDGE_URL } from '@/lib/utils';
 
 const integrations = [
     {
@@ -75,7 +76,7 @@ const integrations = [
         id: 'github',
         name: 'GitHub',
         icon: '🐙',
-        status: 'connected',
+        status: 'available',
         description: 'Code hosting and version control',
         category: 'Development',
         url: 'https://github.com',
@@ -148,13 +149,64 @@ const statusConfig = {
 
 export default function IntegrationsPage() {
     const [filter, setFilter] = useState('all');
+    const [statuses, setStatuses] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+        const checkStatus = async () => {
+            const newStatuses: Record<string, string> = { ...statuses };
+
+            // Check client-side tokens
+            if (typeof window !== 'undefined') {
+                if (localStorage.getItem('github_access_token')) newStatuses.github = 'connected';
+                if (localStorage.getItem('google_access_token')) newStatuses.google = 'connected';
+            }
+
+            // Check server-side system tokens
+            try {
+                const res = await fetch(`${LUXRIG_BRIDGE_URL}/auth/github/status`);
+                const data = await res.json();
+                if (data.connected) newStatuses.github = 'connected';
+            } catch (error) {
+                // Ignore errors if backend is down
+                console.warn('Failed to check backend GitHub status');
+            }
+
+            setStatuses(newStatuses);
+        };
+
+        checkStatus();
+    }, []);
+
+    const handleConnect = async (id: string) => {
+        try {
+            if (id === 'github') {
+                const res = await fetch(`${LUXRIG_BRIDGE_URL}/auth/github`);
+                const data = await res.json();
+                if (data.authUrl) window.location.href = data.authUrl;
+            } else if (id === 'google') {
+                const res = await fetch(`${LUXRIG_BRIDGE_URL}/auth/google`);
+                const data = await res.json();
+                if (data.authUrl) window.location.href = data.authUrl;
+            }
+        } catch (error) {
+            console.error('Connection error:', error);
+        }
+    };
+
+    const handleDisconnect = (id: string) => {
+        if (id === 'github') localStorage.removeItem('github_access_token');
+        if (id === 'google') localStorage.removeItem('google_access_token');
+        setStatuses(prev => ({ ...prev, [id]: 'available' }));
+    };
 
     const categories = ['all', ...new Set(integrations.map(i => i.category))];
     const filteredIntegrations = filter === 'all'
         ? integrations
         : integrations.filter(i => i.category === filter);
 
-    const connectedCount = integrations.filter(i => i.status === 'connected').length;
+    const connectedCount = integrations.filter(i =>
+        (statuses[i.id] || i.status) === 'connected'
+    ).length;
 
     return (
         <div className="min-h-screen pt-8">
@@ -188,8 +240,8 @@ export default function IntegrationsPage() {
                             key={cat}
                             onClick={() => setFilter(cat)}
                             className={`px-4 py-2 rounded-lg text-sm transition-all ${filter === cat
-                                    ? 'bg-cyan-500 text-black font-medium'
-                                    : 'bg-white/10 hover:bg-white/20'
+                                ? 'bg-cyan-500 text-black font-medium'
+                                : 'bg-white/10 hover:bg-white/20'
                                 }`}
                         >
                             {cat === 'all' ? 'All' : cat}
@@ -207,7 +259,9 @@ export default function IntegrationsPage() {
                     variants={{ animate: { transition: { staggerChildren: 0.05 } } }}
                 >
                     {filteredIntegrations.map((integration) => {
-                        const status = statusConfig[integration.status as keyof typeof statusConfig];
+                        const currentStatus = statuses[integration.id] || integration.status;
+                        const status = statusConfig[currentStatus as keyof typeof statusConfig] || statusConfig.available;
+
                         return (
                             <motion.div
                                 key={integration.id}
@@ -237,12 +291,19 @@ export default function IntegrationsPage() {
                                 </div>
 
                                 <div className="flex gap-2">
-                                    {integration.status === 'connected' || integration.status === 'detected' ? (
-                                        <button className="flex-1 py-2 bg-green-500/20 text-green-400 rounded-lg text-sm">
-                                            ✓ Active
+                                    {(currentStatus === 'connected') ? (
+                                        <button
+                                            onClick={() => handleDisconnect(integration.id)}
+                                            className="flex-1 py-2 bg-green-500/20 text-green-400 rounded-lg text-sm hover:bg-red-500/20 hover:text-red-400 transition-colors group-connect"
+                                        >
+                                            <span className="group-connect-hover:hidden">✓ Active</span>
+                                            <span className="hidden group-connect-hover:inline">Disconnect</span>
                                         </button>
                                     ) : (
-                                        <button className="flex-1 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg text-sm hover:bg-cyan-500/30">
+                                        <button
+                                            onClick={() => handleConnect(integration.id)}
+                                            className="flex-1 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg text-sm hover:bg-cyan-500/30"
+                                        >
                                             Connect
                                         </button>
                                     )}

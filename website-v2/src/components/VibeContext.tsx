@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { ThemeId, Theme, themes, getTheme, applyTheme, saveTheme, loadSavedTheme } from '@/lib/themes';
 
 type VibeMode = 'normal' | 'high-load' | 'crisis' | 'focus';
 
@@ -12,6 +13,11 @@ interface VibeState {
         errorRate: number;
     };
     setMode: (mode: VibeMode) => void;
+    // Theme
+    theme: Theme;
+    themeId: ThemeId;
+    setTheme: (id: ThemeId) => void;
+    availableThemes: Theme[];
 }
 
 const VibeContext = createContext<VibeState | undefined>(undefined);
@@ -23,6 +29,28 @@ export function VibeProvider({ children }: { children: ReactNode }) {
     const [mode, setMode] = useState<VibeMode>('normal');
     const [metrics, setMetrics] = useState({ gpuUsage: 0, cpuUsage: 0, errorRate: 0 });
     const [manualOverride, setManualOverride] = useState(false);
+
+    // Theme state
+    const [themeId, setThemeId] = useState<ThemeId>('cyberpunk');
+    const [theme, setThemeState] = useState<Theme>(themes.cyberpunk);
+
+    // Load saved theme on mount
+    useEffect(() => {
+        const savedTheme = loadSavedTheme();
+        setThemeId(savedTheme);
+        const themeConfig = getTheme(savedTheme);
+        setThemeState(themeConfig);
+        applyTheme(themeConfig);
+    }, []);
+
+    // Theme setter
+    const handleSetTheme = (id: ThemeId) => {
+        setThemeId(id);
+        const themeConfig = getTheme(id);
+        setThemeState(themeConfig);
+        applyTheme(themeConfig);
+        saveTheme(id);
+    };
 
     useEffect(() => {
         const ws = new WebSocket(WS_URL);
@@ -36,7 +64,7 @@ export function VibeProvider({ children }: { children: ReactNode }) {
                     // Extract metrics
                     const gpuUsage = system?.gpu?.utilization || 0;
                     const cpuUsage = system?.cpu?.usage || 0;
-                    const errorRate = errors?.rate || 0; // Errors per minute
+                    const errorRate = errors?.rate || 0;
 
                     setMetrics({ gpuUsage, cpuUsage, errorRate });
 
@@ -64,12 +92,18 @@ export function VibeProvider({ children }: { children: ReactNode }) {
     // Apply global classes to body based on mode
     useEffect(() => {
         document.body.setAttribute('data-vibe', mode);
-
-        // Dynamic Favicon/Title updates could go here
     }, [mode]);
 
     return (
-        <VibeContext.Provider value={{ mode, metrics, setMode: (m) => { setMode(m); setManualOverride(true); } }}>
+        <VibeContext.Provider value={{
+            mode,
+            metrics,
+            setMode: (m) => { setMode(m); setManualOverride(true); },
+            theme,
+            themeId,
+            setTheme: handleSetTheme,
+            availableThemes: Object.values(themes)
+        }}>
             {children}
         </VibeContext.Provider>
     );
@@ -82,3 +116,4 @@ export function useVibe() {
     }
     return context;
 }
+

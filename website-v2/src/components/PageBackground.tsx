@@ -1,30 +1,44 @@
 'use client';
 
 import React from 'react';
+import { useVibe } from './VibeContext';
 
 interface PageBackgroundProps {
-    color?: 'cyan' | 'green' | 'purple' | 'amber' | 'pink' | 'emerald' | 'orange' | 'indigo' | 'red' | 'blue';
+    color?: 'cyan' | 'green' | 'purple' | 'amber' | 'pink' | 'emerald' | 'orange' | 'indigo' | 'red' | 'blue' | 'auto';
+    useTheme?: boolean; // If true, uses current theme's floodlight color
 }
 
-export default function PageBackground({ color = 'cyan' }: PageBackgroundProps) {
+export default function PageBackground({ color, useTheme = false }: PageBackgroundProps) {
+    // Try to get theme context (might not be available during SSR or initial load)
+    let themeColor: string | undefined;
+    try {
+        const { theme } = useVibe();
+        themeColor = theme?.floodlightColor;
+    } catch {
+        themeColor = undefined;
+    }
+
+    // Determine final color: explicit prop > theme > default cyan
+    const finalColor = color === 'auto' || useTheme ? (themeColor || 'cyan') : (color || 'cyan');
+
     // Tailwind colors to hex/rgba mapping for style injection
     const colorMap: Record<string, string> = {
         cyan: '0, 245, 212',
-        green: '0, 200, 83',
-        purple: '123, 47, 247',
+        green: '34, 197, 94',
+        purple: '168, 85, 247',
         amber: '255, 191, 0',
         pink: '236, 64, 122',
         emerald: '46, 204, 113',
-        orange: '255, 152, 0',
+        orange: '249, 115, 22',
         indigo: '99, 102, 241',
         red: '255, 23, 68',
-        blue: '41, 121, 255'
+        blue: '96, 165, 250'
     };
 
-    const rgb = colorMap[color] || colorMap.cyan;
+    const rgb = colorMap[finalColor] || colorMap.cyan;
 
     return (
-        <div className="fixed inset-0 min-h-screen w-full pointer-events-none -z-50 overflow-hidden bg-[#050508]">
+        <div className="fixed inset-0 min-h-screen w-full pointer-events-none -z-50 overflow-hidden bg-[var(--bg-void,#050508)]">
             {/* Subtle Animated Grid - Retained as requested */}
             <div className="absolute inset-0 bg-grid opacity-[0.1]" />
 

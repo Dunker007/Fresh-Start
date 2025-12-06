@@ -29,12 +29,12 @@ const studios: Studio[] = [
   {
     id: 'dev',
     name: 'DLX Dev Studio',
-    description: 'AI-assisted app development. Build websites, APIs, and applications with intelligent code generation.',
+    description: 'Manage GitHub repositories, track system performance, and execute quick dev actions.',
     icon: '💻',
     href: '/studios/dev',
     color: 'cyan',
-    status: 'beta',
-    features: ['Code Generation', 'App Templates', 'API Builder', 'Deploy Pipeline']
+    status: 'live',
+    features: ['GitHub Integration', 'System Monitor', 'Repo Management', 'Terminal Actions']
   },
   {
     id: 'video',
@@ -43,7 +43,7 @@ const studios: Studio[] = [
     icon: '🎬',
     href: '/studios/video',
     color: 'amber',
-    status: 'coming-soon',
+    status: 'beta',
     features: ['Neural Frames', 'Music Visualizers', 'AI Video Gen', 'YouTube Ready']
   },
   {
@@ -53,7 +53,7 @@ const studios: Studio[] = [
     icon: '✍️',
     href: '/studios/blog',
     color: 'emerald',
-    status: 'coming-soon',
+    status: 'beta',
     features: ['AI Copywriting', 'SEO Optimization', 'Brand Voice', 'Auto Publishing']
   },
   {
@@ -63,8 +63,8 @@ const studios: Studio[] = [
     icon: '🎨',
     href: '/studios/art',
     color: 'purple',
-    status: 'coming-soon',
-    features: ['Image Generation', 'Album Art', 'Thumbnails', 'Brand Assets']
+    status: 'beta',
+    features: ['Image Generation', 'Style Selector', 'Prompting', 'Gallery']
   },
   {
     id: 'podcast',
@@ -135,7 +135,7 @@ export default function StudiosPage() {
 
       {/* Grid */}
       <section className="container-main">
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {studios.map((studio, index) => {
             const isDisabled = studio.status === 'coming-soon';
 

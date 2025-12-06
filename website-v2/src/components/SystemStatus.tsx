@@ -71,7 +71,7 @@ export default function SystemStatus() {
         const ws = new WebSocket(`${WS_URL}/stream`);
 
         ws.onopen = () => {
-            console.log('🔌 Connected to LuxRig Bridge');
+            // console.log('🔌 Connected to LuxRig Bridge');
             setConnected(true);
         };
 
@@ -115,21 +115,28 @@ export default function SystemStatus() {
         );
     }
 
+    // Safely access services with defaults
+    const lmstudio = status.services?.lmstudio || { online: false };
+    const ollama = status.services?.ollama || { online: false };
+    const gpu = status.system?.gpu || { available: false };
+    const cpu = status.system?.cpu || {};
+    const memory = status.system?.memory || {};
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* LM Studio Status */}
             <div className="glass-card">
                 <div className="flex items-center gap-3 mb-4">
-                    <div className={`status-dot ${status.services.lmstudio.online ? 'online' : 'offline'}`}></div>
+                    <div className={`status-dot ${lmstudio.online ? 'online' : 'offline'}`}></div>
                     <span className="font-semibold">LM Studio</span>
                 </div>
-                {status.services.lmstudio.online ? (
+                {lmstudio.online ? (
                     <>
                         <p className="text-sm text-gray-400 mb-1">
-                            {status.services.lmstudio.modelCount} models
+                            {lmstudio.modelCount} models
                         </p>
                         <p className="text-cyan-400 text-sm truncate">
-                            🧠 {status.services.lmstudio.loadedModel || 'No model loaded'}
+                            🧠 {lmstudio.loadedModel || 'No model loaded'}
                         </p>
                     </>
                 ) : (
@@ -140,17 +147,17 @@ export default function SystemStatus() {
             {/* Ollama Status */}
             <div className="glass-card">
                 <div className="flex items-center gap-3 mb-4">
-                    <div className={`status-dot ${status.services.ollama.online ? 'online' : 'offline'}`}></div>
+                    <div className={`status-dot ${ollama.online ? 'online' : 'offline'}`}></div>
                     <span className="font-semibold">Ollama</span>
                 </div>
-                {status.services.ollama.online ? (
+                {ollama.online ? (
                     <>
                         <p className="text-sm text-gray-400 mb-1">
-                            {status.services.ollama.modelCount} models
+                            {ollama.modelCount} models
                         </p>
                         <p className="text-purple-400 text-sm">
-                            {status.services.ollama.runningModels?.length
-                                ? `Running: ${status.services.ollama.runningModels.join(', ')}`
+                            {ollama.runningModels?.length
+                                ? `Running: ${ollama.runningModels.join(', ')}`
                                 : 'Ready'}
                         </p>
                     </>
@@ -162,26 +169,26 @@ export default function SystemStatus() {
             {/* GPU Status */}
             <div className="glass-card">
                 <div className="flex items-center gap-3 mb-4">
-                    <div className={`status-dot ${status.system.gpu.available ? 'online' : 'offline'}`}></div>
+                    <div className={`status-dot ${gpu.available ? 'online' : 'offline'}`}></div>
                     <span className="font-semibold">GPU</span>
                 </div>
-                {status.system.gpu.available ? (
+                {gpu.available ? (
                     <>
                         <p className="text-sm text-gray-400 mb-1 truncate">
-                            {status.system.gpu.name}
+                            {gpu.name}
                         </p>
                         <div className="flex justify-between text-sm">
                             <span className="text-cyan-400">
-                                {status.system.gpu.memoryUsedGB}/{status.system.gpu.memoryTotalGB}GB
+                                {gpu.memoryUsedGB}/{gpu.memoryTotalGB}GB
                             </span>
                             <span className="text-yellow-400">
-                                {status.system.gpu.temperature}°C
+                                {gpu.temperature}°C
                             </span>
                         </div>
                         <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
                             <div
                                 className="bg-gradient-to-r from-cyan-500 to-purple-500 h-2 rounded-full transition-all"
-                                style={{ width: `${status.system.gpu.memoryPercent}%` }}
+                                style={{ width: `${gpu.memoryPercent || 0}%` }}
                             ></div>
                         </div>
                     </>
@@ -199,12 +206,12 @@ export default function SystemStatus() {
                 <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                         <span className="text-gray-400">CPU</span>
-                        <span className="text-cyan-400">{status.system.cpu.utilization}%</span>
+                        <span className="text-cyan-400">{cpu.utilization || 0}%</span>
                     </div>
                     <div className="flex justify-between">
                         <span className="text-gray-400">RAM</span>
                         <span className="text-purple-400">
-                            {status.system.memory.usedGB}/{status.system.memory.totalGB}GB
+                            {memory.usedGB || '?'}/{memory.totalGB || '?'}GB
                         </span>
                     </div>
                 </div>

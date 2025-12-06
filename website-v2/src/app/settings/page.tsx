@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useState } from 'react';
 import { LUXRIG_BRIDGE_URL } from '@/lib/utils';
+import PageBackground from '@/components/PageBackground';
+import { useVibe } from '@/components/VibeContext';
 
 interface Settings {
     // General
@@ -59,6 +61,9 @@ export default function SettingsPage() {
     const [saved, setSaved] = useState(false);
     const [activeTab, setActiveTab] = useState<'general' | 'ai' | 'privacy' | 'bridge' | 'google' | 'notifications'>('general');
 
+    // Theme from global context
+    const { themeId, setTheme, availableThemes, theme } = useVibe();
+
     function updateSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
         setSettings(prev => ({ ...prev, [key]: value }));
     }
@@ -84,7 +89,8 @@ export default function SettingsPage() {
     ];
 
     return (
-        <div className="min-h-screen pt-8">
+        <div className="min-h-screen relative">
+            <PageBackground color="blue" />
             {/* Header */}
             <section className="section-padding pb-8">
                 <div className="container-main">
@@ -142,18 +148,37 @@ export default function SettingsPage() {
                                     <h2 className="text-xl font-bold">⚙️ General Settings</h2>
 
                                     <div>
-                                        <label className="block text-sm text-gray-400 mb-2">Theme</label>
-                                        <select
-                                            value={settings.theme}
-                                            onChange={(e) => updateSetting('theme', e.target.value)}
-                                            className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2"
-                                        >
-                                            <option value="cyberpunk">Cyberpunk (Default)</option>
-                                            <option value="midnight">Midnight Blue</option>
-                                            <option value="forest">Forest</option>
-                                            <option value="synthwave">Synthwave</option>
-                                            <option value="light">Light Mode</option>
-                                        </select>
+                                        <label className="block text-sm text-gray-400 mb-3">Theme</label>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                            {availableThemes.map((t) => (
+                                                <button
+                                                    key={t.id}
+                                                    onClick={() => setTheme(t.id)}
+                                                    className={`p-4 rounded-xl border-2 transition-all text-left ${themeId === t.id
+                                                            ? 'border-cyan-400 bg-cyan-500/10 scale-105'
+                                                            : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'
+                                                        }`}
+                                                >
+                                                    {/* Color Preview */}
+                                                    <div className="flex gap-1 mb-2">
+                                                        <div
+                                                            className="w-6 h-6 rounded-full"
+                                                            style={{ backgroundColor: t.colors.primary }}
+                                                        />
+                                                        <div
+                                                            className="w-6 h-6 rounded-full"
+                                                            style={{ backgroundColor: t.colors.accent }}
+                                                        />
+                                                        <div
+                                                            className="w-6 h-6 rounded-full border border-white/20"
+                                                            style={{ backgroundColor: t.colors.background }}
+                                                        />
+                                                    </div>
+                                                    <div className="font-medium text-sm">{t.name}</div>
+                                                    <div className="text-xs text-gray-500">{t.description}</div>
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
 
                                     <div>

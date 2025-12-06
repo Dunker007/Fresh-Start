@@ -5,10 +5,11 @@ import { useState, useEffect } from 'react';
 import {
     Zap, Target, BookOpen,
     CheckCircle, Circle, AlertCircle,
-    Music, Video, ShoppingBag, Mic, Printer
+    Music, Video, ShoppingBag, Mic, Printer, TrendingUp
 } from 'lucide-react';
 import { storage, LUXRIG_BRIDGE_URL } from '@/lib/utils';
 import RevenueAgentWidget from '@/components/RevenueAgentWidget';
+import RevenueTracker from '@/components/RevenueTracker';
 import PageBackground from '@/components/PageBackground';
 
 // --- Data Models ---
@@ -256,7 +257,7 @@ export default function IncomeLabPage() {
             <PageBackground color="green" />
 
             {/* Header */}
-            <div className="container-main pt-8 pb-12 relative z-10">
+            <div className="container-main py-8 relative z-10">
                 <div className="flex items-center justify-between mb-8">
                     <div>
                         <h1 className="text-3xl font-bold flex items-center gap-3">
@@ -293,8 +294,14 @@ export default function IncomeLabPage() {
                 </div>
 
                 <div className="grid lg:grid-cols-3 gap-8">
-                    {/* Left: autonomous Agent */}
+                    {/* Left: Revenue Command & Agent */}
                     <div className="lg:col-span-1 space-y-6">
+                        <RevenueTracker
+                            monthly={stats.monthly}
+                            projected={stats.projected}
+                            activeStreams={streams.filter(s => s.status === 'active').length}
+                        />
+
                         <RevenueAgentWidget />
 
                         <div className="glass-card p-6">
