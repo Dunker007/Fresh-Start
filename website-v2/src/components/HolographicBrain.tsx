@@ -116,36 +116,12 @@ export default function HolographicBrain() {
 
         setGraphData({ nodes: initialNodes, links: initialLinks });
 
-        // Connect to WebSocket
-        const connect = () => {
-            const ws = new WebSocket(WS_URL);
-            wsRef.current = ws;
-
-            ws.onopen = () => {
-                console.log('🧠 Holographic Brain connected');
-            };
-
-            ws.onmessage = (event) => {
-                try {
-                    const message = JSON.parse(event.data);
-                    if (message.type === 'status') {
-                        updateGraph(message.data);
-                    }
-                } catch (e) {
-                    console.error('Failed to parse brain signal:', e);
-                }
-            };
-
-            ws.onclose = () => {
-                console.log('🧠 Holographic Brain disconnected, retrying...');
-                setTimeout(connect, 3000);
-            };
-        };
-
-        connect();
+        // WebSocket disabled - showing static visualization
+        // TODO: Re-enable when bridge WebSocket is active
+        // const connect = () => { ... };
 
         return () => {
-            wsRef.current?.close();
+            // Cleanup if needed
         };
     }, [updateGraph]);
 
