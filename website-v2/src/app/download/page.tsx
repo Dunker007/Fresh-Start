@@ -46,16 +46,16 @@ export default function DownloadPage() {
                         </p>
 
                         <div className="flex gap-4 justify-center flex-wrap mb-8">
-                            <motion.button
+                            <a
+                                href="/DLX Studio Setup 1.0.0.exe"
+                                download
                                 className="btn-primary text-lg px-8 py-4 flex items-center gap-3"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
                             >
                                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801" />
                                 </svg>
                                 Download for Windows
-                            </motion.button>
+                            </a>
                             <motion.a
                                 href="https://github.com/Dunker007/Fresh-Start"
                                 target="_blank"
@@ -205,7 +205,7 @@ export default function DownloadPage() {
                     >
                         <h2 className="text-3xl font-bold mb-4">Ready to get started?</h2>
                         <p className="text-gray-400 mb-6">Download now and take control of your productivity.</p>
-                        <button className="btn-primary">Download for Windows</button>
+                        <a href="/DLX Studio Setup 1.0.0.exe" download className="btn-primary inline-block px-8 py-3">Download for Windows</a>
                     </motion.div>
                 </div>
             </section>
