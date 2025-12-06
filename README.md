@@ -28,6 +28,19 @@ See [SCOPE.md](./SCOPE.md) for details.
 
 ---
 
+## ⚡ How to Run
+
+We have provided a unified launcher script to start both the backend (**LuxRig Bridge**) and the frontend (**Website**) simultaneously.
+
+1.  **Prerequisites:** Node.js v18+ installed.
+2.  **Run:**
+    ```powershell
+    .\Start-Studio.ps1
+    ```
+3.  **Access:** The dashboard will automatically open at `http://localhost:3000`.
+
+---
+
 ## Quick Links
 
 | Resource | Purpose |
