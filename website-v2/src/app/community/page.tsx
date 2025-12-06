@@ -207,7 +207,7 @@ export default function CommunityPage() {
                         <div className="relative z-10">
                             <h2 className="text-4xl font-bold mb-4">Ready to Build?</h2>
                             <p className="text-xl text-gray-400 mb-8">
-                                Download Nexus Workspace and start creating with local AI today.
+                                Download DLX Studio and start creating with local AI today.
                             </p>
                             <div className="flex gap-4 justify-center">
                                 <Link href="/download" className="btn-primary text-lg px-8 py-4">

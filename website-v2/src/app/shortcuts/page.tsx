@@ -139,6 +139,7 @@ export default function ShortcutsPage() {
             </section>
 
             {/* Custom shortcuts */}
+            {/* Custom shortcuts */}
             <section className="section-padding bg-[#050508]">
                 <div className="container-main">
                     <motion.div
@@ -149,11 +150,11 @@ export default function ShortcutsPage() {
                     >
                         <h2 className="text-3xl font-bold mb-4">Customize Your Shortcuts</h2>
                         <p className="text-gray-400 mb-6">
-                            In Nexus Workspace, you can customize all keyboard shortcuts in Settings → Keyboard.
+                            In DLX Studio, you can customize all keyboard shortcuts in Settings → Keyboard.
                         </p>
-                        <Link href="/download" className="btn-primary">
-                            Download Nexus Workspace
-                        </Link>
+                        <a href="/DLX Studio Setup 1.0.0.exe" download className="btn-primary inline-block px-8 py-3">
+                            Download DLX Studio
+                        </a>
                     </motion.div>
                 </div>
             </section>

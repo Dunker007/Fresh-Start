@@ -6,8 +6,8 @@ import { useState } from 'react';
 
 const projects = [
     {
-        id: 'nexus-workspace',
-        title: 'Nexus Workspace',
+        id: 'dlx-studio',
+        title: 'DLX Studio',
         creator: 'DLX Studio',
         description: 'AI-powered desktop productivity hub with tasks, notes, calendar, and local LLM chat.',
         image: '🖥️',
@@ -135,8 +135,8 @@ export default function ShowcasePage() {
                                     key={f}
                                     onClick={() => setFilter(f)}
                                     className={`px-6 py-2 rounded-lg transition-all ${filter === f
-                                            ? 'bg-cyan-500 text-black font-medium'
-                                            : 'bg-white/10 hover:bg-white/20'
+                                        ? 'bg-cyan-500 text-black font-medium'
+                                        : 'bg-white/10 hover:bg-white/20'
                                         }`}
                                 >
                                     {f.charAt(0).toUpperCase() + f.slice(1)}

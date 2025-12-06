@@ -53,7 +53,7 @@ const changelogData = [
         date: 'November 20, 2024',
         tag: '',
         changes: [
-            { type: 'feature', text: 'Nexus Workspace desktop app' },
+            { type: 'feature', text: 'DLX Studio desktop app' },
             { type: 'feature', text: 'Task management system' },
             { type: 'feature', text: 'Note-taking with markdown' },
             { type: 'feature', text: 'Calendar view for scheduling' },
@@ -130,8 +130,8 @@ export default function ChangelogPage() {
                                         <h2 className="text-2xl font-bold">v{release.version}</h2>
                                         {release.tag && (
                                             <span className={`px-3 py-1 rounded-full text-sm ${release.tag === 'latest'
-                                                    ? 'bg-green-500/20 text-green-400'
-                                                    : 'bg-cyan-500/20 text-cyan-400'
+                                                ? 'bg-green-500/20 text-green-400'
+                                                : 'bg-cyan-500/20 text-cyan-400'
                                                 }`}>
                                                 {release.tag}
                                             </span>

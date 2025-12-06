@@ -285,7 +285,7 @@ export default function VisionPage() {
                             </h2>
                             <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
                                 Be part of building the future of AI-powered development.
-                                Download Nexus Workspace and start vibing with confidence.
+                                Download DLX Studio and start vibing with confidence.
                             </p>
                             <div className="flex gap-4 justify-center flex-wrap">
                                 <Link href="/download" className="btn-primary text-lg px-8 py-4">

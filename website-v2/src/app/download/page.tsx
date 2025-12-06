@@ -37,7 +37,7 @@ export default function DownloadPage() {
                         </div>
 
                         <h1 className="text-5xl md:text-7xl font-bold mb-6">
-                            <span className="text-gradient">Nexus</span> Workspace
+                            <span className="text-gradient">DLX</span> Studio
                         </h1>
 
                         <p className="text-xl text-gray-400 mb-8">
