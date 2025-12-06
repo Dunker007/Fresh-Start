@@ -11,13 +11,13 @@ import { NavItem } from '@/components/NavItem';
 
 const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: '📊', shortcut: 'G D' },
-    { href: '/studios', label: 'Studios', icon: '🎨' },
-    { href: '/chat', label: 'Chat', icon: '💬', shortcut: 'G C' },
-    { href: '/agents', label: 'Agents', icon: '🤖' },
-    { href: '/news', label: 'News', icon: '📰', shortcut: 'G N' },
-    { href: '/studios/dev', label: 'Dev', icon: '👨‍💻', shortcut: 'G V' },
-    { href: '/labs', label: 'Labs', icon: '🔬', shortcut: 'G L' },
-    { href: '/income', label: 'Income', icon: '💸', shortcut: 'G I' },
+    { href: '/studios', label: 'DLX Studios', icon: '🎨' },
+    { href: '/chat', label: 'DLX Chat', icon: '💬', shortcut: 'G C' },
+    { href: '/agents', label: 'DLX Agents', icon: '🤖' },
+    { href: '/news', label: 'DLX News', icon: '📰', shortcut: 'G N' },
+    { href: '/studios/dev', label: 'DLX Dev', icon: '👨‍💻', shortcut: 'G V' },
+    { href: '/labs', label: 'DLX Labs', icon: '🔬', shortcut: 'G L' },
+    { href: '/income', label: 'Revenue', icon: '💸', shortcut: 'G I' },
     { href: '/settings', label: 'Settings', icon: '⚙️', shortcut: 'G S' },
 ];
 
