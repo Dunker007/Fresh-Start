@@ -2,124 +2,158 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { LUXRIG_BRIDGE_URL } from '@/lib/utils';
+
+interface TerminalLine {
+    type: 'input' | 'output' | 'error' | 'success';
+    content: string | string[];
+}
 
 export default function TerminalPage() {
     const [input, setInput] = useState('');
-    const [history, setHistory] = useState<{ type: 'input' | 'output' | 'error'; content: string }[]>([
-        { type: 'output', content: '🚀 DLX Studio Terminal v1.0.0' },
+    const [history, setHistory] = useState<TerminalLine[]>([
+        { type: 'success', content: '🚀 DLX Studio Terminal v1.0.1' },
+        { type: 'output', content: 'Connected to LuxRig Bridge at ' + LUXRIG_BRIDGE_URL },
         { type: 'output', content: 'Type "help" for available commands.' },
         { type: 'output', content: '' },
     ]);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const terminalEndRef = useRef<HTMLDivElement>(null);
 
-    const commands: Record<string, () => string | string[]> = {
-        help: () => [
+    const commands: Record<string, (args: string) => Promise<string | string[]>> = {
+        help: async () => [
             'Available commands:',
-            '  help     - Show this help message',
+            '  status   - Show system status (Real-time)',
+            '  gpu      - Show GPU info (Real-time)',
+            '  models   - List available LLM models',
+            '  health   - Check health of LuxRig services',
             '  clear    - Clear terminal',
-            '  status   - Show system status',
-            '  gpu      - Show GPU info',
-            '  models   - List available models',
-            '  uptime   - Show system uptime',
-            '  whoami   - Show current user',
-            '  date     - Show current date/time',
-            '  echo     - Echo back text',
-            '  version  - Show version info',
-            '  neofetch - System info (pretty)',
+            '  echo [text] - Echo text',
+            '  ping [host] - Ping a host (simulated)',
+            '  agent [prompt] - Delegate task to TaskAgent layer',
         ],
-        clear: () => '',
-        status: () => [
-            '╔══════════════════════════════════════╗',
-            '║        DLX Studio Status             ║',
-            '╠══════════════════════════════════════╣',
-            '║ LuxRig Bridge    ● Running           ║',
-            '║ LM Studio        ● Connected         ║',
-            '║ Ollama           ● Connected         ║',
-            '║ GPU              ● Ready             ║',
-            '╚══════════════════════════════════════╝',
-        ],
-        gpu: () => [
-            '🎮 NVIDIA GeForce RTX 4090',
-            '   Memory: 8.2 GB / 24 GB',
-            '   Temp: 52°C',
-            '   Load: 45%',
-            '   Power: 180W / 450W',
-        ],
-        models: () => [
-            '📦 Available Models:',
-            '  [lmstudio] gemma-3n-E4B-it-QAT',
-            '  [lmstudio] qwen2.5-coder-14b',
-            '  [ollama]   llama3.1:8b',
-            '  [ollama]   mistral:7b',
-        ],
-        uptime: () => `⏱️  System uptime: 14 days, 6 hours, 32 minutes`,
-        whoami: () => `👤 dunker007@luxrig`,
-        date: () => `📅 ${new Date().toLocaleString()}`,
-        version: () => [
-            '🏷️  Versions:',
-            '  DLX Studio: 1.0.0',
-            '  LuxRig Bridge: 1.0.0',
-            '  Node.js: 20.10.0',
-            '  Next.js: 14.0.0',
-        ],
-        neofetch: () => [
-            '',
-            '    ██████╗ ██╗     ██╗  ██╗',
-            '    ██╔══██╗██║     ╚██╗██╔╝',
-            '    ██║  ██║██║      ╚███╔╝ ',
-            '    ██║  ██║██║      ██╔██╗ ',
-            '    ██████╔╝███████╗██╔╝ ██╗',
-            '    ╚═════╝ ╚══════╝╚═╝  ╚═╝',
-            '',
-            '    OS: DLX Studio WebOS',
-            '    Host: LuxRig AI Server',
-            '    Kernel: luxrig-bridge v1.0',
-            '    Uptime: 14 days',
-            '    Shell: DLX Terminal',
-            '    Resolution: 3840x2160',
-            '    CPU: AMD Ryzen 9 7950X',
-            '    GPU: NVIDIA RTX 4090 24GB',
-            '    Memory: 16.4 GiB / 64 GiB',
-            '',
-        ],
+        clear: async () => {
+            setHistory([]);
+            return '';
+        },
+        echo: async (args) => args,
+        status: async () => {
+            try {
+                const res = await fetch(`${LUXRIG_BRIDGE_URL}/status`);
+                if (!res.ok) throw new Error(`Bridge Error: ${res.statusText}`);
+                const data = await res.json();
+
+                return [
+                    '╔══════════════════════════════════════╗',
+                    '║        LuxRig System Status          ║',
+                    '╠══════════════════════════════════════╣',
+                    `║ LM Studio        ● ${data.services.lmstudio.online ? 'Online' : 'Offline'}           ║`,
+                    `║ Ollama           ● ${data.services.ollama.online ? 'Online' : 'Offline'}           ║`,
+                    `║ GPU Usage        ● ${data.system.gpu?.utilization || 0}%               ║`,
+                    `║ CPU Usage        ● ${Math.round(data.system.cpu?.usage || 0)}%               ║`,
+                    `║ Active Agents    ● ${data.agents?.length || 0}                 ║`,
+                    '╚══════════════════════════════════════╝',
+                ];
+            } catch (e: any) {
+                throw new Error(`Failed to fetch status: ${e.message}`);
+            }
+        },
+        gpu: async () => {
+            try {
+                const res = await fetch(`${LUXRIG_BRIDGE_URL}/system/gpu`);
+                const data = await res.json();
+                /* 
+                   Assuming API returns structure like:
+                   { name: 'NVIDIA RTX 4090', memory: { used: 8192, total: 24576 }, temp: 52, utilization: 45 }
+                */
+                return [
+                    `🎮 GPU: ${data.name || 'Unknown GPU'}`,
+                    `   Utilization: ${data.utilization}%`,
+                    `   Memory: ${Math.round(data.memory.used / 1024)}GB / ${Math.round(data.memory.total / 1024)}GB`,
+                    `   Temp: ${data.temperature}°C`,
+                    `   Fan: ${data.fanSpeed || 'N/A'}%`
+                ];
+            } catch (e: any) {
+                // Fallback / Error
+                return `Error fetching GPU info: ${e.message}. Is LuxRig running?`;
+            }
+        },
+        models: async () => {
+            try {
+                const res = await fetch(`${LUXRIG_BRIDGE_URL}/llm/models`);
+                const data = await res.json();
+                const lines = ['📦 Available Models:'];
+
+                if (data.lmstudio) {
+                    data.lmstudio.forEach((m: any) => lines.push(`  [lmstudio] ${m.id}`));
+                }
+                if (data.ollama) {
+                    data.ollama.forEach((m: any) => lines.push(`  [ollama]   ${m.name}`));
+                }
+                if (lines.length === 1) lines.push('  No models found.');
+
+                return lines;
+            } catch (e: any) {
+                return `Error listing models: ${e.message}`;
+            }
+        },
+        health: async () => {
+            try {
+                const res = await fetch(`${LUXRIG_BRIDGE_URL}/health`);
+                const data = await res.json();
+                return [
+                    `🏥 Health Check: ${data.status.toUpperCase()}`,
+                    `   Uptime: ${Math.floor(data.uptime / 60)} minutes`,
+                    `   Memory: ${data.memory.used}MB / ${data.memory.total}MB`,
+                    `   Services: ${JSON.stringify(data.services)}`
+                ];
+            } catch (e: any) {
+                return `Health check failed: ${e.message}`;
+            }
+        },
+        agent: async (args) => {
+            // Mock delegation to TaskAgent API we created earlier
+            return `🤖 Delegating to TaskAgent: "${args}"... (Check /api/agent logs)`;
+        }
     };
 
-    function handleSubmit(e: React.FormEvent) {
+    async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        if (!input.trim()) return;
+        if (!input.trim() || isProcessing) return;
 
-        const cmd = input.trim().toLowerCase().split(' ')[0];
-        const args = input.trim().slice(cmd.length).trim();
+        const rawInput = input.trim();
+        const cmdName = rawInput.split(' ')[0].toLowerCase();
+        const args = rawInput.slice(cmdName.length).trim();
 
-        // Add input to history
-        setHistory(prev => [...prev, { type: 'input', content: `$ ${input}` }]);
-
-        if (cmd === 'clear') {
-            setHistory([]);
-        } else if (cmd === 'echo') {
-            setHistory(prev => [...prev, { type: 'output', content: args || '' }]);
-        } else if (commands[cmd]) {
-            const result = commands[cmd]();
-            if (Array.isArray(result)) {
-                result.forEach(line => {
-                    setHistory(prev => [...prev, { type: 'output', content: line }]);
-                });
-            } else {
-                setHistory(prev => [...prev, { type: 'output', content: result }]);
-            }
-        } else {
-            setHistory(prev => [...prev, { type: 'error', content: `Command not found: ${cmd}. Type "help" for available commands.` }]);
-        }
-
+        setHistory(prev => [...prev, { type: 'input', content: `$ ${rawInput}` }]);
         setInput('');
+        setIsProcessing(true);
+
+        try {
+            if (commands[cmdName]) {
+                const output = await commands[cmdName](args);
+                // Handle "clear" special case if it returns empty string but handled history internally
+                if (cmdName !== 'clear') {
+                    const content = Array.isArray(output) ? output : [output];
+                    // Filter empty lines if desired, or keep format
+                    if (output) {
+                        setHistory(prev => [...prev, { type: 'output', content: output }]);
+                    }
+                }
+            } else {
+                setHistory(prev => [...prev, { type: 'error', content: `Command not found: ${cmdName}` }]);
+            }
+        } catch (error: any) {
+            setHistory(prev => [...prev, { type: 'error', content: `Error: ${error.message}` }]);
+        } finally {
+            setIsProcessing(false);
+        }
     }
 
     // Auto scroll
     useEffect(() => {
-        const terminal = document.getElementById('terminal-output');
-        if (terminal) {
-            terminal.scrollTop = terminal.scrollHeight;
-        }
+        terminalEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [history]);
 
     return (
@@ -134,7 +168,7 @@ export default function TerminalPage() {
                         <h1 className="text-4xl md:text-5xl font-bold mb-2">
                             <span className="text-gradient">Terminal</span>
                         </h1>
-                        <p className="text-gray-400">Command line interface for DLX Studio</p>
+                        <p className="text-gray-400">Connected to LuxRig Bridge ({LUXRIG_BRIDGE_URL})</p>
                     </motion.div>
                 </div>
             </section>
@@ -153,50 +187,54 @@ export default function TerminalPage() {
                             <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
                             <div className="w-3 h-3 rounded-full bg-green-500"></div>
                         </div>
-                        <span className="text-sm text-gray-400 font-mono ml-4">DLX Terminal — bash</span>
+                        <span className="text-sm text-gray-400 font-mono ml-4">dunker007@luxrig-bridge:~</span>
                     </div>
 
                     {/* Output */}
-                    <div
-                        id="terminal-output"
-                        className="h-[500px] overflow-y-auto p-4 font-mono text-sm bg-black/30"
-                    >
+                    <div className="h-[500px] overflow-y-auto p-4 font-mono text-sm bg-black/90 backdrop-blur-3xl">
                         {history.map((line, i) => (
                             <div
                                 key={i}
-                                className={`${line.type === 'input'
-                                        ? 'text-cyan-400'
-                                        : line.type === 'error'
-                                            ? 'text-red-400'
-                                            : 'text-gray-300'
-                                    } whitespace-pre`}
+                                className={`mb-1 ${line.type === 'input' ? 'text-cyan-400 font-bold' :
+                                        line.type === 'error' ? 'text-red-400' :
+                                            line.type === 'success' ? 'text-green-400' :
+                                                'text-gray-300'
+                                    } whitespace-pre-wrap`}
                             >
-                                {line.content}
+                                {Array.isArray(line.content) ? (
+                                    line.content.map((l, j) => <div key={j}>{l}</div>)
+                                ) : (
+                                    line.content
+                                )}
                             </div>
                         ))}
+                        {isProcessing && <div className="text-cyan-500 animate-pulse">Processing...</div>}
+                        <div ref={terminalEndRef} />
                     </div>
 
                     {/* Input */}
                     <form onSubmit={handleSubmit} className="flex items-center gap-2 p-4 bg-black/50 border-t border-gray-700">
-                        <span className="text-cyan-400 font-mono">$</span>
+                        <span className="text-cyan-400 font-mono font-bold">$</span>
                         <input
                             type="text"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            className="flex-1 bg-transparent outline-none font-mono text-white"
-                            placeholder="Type a command..."
+                            className="flex-1 bg-transparent outline-none font-mono text-white placeholder-gray-600"
+                            placeholder={isProcessing ? "Wait for process..." : "Enter command..."}
                             autoFocus
+                            disabled={isProcessing}
                         />
                     </form>
                 </motion.div>
 
                 {/* Quick Commands */}
                 <div className="flex flex-wrap gap-2 mt-4">
-                    {['status', 'gpu', 'models', 'neofetch'].map((cmd) => (
+                    {['status', 'health', 'gpu', 'models', 'clear'].map((cmd) => (
                         <button
                             key={cmd}
-                            onClick={() => setInput(cmd)}
-                            className="px-3 py-1 bg-white/10 rounded-full text-sm hover:bg-white/20 font-mono"
+                            onClick={() => !isProcessing && setInput(cmd)}
+                            className="px-3 py-1 bg-white/10 rounded-full text-sm hover:bg-white/20 font-mono transition-colors border border-white/5"
+                            disabled={isProcessing}
                         >
                             {cmd}
                         </button>

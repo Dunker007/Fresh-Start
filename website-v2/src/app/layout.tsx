@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import CommandPalette from "@/components/CommandPalette";
 import LuxHelper from "@/components/LuxHelper";
 import KeyboardShortcuts from "@/components/KeyboardShortcuts";
+import CollaborationToolbar from "@/components/CollaborationToolbar";
+import ConsentBanner from "@/components/ConsentBanner";
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -18,6 +21,8 @@ export const metadata: Metadata = {
 import { VibeProvider } from "@/components/VibeContext";
 import VibeController from "@/components/VibeController";
 import VoiceControl from "@/components/VoiceControl";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { SafetyProvider } from "@/components/SafetyGuard";
 
 export default function RootLayout({
   children,
@@ -25,19 +30,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} bg-grid`}>
-        <VibeProvider>
-          <Navigation />
-          <CommandPalette />
-          <KeyboardShortcuts />
-          <main className="pt-16 min-h-screen">
-            {children}
-          </main>
-          <VibeController />
-          <VoiceControl />
-          <LuxHelper />
-        </VibeProvider>
+        <ThemeProvider defaultTheme="dark" storageKey="dlx-theme">
+          <VibeProvider>
+            <SafetyProvider>
+              <Suspense fallback={null}>
+                <Navigation />
+              </Suspense>
+              <CommandPalette />
+              <KeyboardShortcuts />
+              <main className="pt-16 min-h-screen">
+                {children}
+              </main>
+              <VibeController />
+              <VoiceControl />
+              <LuxHelper />
+              <CollaborationToolbar />
+              <ConsentBanner />
+            </SafetyProvider>
+          </VibeProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

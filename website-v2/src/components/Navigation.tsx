@@ -6,6 +6,8 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Command, Palette } from 'lucide-react';
 import { useVibe } from './VibeContext';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { NavItem } from '@/components/NavItem';
 
 const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: '📊', shortcut: 'G D' },
@@ -25,7 +27,7 @@ export default function Navigation() {
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const isPopup = searchParams.get('mode') === 'popup';
-    const { themeId, setTheme, availableThemes } = useVibe();
+    const { themeId, setTheme, availableThemes, mode } = useVibe();
 
     // If in popup mode, don't render the navigation bar
     if (isPopup) return null;
@@ -66,151 +68,119 @@ export default function Navigation() {
 
                     {/* Desktop Nav - Centered */}
                     <div className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
-                        {navItems.map((item) => {
-                            const isActive = pathname === item.href;
-                            const isHovered = hoveredItem === item.href;
-
-                            return (
-                                <div
-                                    key={item.href}
-                                    className="relative"
-                                    onMouseEnter={() => setHoveredItem(item.href)}
-                                    onMouseLeave={() => setHoveredItem(null)}
-                                >
-                                    <Link
-                                        href={item.href}
-                                        className="relative px-3 py-2 rounded-lg transition-colors block"
-                                    >
-                                        {/* Background glow on hover */}
-                                        <AnimatePresence>
-                                            {(isActive || isHovered) && (
-                                                <motion.div
-                                                    className={`absolute inset-0 rounded-lg ${isActive ? 'bg-cyan-500/20' : 'bg-white/5'}`}
-                                                    layoutId="navBg"
-                                                    initial={{ opacity: 0 }}
-                                                    animate={{ opacity: 1 }}
-                                                    exit={{ opacity: 0 }}
-                                                    transition={{ duration: 0.15 }}
-                                                />
-                                            )}
-                                        </AnimatePresence>
-
-                                        {/* Content */}
-                                        <span className={`relative z-10 flex items-center gap-2 ${isActive ? 'text-cyan-400' : 'text-gray-300 hover:text-white'}`}>
-                                            <span className="text-sm">{item.icon}</span>
-                                            <span className="text-sm">{item.label}</span>
-                                        </span>
-
-                                        {/* Active indicator */}
-                                        {isActive && (
-                                            <motion.div
-                                                className="absolute -bottom-[1px] left-2 right-2 h-0.5 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full"
-                                                layoutId="activeIndicator"
-                                                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                            />
-                                        )}
-                                    </Link>
-
-                                    {/* Pop-out Button (Visible on Hover) */}
-                                    <AnimatePresence>
-                                        {isHovered && (
-                                            <motion.button
-                                                initial={{ opacity: 0, scale: 0.8 }}
-                                                animate={{ opacity: 1, scale: 1 }}
-                                                exit={{ opacity: 0, scale: 0.8 }}
-                                                onClick={(e) => openInNewWindow(e, item.href)}
-                                                className="absolute -top-2 -right-2 w-5 h-5 bg-gray-800 border border-gray-600 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 z-20"
-                                                title="Open in new window"
-                                            >
-                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                                                    <polyline points="15 3 21 3 21 9"></polyline>
-                                                    <line x1="10" y1="14" x2="21" y2="3"></line>
-                                                </svg>
-                                            </motion.button>
-                                        )}
-                                    </AnimatePresence>
-                                </div>
-                            );
-                        })}
-
+                        {navItems.map((item) => (
+                            <NavItem
+                                key={item.href}
+                                href={item.href}
+                                label={item.label}
+                                icon={item.icon}
+                                shortcut={item.shortcut}
+                                isActive={pathname === item.href}
+                                isHovered={hoveredItem === item.href}
+                                onMouseEnter={() => setHoveredItem(item.href)}
+                                onMouseLeave={() => setHoveredItem(null)}
+                            />
+                        ))}
                     </div>
 
-                    {/* Right Side Actions */}
-                    <div className="flex-1 flex items-center justify-end gap-2">
-                        <div className="hidden lg:block w-px h-6 bg-gray-700 mx-2"></div>
+                    {/* Desktop Actions - Right Aligned */}
+                    <div className="flex-1 flex items-center justify-end gap-3 hidden lg:flex">
 
-                        {/* Theme Toggle */}
-                        <button
+                        <ThemeToggle />
+
+                        <motion.button
                             onClick={toggleTheme}
-                            className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition-colors group"
-                            title={`Current theme: ${themeId}`}
+                            className="relative p-2 rounded-full glass-panel hover:bg-white/10 transition-colors border border-white/5"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            aria-label="Cycle Vibe theme"
                         >
-                            <Palette size={14} className="text-gray-400 group-hover:text-cyan-400" />
+                            <Palette className={`w-5 h-5 ${mode === 'crisis' ? 'text-red-500' :
+                                mode === 'high-load' ? 'text-yellow-500' :
+                                    'text-purple-400'
+                                }`} />
+                        </motion.button>
+
+                        <button
+                            className="flex items-center gap-2 px-3 py-2 rounded-lg glass-panel hover:bg-white/10 transition-colors border border-white/5 text-gray-400 hover:text-white text-sm"
+                            onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+                            aria-label="Open command palette (Cmd+K)"
+                        >
+                            <Command className="w-4 h-4" />
+                            <span>Cmd+K</span>
                         </button>
 
-                        {/* Command Palette Hint */}
-                        <button
-                            onClick={() => {
-                                const event = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true });
-                                document.dispatchEvent(event);
-                            }}
-                            className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition-colors group"
-                        >
-                            <Command size={14} className="text-gray-400 group-hover:text-cyan-400" />
-                            <span className="text-xs text-gray-500 group-hover:text-gray-300">Ctrl+K</span>
-                        </button>
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 border border-white/20 shadow-lg shadow-cyan-500/20" />
+                    </div>
 
-                        {/* Mobile menu button */}
+                    {/* Mobile Menu Button */}
+                    <div className="lg:hidden flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                            <ThemeToggle />
+                            <motion.button
+                                onClick={toggleTheme}
+                                className="p-2 rounded-full glass-panel"
+                                whileTap={{ scale: 0.95 }}
+                                aria-label="Cycle Vibe theme"
+                            >
+                                <Palette className="w-5 h-5 text-purple-400" />
+                            </motion.button>
+                        </div>
+
                         <button
-                            className="lg:hidden text-gray-300 p-2"
                             onClick={() => setMobileOpen(!mobileOpen)}
+                            className="p-2 text-gray-400 hover:text-white"
+                            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+                            aria-expanded={mobileOpen}
                         >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                {mobileOpen ? (
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                ) : (
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                                )}
-                            </svg>
+                            <div className="w-6 flex flex-col gap-1.5">
+                                <motion.span
+                                    animate={{ rotate: mobileOpen ? 45 : 0, y: mobileOpen ? 6 : 0 }}
+                                    className="w-full h-0.5 bg-current block origin-center"
+                                />
+                                <motion.span
+                                    animate={{ opacity: mobileOpen ? 0 : 1 }}
+                                    className="w-full h-0.5 bg-current block"
+                                />
+                                <motion.span
+                                    animate={{ rotate: mobileOpen ? -45 : 0, y: mobileOpen ? -6 : 0 }}
+                                    className="w-full h-0.5 bg-current block origin-center"
+                                />
+                            </div>
                         </button>
                     </div>
                 </div>
-
-                {/* Mobile Nav */}
-                <AnimatePresence>
-                    {mobileOpen && (
-                        <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="lg:hidden overflow-hidden"
-                        >
-                            <div className="py-4 border-t border-gray-700 space-y-2">
-                                {navItems.map((item) => (
-                                    <Link
-                                        key={item.href}
-                                        href={item.href}
-                                        className={`flex items-center gap-3 px-4 py-3 rounded-lg ${pathname === item.href ? 'bg-cyan-500/20 text-cyan-400' : 'text-gray-300 hover:bg-white/10'}`}
-                                        onClick={() => setMobileOpen(false)}
-                                    >
-                                        <span>{item.icon}</span>
-                                        <span>{item.label}</span>
-                                    </Link>
-                                ))}
-                                <div className="h-px bg-white/10 my-2" />
-                                <button
-                                    onClick={toggleTheme}
-                                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-white/10 w-full text-left"
-                                >
-                                    <Palette size={20} />
-                                    <span>Switch Theme ({themeId})</span>
-                                </button>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
             </div>
+
+            {/* Mobile Menu */}
+            <AnimatePresence>
+                {mobileOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="lg:hidden border-t border-white/5 bg-[#050508]/95 backdrop-blur-xl overflow-hidden"
+                    >
+                        <div className="px-6 py-4 space-y-2">
+                            {navItems.map((item) => (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    onClick={() => setMobileOpen(false)}
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${pathname === item.href
+                                        ? 'bg-cyan-500/10 text-cyan-400'
+                                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                        }`}
+                                    aria-current={pathname === item.href ? 'page' : undefined}
+                                >
+                                    <span className="text-lg">{item.icon}</span>
+                                    <span className="font-medium">{item.label}</span>
+                                </Link>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </nav>
     );
 }

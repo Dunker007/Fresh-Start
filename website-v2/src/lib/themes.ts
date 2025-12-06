@@ -134,6 +134,7 @@ export function getTheme(id: ThemeId): Theme {
 }
 
 export function applyTheme(theme: Theme): void {
+    if (typeof document === 'undefined') return;
     const root = document.documentElement;
     const { colors } = theme;
 
@@ -156,10 +157,12 @@ export function applyTheme(theme: Theme): void {
 }
 
 export function saveTheme(id: ThemeId): void {
+    if (typeof window === 'undefined') return;
     localStorage.setItem('dlx-theme', id);
 }
 
 export function loadSavedTheme(): ThemeId {
+    if (typeof window === 'undefined') return 'cyberpunk';
     const saved = localStorage.getItem('dlx-theme') as ThemeId | null;
     return saved && themes[saved] ? saved : 'cyberpunk';
 }

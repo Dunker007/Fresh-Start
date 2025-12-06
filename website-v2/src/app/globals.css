@@ -48,6 +48,29 @@
   --vibe-bg: var(--bg-void);
 }
 
+:root[data-theme="light"] {
+  /* Light Mode Backgrounds */
+  --bg-void: #f0f2f5;
+  --bg-deep: #ffffff;
+  --bg-dark: #e2e8f0;
+  --bg-panel: #ffffff;
+
+  /* Text Colors */
+  --text-primary: #1a202c;
+  --text-secondary: #4a5568;
+  --text-muted: #718096;
+
+  /* Glassmorphism Logic for Light Mode */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.05);
+
+  /* Accents (Keep neon but cleaner) */
+  --cyan: #06b6d4;  /* Darker cyan for contrast */
+  --cyan-glow: #22d3ee;
+  --purple-neon: #7c3aed;
+  --magenta: #d946ef;
+}
+
 /* High Load Mode: Reduce visual effects */
 body[data-vibe="high-load"] {
   --glass-blur: blur(5px); /* Reduce blur cost */

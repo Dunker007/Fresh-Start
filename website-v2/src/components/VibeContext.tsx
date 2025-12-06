@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { ThemeId, Theme, themes, getTheme, applyTheme, saveTheme, loadSavedTheme } from '@/lib/themes';
 
 type VibeMode = 'normal' | 'high-load' | 'crisis' | 'focus';
+export type UserRole = 'architect' | 'developer' | 'viewer';
 
 interface VibeState {
     mode: VibeMode;
@@ -18,6 +19,9 @@ interface VibeState {
     themeId: ThemeId;
     setTheme: (id: ThemeId) => void;
     availableThemes: Theme[];
+    // Roles
+    userRole: UserRole;
+    setUserRole: (role: UserRole) => void;
 }
 
 export const VibeContext = createContext<VibeState | undefined>(undefined);
@@ -29,6 +33,7 @@ export function VibeProvider({ children }: { children: ReactNode }) {
     const [mode, setMode] = useState<VibeMode>('normal');
     const [metrics, setMetrics] = useState({ gpuUsage: 0, cpuUsage: 0, errorRate: 0 });
     const [manualOverride, setManualOverride] = useState(false);
+    const [userRole, setUserRole] = useState<UserRole>('architect');
 
     // Theme state
     const [themeId, setThemeId] = useState<ThemeId>('cyberpunk');
@@ -102,7 +107,9 @@ export function VibeProvider({ children }: { children: ReactNode }) {
             theme,
             themeId,
             setTheme: handleSetTheme,
-            availableThemes: Object.values(themes)
+            availableThemes: Object.values(themes),
+            userRole,
+            setUserRole
         }}>
             {children}
         </VibeContext.Provider>
