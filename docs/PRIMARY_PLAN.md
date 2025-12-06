@@ -24,7 +24,7 @@
 - [x] Split [Navigation](file:///c:/Repos%20GIT/Fresh-Start/Fresh-Start/website-v2/src/components/Navigation.tsx#21-170) into `NavItem` and `NavMenu`.
 - [x] Extract `ShortcutModal` and `Backdrop` from [KeyboardShortcuts](file:///c:/Repos%20GIT/Fresh-Start/Fresh-Start/website-v2/src/components/KeyboardShortcuts.tsx#48-226).
 - [x] Break [MeetingRoom](file:///c:/Repos%20GIT/Fresh-Start/Fresh-Start/website-v2/src/components/MeetingRoom.tsx#26-272) into `AvatarCircle`, `TranscriptList`, `ControlPanel`.
-- [ ] Export reusable UI components from `components/ui/`.
+- [x] Export reusable UI components from `components/ui/`.
 
 ### 3️⃣ Accessibility Enhancements
 - [x] Add `aria-label` and `role` attributes to interactive elements.
